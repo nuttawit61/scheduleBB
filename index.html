@@ -343,7 +343,7 @@ footer{border-top-style:dashed}
   .tblock{padding:10px}
 }
 /* entry form */
-.formwrap{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:clamp(12px,1.6vw,24px);align-items:start}
+.formwrap{display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(12px,1.6vw,24px);align-items:start}
 .fcard{background:var(--surface);border-radius:var(--r,14px);box-shadow:var(--shadow);padding:clamp(16px,2vw,26px);display:flex;flex-direction:column;gap:16px;min-width:0}
 .fhead h2{font-size:1.3em;font-weight:700}
 .fhead p{margin:4px 0 0;color:var(--muted);font-size:.9em}
@@ -478,8 +478,8 @@ footer{border-top-style:dashed}
   .tscroll{overflow:visible!important}
   table.sheet{min-width:0!important;width:100%;table-layout:fixed;font-size:7.4pt;line-height:1.35}
   table.sheet col.c-dw{width:6.5%} table.sheet col.c-dd{width:9%} table.sheet col.c-tt{width:7.5%} table.sheet col.c-ty{width:6.5%}
-  table.sheet col.c-ti{width:22%} table.sheet col.c-pl{width:13%} table.sheet col.c-st{width:6.5%} table.sheet col.c-hr{width:3.5%}
-  table.sheet col.c-lv{width:5.5%} table.sheet col.c-in{width:11%} table.sheet col.c-rc{width:9%}
+  table.sheet col.c-ti{width:19.5%} table.sheet col.c-pl{width:13%} table.sheet col.c-st{width:6.5%} table.sheet col.c-hr{width:3.5%}
+  table.sheet col.c-lv{width:5.5%} table.sheet col.c-in{width:10%} table.sheet col.c-rc{width:8.5%} table.sheet col.c-cd{width:7%}
   table.sheet thead{display:table-header-group}
   table.sheet th{position:static;padding:1.6mm 1.2mm;font-size:7.4pt;white-space:normal}
   table.sheet td{padding:1.3mm 1.2mm;overflow-wrap:anywhere;word-break:break-word}
@@ -503,6 +503,75 @@ footer{border-top-style:dashed}
 .sync{display:flex;align-items:center;gap:6px;font-size:.84em;color:var(--muted)}
 .sync.err{color:var(--accent)}
 .role-view .evacts a.btn:not(.edocbtn),.role-view .hero-btn:not(.back),.role-view .mfoot a.btn.primary{display:none}
+/* db status */
+.dbbar{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:var(--r,14px);box-shadow:var(--shadow);padding:12px 16px;margin-bottom:clamp(12px,1.6vw,20px);border-left:5px solid var(--st)}
+.dbbar,.sync{--st:#C98A12}
+.dbbar.ok,.sync.ok{--st:#2C7A47}
+.dbbar.error,.sync.error{--st:#B3261E}
+.dbtxt{display:flex;flex-direction:column;min-width:0;flex:1}
+.dbtxt b{font-family:var(--f-display);font-size:1.02em;color:var(--st)}
+.dbtxt small{color:var(--muted);font-size:.84em;overflow-wrap:anywhere}
+.dbdot{width:12px;height:12px;border-radius:50%;background:var(--st);flex:none;box-shadow:0 0 0 4px color-mix(in srgb,var(--st) 20%,transparent)}
+.dbdot.sm{width:8px;height:8px;box-shadow:0 0 0 3px color-mix(in srgb,var(--st) 20%,transparent)}
+.connecting .dbdot{animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+.sync .dbdot{margin-right:2px}
+.sync.error #syncTx{color:var(--st)}
+.dbref{flex:none;display:inline-flex;align-items:center;gap:6px}
+.dbref .ri,#syncBtn{display:inline-block}
+.spin .ri{animation:rot .8s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+@media (max-width:640px){ .dbbar{flex-wrap:wrap} .dbref{width:100%;justify-content:center} }
+@media (prefers-reduced-motion:reduce){ .connecting .dbdot,.spin .ri{animation:none} }
+/* top db bar + alerts */
+.wrap>.dbbar{margin-bottom:0;position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:20;padding:8px 10px 8px 14px;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px)}
+.dbbar.ok{background:color-mix(in srgb,#E6F4EA 92%,transparent)}
+.dbbar.error{background:color-mix(in srgb,#FCE8E6 92%,transparent)}
+.bellbtn{display:inline-flex;align-items:center;gap:6px;flex:none;border-color:#E9C46A!important;background:#FFF6DD!important;color:#7A5300}
+.bellbtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.bellnum{background:#B3261E;color:#fff;border-radius:999px;font-size:.78em;font-weight:700;min-width:20px;padding:0 6px;text-align:center}
+.alertbox{width:min(600px,100%)}
+.ahead{display:flex;gap:12px;align-items:flex-start;padding:20px 22px 14px;background:linear-gradient(180deg,#FFF6DD,var(--surface));border-bottom:4px solid #E9A400;border-radius:18px 18px 0 0}
+.aic{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#E9A400;flex:none;animation:ring 1.2s ease-in-out 2}
+.aic svg{width:24px;height:24px;fill:none;stroke:#fff;stroke-width:1.9;stroke-linejoin:round}
+@keyframes ring{0%,100%{transform:rotate(0)}20%{transform:rotate(-14deg)}40%{transform:rotate(12deg)}60%{transform:rotate(-8deg)}80%{transform:rotate(5deg)}}
+.ahead h2{font-size:1.2em;font-weight:700}
+.ahead p{margin:2px 0 0;color:var(--muted);font-size:.9em}
+.ahead .x{margin-left:auto;border:0;background:var(--surface);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:18px;flex:none;box-shadow:var(--shadow)}
+.alist{padding:14px 22px;display:flex;flex-direction:column;gap:10px}
+.aday{font-family:var(--f-display);font-weight:700;font-size:.92em;display:flex;align-items:center;gap:8px;margin-top:4px}
+.aday .due{font-size:.8em;font-weight:700;border-radius:999px;padding:0 9px;background:#FCE8E6;color:#B3261E}
+.aday .due.soon{background:#FFF0CC;color:#7A5300}
+.aitem{display:flex;gap:10px;align-items:center;border:1px dashed var(--accent);border-radius:12px;padding:10px 12px;background:var(--surface)}
+.aitem .av{width:32px;height:32px;font-size:14px}
+.aitem .ai{flex:1;min-width:0}
+.aitem .ai b{display:block;font-weight:500;line-height:1.4}
+.aitem .ai small{color:var(--muted)}
+.aitem .aa{display:flex;gap:6px;flex:none}
+.aitem .aa a{text-decoration:none;color:inherit}
+.afoot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 22px 20px;flex-wrap:wrap}
+@media (max-width:640px){ .aitem{flex-wrap:wrap} .aitem .aa{width:100%;justify-content:flex-end} .wrap>.dbbar{flex-wrap:wrap;position:static} .wrap>.dbbar .dbtxt{flex:1 1 calc(100% - 30px)} .dbref,.bellbtn{flex:1;justify-content:center} }
+@media (prefers-reduced-motion:reduce){ .aic{animation:none} }
+/* logo */
+.hero{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"logo main side";align-items:center;column-gap:clamp(16px,2.4vw,32px);row-gap:14px}
+.hero-main{grid-area:main}
+.hero-logo{grid-area:logo;justify-self:start;padding-right:clamp(16px,2.4vw,32px);border-right:1px solid rgb(255 255 255 / .35);height:clamp(96px,9vw,150px);width:auto;position:relative;z-index:1;filter:drop-shadow(0 2px 6px rgb(40 0 10 / .35))}
+.hero-side{grid-area:side;justify-self:end}
+@media (max-width:1100px){
+  .hero{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"logo main" "side side"}
+  .hero-side{justify-self:start}
+}
+@media (max-width:820px){
+  .hero{grid-template-columns:minmax(0,1fr);grid-template-areas:"logo" "main" "side"}
+  .hero-logo{justify-self:start;height:84px;padding-right:0;border-right:0}
+  .hero-side{justify-self:stretch}
+}
+@media print{ .hero-logo{display:none} }
+.flist #fList{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:10px}
+.flist .fempty{grid-column:1/-1}
+table.sheet td.cd{white-space:nowrap;font-variant-numeric:tabular-nums}
+table.sheet td.cd small{display:block}
+.muted{color:var(--muted)}
 /* page split */
 .hero-side{position:relative;z-index:1;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .hero-btn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:var(--accent);text-decoration:none;font-family:var(--f-display);font-weight:700;font-size:1.05em;padding:12px 22px 12px 14px;border-radius:999px;box-shadow:0 8px 24px rgb(60 0 10 / .28);transition:transform .15s, box-shadow .15s}
@@ -515,11 +584,18 @@ footer{border-top-style:dashed}
 .page-form .teachers,.page-form .toolbar{display:none}
 @media (max-width:640px){ .hero-side{width:100%} .hero-btn{flex:1;justify-content:center} }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media print{ html .hero, html .wrap>.dbbar, .modal{display:none!important} }
 </style>
 </head>
 <body>
 
 <div class="wrap">
+  <div class="dbbar connecting" id="dbBar" role="status" aria-live="polite">
+    <span class="dbdot" aria-hidden="true"></span>
+    <div class="dbtxt"><b id="dbTx">กำลังเชื่อมต่อฐานข้อมูล…</b><small id="dbMeta">Google Sheet</small></div>
+    <button type="button" class="btn sm bellbtn" id="bellBtn" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span id="bellTx">รอยืนยัน</span><span class="bellnum" id="bellNum">0</span></button>
+    <button type="button" class="btn sm dbref" id="dbRefresh"><span class="ri" aria-hidden="true">↻</span> รีเฟรช</button>
+  </div>
   <header class="hero">
     <svg class="hero-art" viewBox="0 0 860 260" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
   <defs>
@@ -546,6 +622,7 @@ footer{border-top-style:dashed}
       <h1 id="heroH1">ตารางงานอาจารย์แพทย์</h1>
       <div class="sub"><span id="heroRange">ข้อมูลจาก Google Sheet</span> · แบบบันทึก <code>TM-QM-F-092</code></div>
     </div>
+    <img class="hero-logo" src="assets/logo.png" alt="ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล มหาวิทยาลัยมหิดล" width="451" height="300">
     <div class="hero-side">
       <a class="hero-btn" id="heroBtn" href="#"><span class="plus" aria-hidden="true">＋</span><span id="heroBtnTx">บันทึกงาน</span></a>
       <div class="hero-today" id="heroToday"></div>
@@ -561,7 +638,6 @@ footer{border-top-style:dashed}
       <button role="tab" id="tab-form" aria-selected="false">＋ บันทึกงาน</button>
     </div>
     <button class="linkbtn" id="showAll">แสดงทุกท่าน</button>
-    <div class="sync"><span id="syncTx">กำลังโหลด…</span><button type="button" class="linkbtn" id="syncBtn">↻ รีเฟรช</button></div>
     <div class="legend">
       <span><span class="pill ok">ยืนยัน</span></span>
       <span><span class="pill pend">รอยืนยัน</span> กรอบเส้นประ</span>
@@ -674,6 +750,15 @@ footer{border-top-style:dashed}
     <button type="submit" class="btn primary" id="gateBtn">เข้าใช้งาน</button>
     <div class="fmsg err" id="gateMsg" role="alert"></div>
   </form>
+</div>
+
+<div class="modal" id="alertModal" hidden>
+  <div class="modal-bg" data-aclose="1"></div>
+  <div class="modal-box alertbox" role="alertdialog" aria-modal="true" aria-labelledby="aTitle" tabindex="-1" id="alertBox">
+    <div class="ahead"><span class="aic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></span><div><h2 id="aTitle">งานที่ยังไม่ได้รับการยืนยัน</h2><p id="aSub"></p></div><button class="x" data-aclose="1" aria-label="ปิด">×</button></div>
+    <div class="alist" id="aList"></div>
+    <div class="afoot"><label class="gate-rem"><input type="checkbox" id="aMute"> ไม่ต้องแจ้งอีกวันนี้</label><button class="btn primary" data-aclose="1">รับทราบ</button></div>
+  </div>
 </div>
 
 <script src="config.js"></script>
@@ -909,6 +994,14 @@ function renderHero(){
 }
 function renderAll(){ renderHero(); renderTeachers(); if (view==='cal'){ renderCal(); renderDetail(); } else if (view==='sheet') renderSheet(); else if (view==='form') renderFormList(); else renderList(); }
 
+function recDate(e){
+  const v = e.createdAt || '';
+  const m = v.match(/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/);
+  if (!m) return e.source==='excel' ? '<span class="muted">นำเข้าจาก Excel</span>' : '—';
+  const out = `${+m[3]} ${TH_MS[+m[2]-1]} ${String(+m[1]+543).slice(2)}${m[4]?`<small>${m[4]}.${m[5]} น.</small>`:''}`;
+  const up = e.updatedAt && e.updatedAt!==e.createdAt ? e.updatedAt.match(/^(\d{4})-(\d{2})-(\d{2})/) : null;
+  return out + (up ? `<small class="muted">แก้ไข ${+up[3]} ${TH_MS[+up[2]-1]} ${String(+up[1]+543).slice(2)}</small>` : '');
+}
 function renderSheet(){
   const el = document.getElementById('view-sheet');
   const who = sheetWho, t = TEACHERS[who];
@@ -922,11 +1015,11 @@ function renderSheet(){
     const list = evs.filter(e=>e.date===ds).sort((a,b)=>a._s-b._s), hol = HOLIDAYS[ds];
     const we = dow===0 || dow===6;
     if (we && !list.length && !hol) continue;
-    if (d===1 || dow===1 || (week===0)) { week++; rows += `<tr class="wk"><td colspan="11">สัปดาห์ที่ ${week}</td></tr>`; }
+    if (d===1 || dow===1 || (week===0)) { week++; rows += `<tr class="wk"><td colspan="12">สัปดาห์ที่ ${week}</td></tr>`; }
     const tcls = ds===todayIso ? ' today' : '';
     const dayCells = n => `<td class="dw${we?' we':''}" rowspan="${n}">${TH_D[dow]}</td><td class="dd" rowspan="${n}">${d} ${TH_M[m-1]} ${be(y)}</td>`;
     if (!list.length){
-      rows += `<tr class="${hol?'':'empty'}${tcls}">${dayCells(1)}${hol?`<td class="holc" colspan="9">${esc(hol)}</td>`:'<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>'}</tr>`;
+      rows += `<tr class="${hol?'':'empty'}${tcls}">${dayCells(1)}${hol?`<td class="holc" colspan="10">${esc(hol)}</td>`:'<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>'}</tr>`;
       continue;
     }
     list.forEach((e,i) => {
@@ -939,9 +1032,10 @@ function renderSheet(){
         <td class="hc">${e._h.v||e.hours ? fmtH(e._h) : '—'}</td>
         <td class="sm lv">${esc(e.level||'')}</td>
         <td class="sm">${esc(e.inviter||'')}</td>
-        <td class="sm">${esc(e.rec||'')}</td></tr>`;
+        <td class="sm">${esc(e.rec||'')}</td>
+        <td class="sm cd">${recDate(e)}</td></tr>`;
     });
-    if (hol) rows += `<tr><td class="holc" colspan="9">${esc(hol)}</td></tr>`;
+    if (hol) rows += `<tr><td class="holc" colspan="10">${esc(hol)}</td></tr>`;
   }
   el.innerHTML = `
     <div class="sheetbar">
@@ -954,8 +1048,8 @@ function renderSheet(){
         <div><div class="print-only porg">ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล มหาวิทยาลัยมหิดล</div><div class="eyebrow">แบบบันทึกตารางการปฏิบัติงานของอาจารย์แพทย์</div><h2><span class="sw"></span>${esc(t.name)}</h2></div>
         <div class="sh-meta"><b>${TH_M[m-1]} ${be(y)}</b><span class="num">${evs.length} ภารกิจ · ${hrs.toFixed(1)} ชม. · รอยืนยัน ${pend}</span></div>
       </header>
-      <div class="tscroll"><table class="sheet"><colgroup><col class="c-dw"><col class="c-dd"><col class="c-tt"><col class="c-ty"><col class="c-ti"><col class="c-pl"><col class="c-st"><col class="c-hr"><col class="c-lv"><col class="c-in"><col class="c-rc"></colgroup>
-        <thead><tr><th>วัน</th><th>วัน/เดือน/ปี</th><th>เวลา</th><th>ประเภท</th><th>รายการ</th><th>สถานที่</th><th>หมายเหตุ</th><th>ชม.</th><th>ระดับ</th><th>หน่วยงานที่เชิญ</th><th>ผู้บันทึก</th></tr></thead>
+      <div class="tscroll"><table class="sheet"><colgroup><col class="c-dw"><col class="c-dd"><col class="c-tt"><col class="c-ty"><col class="c-ti"><col class="c-pl"><col class="c-st"><col class="c-hr"><col class="c-lv"><col class="c-in"><col class="c-rc"><col class="c-cd"></colgroup>
+        <thead><tr><th>วัน</th><th>วัน/เดือน/ปี</th><th>เวลา</th><th>ประเภท</th><th>รายการ</th><th>สถานที่</th><th>หมายเหตุ</th><th>ชม.</th><th>ระดับ</th><th>หน่วยงานที่เชิญ</th><th>ผู้บันทึก</th><th>วันที่บันทึก<br>ลงระบบ</th></tr></thead>
         <tbody>${rows}</tbody></table></div>
       <div class="sheetfoot"><span class="screen-only">กดรายการเพื่อดูรายละเอียดที่กรอก</span><span class="print-only">พิมพ์เมื่อ ${fullDate(todayIso)}</span><span>TM-QM-F-092-00</span></div>
     </section>`;
@@ -988,7 +1082,7 @@ function openEvModal(e){
   const rows=[['วัน/เดือน/ปี',`${fullDate(e.date)}`],['เวลา',e.time?`${e.time} น.`:''],['ประเภท',e.type],['รายการ',e.title],['รูปแบบ',modeTx],
     ...(e.mode ? [['สถานที่', e.mode==='online' ? '' : e.venue], ['แพลตฟอร์ม', e.platform], ['Meeting ID', e.meetingId], ['Passcode', e.passcode], ['ลิงก์เข้าร่วม', {html:linkHtml}]].filter(r=>r[0]==='สถานที่'?e.mode!=='online':e.mode!=='onsite') : [['สถานที่',e.place]]),
     ['หมายเหตุ (สถานะ)',e.status],
-    ['ชั่วโมง', (e.hours||e._h.v) ? fmtH(e._h)+' ชม.' : ''],['ระดับของการประชุม',e.level],['หน่วยงานที่เชิญ',e.inviter],['ทุนสนับสนุน',e.fund],['เอกสาร EDOC', e.edoc ? {html:`<a href="${esc(e.edoc)}" target="_blank" rel="noopener">${esc(e.edoc)}</a>`} : ''],['รายละเอียดเพิ่มเติม',e.notes],['ผู้บันทึก',e.rec]];
+    ['ชั่วโมง', (e.hours||e._h.v) ? fmtH(e._h)+' ชม.' : ''],['ระดับของการประชุม',e.level],['หน่วยงานที่เชิญ',e.inviter],['ทุนสนับสนุน',e.fund],['เอกสาร EDOC', e.edoc ? {html:`<a href="${esc(e.edoc)}" target="_blank" rel="noopener">${esc(e.edoc)}</a>`} : ''],['รายละเอียดเพิ่มเติม',e.notes],['ผู้บันทึก',e.rec],['วันที่บันทึกลงระบบ',{html:recDate(e).replace(/<small[^>]*>/g,' · ').replace(/<\/small>/g,'')}]];
   const box=document.getElementById('evBox');
   box.className='modal-box t-'+e.who;
   box.innerHTML=`<div class="mhead"><span class="av">${t.ini}</span><div><div class="who">${esc(t.name)}</div><h2 id="mTitle">${esc(e.title)}</h2></div><button class="x" data-close="1" aria-label="ปิด">×</button></div>
@@ -1038,10 +1132,52 @@ function makeApiDB(url){
   };
   return { collection: ()=>col, refresh, call };
 }
+const ALERT_DAYS = 7;
+const ALERT_KEY = 'tt-alert-seen';
+function addDays(isoStr, n){ const d=parseIso(isoStr); d.setDate(d.getDate()+n); return iso(d); }
+function pendingSoon(){ const end=addDays(todayIso, ALERT_DAYS); return EVENTS.filter(e=>e._st==='pend' && e.date>=todayIso && e.date<=end).sort((a,b)=>a.date.localeCompare(b.date)||a._s-b._s); }
+function dueLabel(ds){ const n=Math.round((parseIso(ds)-parseIso(todayIso))/864e5); return n===0?'วันนี้':n===1?'พรุ่งนี้':`อีก ${n} วัน`; }
+function renderAlert(list){
+  $('aSub').textContent = `${list.length} รายการภายใน ${ALERT_DAYS} วันข้างหน้า ยังไม่ได้ยืนยัน`;
+  let html='', last='';
+  list.forEach(e=>{
+    if (e.date!==last){ last=e.date; const n=Math.round((parseIso(e.date)-parseIso(todayIso))/864e5); html+=`<div class="aday">${fullDate(e.date)} <span class="due ${n>1?'soon':''}">${dueLabel(e.date)}</span></div>`; }
+    const t=TEACHERS[e.who];
+    html+=`<div class="aitem t-${e.who}"><span class="av">${t.ini}</span><div class="ai"><b>${esc(e.title)}</b><small>${esc(t.short)} · ${esc(e.time||'ไม่ระบุเวลา')} · ${esc(e.status)}</small></div>
+      <div class="aa"><button class="btn sm" data-ak="${EVENTS.indexOf(e)}">ดูรายละเอียด</button><a class="btn sm primary" href="${editHref(e)}">ยืนยัน/แก้ไข</a></div></div>`;
+  });
+  $('aList').innerHTML=html;
+  $('aList').querySelectorAll('[data-ak]').forEach(b=>b.onclick=()=>{ closeAlert(false); openEvModal(EVENTS[+b.dataset.ak]); });
+}
+function openAlert(){ const list=pendingSoon(); if(!list.length) return; renderAlert(list); $('aMute').checked=false; $('alertModal').hidden=false; document.body.style.overflow='hidden'; $('alertBox').focus(); }
+function closeAlert(save=true){
+  if ($('alertModal').hidden) return; $('alertModal').hidden=true; document.body.style.overflow='';
+  if (save){ try{ localStorage.setItem(ALERT_KEY, JSON.stringify({date:todayIso, mute:$('aMute').checked, ids:pendingSoon().map(e=>e.id+'|'+e.who)})); }catch(_){} }
+}
+function checkAlerts(){
+  const list=pendingSoon();
+  const btn=$('bellBtn'); btn.hidden=!list.length; $('bellNum').textContent=list.length;
+  if (!list.length) return;
+  let seen=null; try{ seen=JSON.parse(localStorage.getItem(ALERT_KEY)||'null'); }catch(_){}
+  const ids=list.map(e=>e.id+'|'+e.who);
+  if (seen && seen.date===todayIso && (seen.mute || ids.every(i=>seen.ids.includes(i)))) return;
+  if ($('evModal').hidden && $('gate').hidden) openAlert();
+}
+document.getElementById('alertModal').addEventListener('click', ev=>{ if (ev.target.closest('[data-aclose]')) closeAlert(true); });
+document.addEventListener('keydown', ev=>{ if (ev.key==='Escape') closeAlert(true); });
 function syncState(msg, err){
-  const el=$('syncTx'); if(!el) return;
-  el.parentElement.classList.toggle('err', !!err);
-  el.textContent = msg || (LAST_SYNC ? `ซิงค์กับ Google Sheet ${pad(LAST_SYNC.getHours())}.${pad(LAST_SYNC.getMinutes())} น.${ROLE==='view'?' · ดูอย่างเดียว':''}` : '');
+  const state = err ? 'error' : (msg ? 'connecting' : (LAST_SYNC ? 'ok' : 'connecting'));
+  const t = LAST_SYNC ? `${pad(LAST_SYNC.getHours())}.${pad(LAST_SYNC.getMinutes())} น.` : '';
+  const sx=$('syncTx');
+  if (sx){ $('syncBox').className='sync '+state; sx.textContent = msg || (LAST_SYNC ? `เชื่อมต่อ Google Sheet แล้ว · ${t}${ROLE==='view'?' · ดูอย่างเดียว':''}` : ''); }
+  const bar=$('dbBar');
+  if (bar){
+    bar.className='dbbar '+state;
+    $('dbTx').textContent = state==='ok' ? 'เชื่อมต่อฐานข้อมูลแล้ว' : state==='error' ? 'เชื่อมต่อฐานข้อมูลไม่ได้' : 'กำลังเชื่อมต่อฐานข้อมูล…';
+    $('dbMeta').textContent = state==='ok'
+      ? `Google Sheet · ${FORM_DOCS.length} รายการ · ซิงค์ล่าสุด ${t} · สิทธิ์: ${ROLE==='edit'?'บันทึกและแก้ไขได้':'ดูอย่างเดียว'}`
+      : (msg || 'Google Sheet');
+  }
 }
 const ERR_TH = {network:'เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ต', bad_response:'Apps Script ตอบกลับไม่ถูกต้อง ตรวจสอบ URL ใน config.js', unauthorized:'รหัสเข้าใช้งานไม่ถูกต้อง', forbidden:'รหัสนี้ดูได้อย่างเดียว บันทึกหรือแก้ไขไม่ได้', server_error:'เกิดข้อผิดพลาดที่ Apps Script'};
 function errText(e){ return (ERR_TH[e&&e.code]||'เกิดข้อผิดพลาด') + (e&&e.message?` (${e.message})`:''); }
@@ -1231,8 +1367,7 @@ function onData(){
 function showGate(msg){ $('gate').hidden=false; $('gateMsg').textContent=msg||''; setTimeout(()=>$('gateKey').focus(),50); }
 async function connect(){
   if (!CFG.API_URL || /PASTE|วาง/.test(CFG.API_URL)){ DB=null; applyWriteState(); syncState('ยังไม่ได้ตั้งค่า config.js', true); showGate('ยังไม่ได้ใส่ URL ของ Apps Script ในไฟล์ config.js'); $('gateBtn').disabled=true; return; }
-  if (!DB){ DB = makeApiDB(CFG.API_URL); DB.collection('entries').onSnapshot(snap => { FORM_DOCS = snap.docs.map(d => ({...d.data(), id:d.id})); buildEvents(); onData(); renderAll(); }); }
-  if (!getKey()){ showGate(); return; }
+  if (!DB){ DB = makeApiDB(CFG.API_URL); DB.collection('entries').onSnapshot(snap => { FORM_DOCS = snap.docs.map(d => ({...d.data(), id:d.id})); buildEvents(); onData(); renderAll(); checkAlerts(); }); }
   syncState('กำลังโหลดข้อมูลจาก Google Sheet…');
   try{ await DB.refresh(); $('gate').hidden=true; }
   catch(e){ if (e.code==='unauthorized'){ setKey(''); showGate('รหัสไม่ถูกต้อง'); } else { syncState(errText(e), true); if ($('gate').hidden===false) $('gateMsg').textContent=errText(e); } }
@@ -1243,7 +1378,13 @@ $('gateForm').addEventListener('submit', async ev => {
   await connect(); $('gateBtn').disabled=false;
 });
 $('logoutBtn').onclick = () => { setKey(''); location.reload(); };
-const syncBtn=$('syncBtn'); if (syncBtn) syncBtn.onclick = () => connect();
+if (!getKey()) $('logoutBtn').hidden = true;
+async function manualRefresh(btn){
+  if (btn) { btn.disabled=true; btn.classList.add('spin'); }
+  try{ await connect(); } finally { if (btn){ btn.disabled=false; btn.classList.remove('spin'); } }
+}
+$('dbRefresh').onclick = () => manualRefresh($('dbRefresh'));
+$('bellBtn').onclick = () => openAlert();
 let lastFocusRefresh = Date.now();
 window.addEventListener('focus', () => { if (DB && ROLE && Date.now()-lastFocusRefresh > 60000){ lastFocusRefresh=Date.now(); DB.refresh().catch(()=>{}); } });
 connect();
