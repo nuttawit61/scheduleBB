@@ -1415,19 +1415,29 @@ function onData(){
   }
 }
 function showGate(msg){ $('gate').hidden=false; $('gateMsg').textContent=msg||''; setTimeout(()=>$('gateKey').focus(),50); }
+const OUT_KEY='tt-logged-out';
+function isLoggedOut(){ try{ return localStorage.getItem(OUT_KEY)==='1'; }catch(_){ return false; } }
+function setLoggedOut(v){ try{ v ? localStorage.setItem(OUT_KEY,'1') : localStorage.removeItem(OUT_KEY); }catch(_){} }
 async function connect(){
   if (!CFG.API_URL || /PASTE|วาง/.test(CFG.API_URL)){ DB=null; applyWriteState(); syncState('ยังไม่ได้ตั้งค่า config.js', true); showGate('ยังไม่ได้ใส่ URL ของ Apps Script ในไฟล์ config.js'); $('gateBtn').disabled=true; return; }
   if (!DB){ DB = makeApiDB(CFG.API_URL); DB.collection('entries').onSnapshot(snap => { FORM_DOCS = snap.docs.map(d => ({...d.data(), id:d.id})); buildEvents(); onData(); renderAll(); checkAlerts(); }); }
+  if (isLoggedOut() && !getKey()){ syncState('ออกจากระบบแล้ว', true); showGate(''); return; }
   syncState('กำลังโหลดข้อมูลจาก Google Sheet…');
-  try{ await DB.refresh(); $('gate').hidden=true; updateLogout(); }
-  catch(e){ if (e.code==='unauthorized'){ setKey(''); showGate('รหัสไม่ถูกต้อง'); } else { syncState(errText(e), true); if ($('gate').hidden===false) $('gateMsg').textContent=errText(e); } }
+  try{ await DB.refresh(); setLoggedOut(false); $('gate').hidden=true; updateLogout(); }
+  catch(e){ if (e.code==='unauthorized'){ const had=!!getKey(); setKey(''); showGate(had?'รหัสไม่ถูกต้อง':''); updateLogout(); } else { syncState(errText(e), true); if ($('gate').hidden===false) $('gateMsg').textContent=errText(e); } }
 }
 $('gateForm').addEventListener('submit', async ev => {
   ev.preventDefault(); const k=$('gateKey').value.trim(); if(!k) return;
   setKey(k, $('gateRem').checked); $('gateBtn').disabled=true; $('gateMsg').textContent='กำลังตรวจสอบ…';
   await connect(); $('gateBtn').disabled=false;
 });
-function doLogout(){ setKey(''); try{ localStorage.removeItem(ALERT_KEY); }catch(_){} location.reload(); }
+function doLogout(){
+  setKey(''); setLoggedOut(true);
+  try{ localStorage.removeItem(ALERT_KEY); }catch(_){}
+  // ล้างข้อมูลบนหน้าและแสดงหน้าใส่รหัสทันที
+  FORM_DOCS=[]; buildEvents(); renderAll(); closeEvModal(); closeAlert(false);
+  $('gateKey').value=''; updateLogout(); syncState('ออกจากระบบแล้ว', true); showGate('ออกจากระบบแล้ว');
+}
 $('logoutBtn').onclick = doLogout; $('logoutTop').onclick = doLogout;
 function updateLogout(){ const has=!!getKey(); $('logoutBtn').hidden=!has; $('logoutTop').hidden=!has; }
 updateLogout();
