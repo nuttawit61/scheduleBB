@@ -1153,8 +1153,10 @@ function makeApiDB(url){
   const subs=[]; let cache=[];
   async function call(action, payload){
     let res;
-    try{ res = await fetch(url, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action, key:getKey(), ...(payload||{})}), redirect:'follow'}); }
-    catch(_){ throw {code:'network'}; }
+    const ctl = new AbortController(); const timer = setTimeout(()=>ctl.abort(), 30000);
+    try{ res = await fetch(url, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action, key:getKey(), ...(payload||{})}), redirect:'follow', signal:ctl.signal}); }
+    catch(e){ throw {code: e && e.name==='AbortError' ? 'timeout' : 'network'}; }
+    finally{ clearTimeout(timer); }
     let j; try{ j = await res.json(); }catch(_){ throw {code:'bad_response'}; }
     if (!j.ok) throw {code:j.error||'server_error', message:j.message||''};
     return j;
@@ -1229,7 +1231,7 @@ function syncState(msg, err){
       : (msg || 'Google Sheet');
   }
 }
-const ERR_TH = {network:'เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ต', bad_response:'Apps Script ตอบกลับไม่ถูกต้อง ตรวจสอบ URL ใน config.js', unauthorized:'รหัสเข้าใช้งานไม่ถูกต้อง', forbidden:'รหัสนี้ดูได้อย่างเดียว บันทึกหรือแก้ไขไม่ได้', server_error:'เกิดข้อผิดพลาดที่ Apps Script'};
+const ERR_TH = {timeout:'Google Sheet ตอบช้าเกินไป ลองอีกครั้ง', network:'เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ต', bad_response:'Apps Script ตอบกลับไม่ถูกต้อง ตรวจสอบ URL ใน config.js', unauthorized:'รหัสเข้าใช้งานไม่ถูกต้อง', forbidden:'รหัสนี้ดูได้อย่างเดียว บันทึกหรือแก้ไขไม่ได้', server_error:'เกิดข้อผิดพลาดที่ Apps Script'};
 function errText(e){ return (ERR_TH[e&&e.code]||'เกิดข้อผิดพลาด') + (e&&e.message?` (${e.message})`:''); }
 function downloadText(name, text, type){
   const blob=new Blob(['\ufeff'+text],{type}); const a=document.createElement('a');
@@ -1426,10 +1428,27 @@ async function connect(){
   try{ await DB.refresh(); setLoggedOut(false); $('gate').hidden=true; updateLogout(); }
   catch(e){ if (e.code==='unauthorized'){ const had=!!getKey(); setKey(''); showGate(had?'รหัสไม่ถูกต้อง':''); updateLogout(); } else { syncState(errText(e), true); if ($('gate').hidden===false) $('gateMsg').textContent=errText(e); } }
 }
+async function verifyKey(k){
+  const ctl = new AbortController(); const timer = setTimeout(()=>ctl.abort(), 30000);
+  try{
+    const res = await fetch(CFG.API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action:'ping', key:k}), redirect:'follow', signal:ctl.signal});
+    return await res.json();
+  } catch(e){ return {ok:false, error: e && e.name==='AbortError' ? 'timeout' : 'network'}; }
+  finally{ clearTimeout(timer); }
+}
 $('gateForm').addEventListener('submit', async ev => {
   ev.preventDefault(); const k=$('gateKey').value.trim(); if(!k) return;
-  setKey(k, $('gateRem').checked); $('gateBtn').disabled=true; $('gateMsg').textContent='กำลังตรวจสอบ…';
-  await connect(); $('gateBtn').disabled=false;
+  const btn=$('gateBtn'); btn.disabled=true; btn.textContent='กำลังตรวจสอบ…'; $('gateMsg').textContent='';
+  const r = await verifyKey(k);
+  if (r && r.ok){
+    setKey(k, $('gateRem').checked); setLoggedOut(false);
+    btn.textContent='เข้าสู่ระบบสำเร็จ กำลังเปิดตารางงาน…';
+    location.reload();
+    return;
+  }
+  btn.disabled=false; btn.textContent='เข้าใช้งาน';
+  $('gateMsg').textContent = r && r.error==='unauthorized' ? 'รหัสไม่ถูกต้อง' : errText({code:r&&r.error});
+  $('gateKey').select();
 });
 function doLogout(){
   setKey(''); setLoggedOut(true); ROLE=null;
