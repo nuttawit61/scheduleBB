@@ -581,6 +581,15 @@ footer{border-top-style:dashed}
 table.sheet td.cd{white-space:nowrap;font-variant-numeric:tabular-nums}
 table.sheet td.cd small{display:block}
 .muted{color:var(--muted)}
+/* top-right group */
+.topright{position:absolute;top:12px;right:14px;z-index:3;display:flex;gap:8px;align-items:center}
+.topright .conn{position:static}
+.logoutpill{display:inline-flex;align-items:center;gap:6px;border:1px solid rgb(255 255 255 / .28);background:rgb(255 255 255 / .16);color:#fff;border-radius:999px;padding:5px 12px 5px 9px;font:inherit;font-size:.8em;cursor:pointer;backdrop-filter:blur(6px)}
+.logoutpill svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.logoutpill:hover{background:#fff;color:var(--accent)}
+.logoutpill[hidden]{display:none}
+@media (max-width:640px){ .topright{top:10px;right:10px;flex-direction:column;align-items:flex-end;gap:6px} }
+@media print{ .topright{display:none} }
 /* compact connection pill + bell near record button */
 .conn{position:absolute;top:12px;right:14px;z-index:3;display:inline-flex;align-items:center;gap:7px;padding:4px 4px 4px 11px;border-radius:999px;background:rgb(255 255 255 / .16);border:1px solid rgb(255 255 255 / .28);color:#fff;font-size:.8em;backdrop-filter:blur(6px)}
 .cdot{width:9px;height:9px;border-radius:50%;background:#F4B400;box-shadow:0 0 0 3px rgb(244 180 0 / .3)}
@@ -623,7 +632,10 @@ table.sheet td.cd small{display:block}
     <button type="button" class="btn sm dbref" id="dbRefresh"><span class="ri" aria-hidden="true">↻</span> รีเฟรช</button>
   </div>
   <header class="hero">
+    <div class="topright">
     <div class="conn connecting" id="connPill" role="status" aria-live="polite"><span class="cdot" aria-hidden="true"></span><span id="connTx">กำลังเชื่อมต่อ…</span><button type="button" class="cref" id="connRef" title="รีเฟรชข้อมูลจาก Google Sheet" aria-label="รีเฟรชข้อมูล"><span class="ri">↻</span></button></div>
+    <button type="button" class="logoutpill" id="logoutTop" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l-5-5 5-5M5 12h11"/></svg>ออกจากระบบ</button>
+    </div>
     <svg class="hero-art" viewBox="0 0 860 260" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
   <defs>
     <radialGradient id="heroRbc" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#FF8A9B" stop-opacity=".55"/><stop offset=".7" stop-color="#E0465E" stop-opacity=".35"/><stop offset="1" stop-color="#C02640" stop-opacity=".2"/></radialGradient>
@@ -1407,7 +1419,7 @@ async function connect(){
   if (!CFG.API_URL || /PASTE|วาง/.test(CFG.API_URL)){ DB=null; applyWriteState(); syncState('ยังไม่ได้ตั้งค่า config.js', true); showGate('ยังไม่ได้ใส่ URL ของ Apps Script ในไฟล์ config.js'); $('gateBtn').disabled=true; return; }
   if (!DB){ DB = makeApiDB(CFG.API_URL); DB.collection('entries').onSnapshot(snap => { FORM_DOCS = snap.docs.map(d => ({...d.data(), id:d.id})); buildEvents(); onData(); renderAll(); checkAlerts(); }); }
   syncState('กำลังโหลดข้อมูลจาก Google Sheet…');
-  try{ await DB.refresh(); $('gate').hidden=true; }
+  try{ await DB.refresh(); $('gate').hidden=true; updateLogout(); }
   catch(e){ if (e.code==='unauthorized'){ setKey(''); showGate('รหัสไม่ถูกต้อง'); } else { syncState(errText(e), true); if ($('gate').hidden===false) $('gateMsg').textContent=errText(e); } }
 }
 $('gateForm').addEventListener('submit', async ev => {
@@ -1415,8 +1427,10 @@ $('gateForm').addEventListener('submit', async ev => {
   setKey(k, $('gateRem').checked); $('gateBtn').disabled=true; $('gateMsg').textContent='กำลังตรวจสอบ…';
   await connect(); $('gateBtn').disabled=false;
 });
-$('logoutBtn').onclick = () => { setKey(''); location.reload(); };
-if (!getKey()) $('logoutBtn').hidden = true;
+function doLogout(){ setKey(''); try{ localStorage.removeItem(ALERT_KEY); }catch(_){} location.reload(); }
+$('logoutBtn').onclick = doLogout; $('logoutTop').onclick = doLogout;
+function updateLogout(){ const has=!!getKey(); $('logoutBtn').hidden=!has; $('logoutTop').hidden=!has; }
+updateLogout();
 async function manualRefresh(btn){
   if (btn) { btn.disabled=true; btn.classList.add('spin'); }
   try{ await connect(); } finally { if (btn){ btn.disabled=false; btn.classList.remove('spin'); } }
