@@ -1432,14 +1432,14 @@ $('gateForm').addEventListener('submit', async ev => {
   await connect(); $('gateBtn').disabled=false;
 });
 function doLogout(){
-  setKey(''); setLoggedOut(true);
+  setKey(''); setLoggedOut(true); ROLE=null;
   try{ localStorage.removeItem(ALERT_KEY); }catch(_){}
   // ล้างข้อมูลบนหน้าและแสดงหน้าใส่รหัสทันที
   FORM_DOCS=[]; buildEvents(); renderAll(); closeEvModal(); closeAlert(false);
   $('gateKey').value=''; updateLogout(); syncState('ออกจากระบบแล้ว', true); showGate('ออกจากระบบแล้ว');
 }
 $('logoutBtn').onclick = doLogout; $('logoutTop').onclick = doLogout;
-function updateLogout(){ const has=!!getKey(); $('logoutBtn').hidden=!has; $('logoutTop').hidden=!has; }
+function updateLogout(){ const show = !!getKey() || (!!ROLE && !isLoggedOut()); $('logoutBtn').hidden=!show; $('logoutTop').hidden=!show; }
 updateLogout();
 async function manualRefresh(btn){
   if (btn) { btn.disabled=true; btn.classList.add('spin'); }
