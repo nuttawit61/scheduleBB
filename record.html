@@ -503,7 +503,7 @@ footer{border-top-style:dashed}
 .gate-title{display:flex;flex-direction:column;align-items:center;gap:10px}
 .gate-lock{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--accent-soft)}
 .gate-lock svg{width:24px;height:24px;fill:none;stroke:var(--accent);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.gate-box .fld{text-align:left}
+.gate-box .fld{text-align:center}
 .gate-box .fld input{text-align:center;font-size:1.05em;letter-spacing:.08em}
 .gate-box .btn{width:100%;padding:11px}
 .gate-box .gate-rem{justify-content:center}
@@ -581,6 +581,24 @@ footer{border-top-style:dashed}
 table.sheet td.cd{white-space:nowrap;font-variant-numeric:tabular-nums}
 table.sheet td.cd small{display:block}
 .muted{color:var(--muted)}
+/* compact connection pill + bell near record button */
+.conn{position:absolute;top:12px;right:14px;z-index:3;display:inline-flex;align-items:center;gap:7px;padding:4px 4px 4px 11px;border-radius:999px;background:rgb(255 255 255 / .16);border:1px solid rgb(255 255 255 / .28);color:#fff;font-size:.8em;backdrop-filter:blur(6px)}
+.cdot{width:9px;height:9px;border-radius:50%;background:#F4B400;box-shadow:0 0 0 3px rgb(244 180 0 / .3)}
+.conn.ok .cdot{background:#34D399;box-shadow:0 0 0 3px rgb(52 211 153 / .3),0 0 10px #34D399}
+.conn.error .cdot{background:#FF6B6B;box-shadow:0 0 0 3px rgb(255 107 107 / .3)}
+.conn.connecting .cdot{animation:pulse 1.1s ease-in-out infinite}
+.cref{border:0;background:rgb(255 255 255 / .18);color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;display:grid;place-items:center;font-size:13px;padding:0}
+.cref:hover{background:rgb(255 255 255 / .32)}
+.cref .ri{display:inline-block}
+.cref.spin .ri{animation:rot .8s linear infinite}
+.hero .bellbtn{display:inline-flex;align-items:center;gap:7px;border:0;cursor:pointer;font:inherit;font-weight:600;background:#FFD54F;color:#5C3D00;border-radius:999px;padding:10px 12px 10px 14px;box-shadow:0 8px 24px rgb(60 0 10 / .28);transition:transform .15s}
+.hero .bellbtn:hover{transform:translateY(-2px)}
+.hero .bellbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linejoin:round;animation:ring 1.4s ease-in-out 3}
+.hero .bellbtn[hidden]{display:none}
+.hero .bellnum{background:#B3261E;color:#fff;border-radius:999px;font-size:.8em;font-weight:700;min-width:22px;padding:1px 6px;text-align:center}
+.wrap>.dbbar[hidden]{display:none!important}
+@media (max-width:640px){ .conn{top:10px;right:10px} .hero .bellbtn{flex:1;justify-content:center} }
+@media print{ .conn{display:none} }
 /* page split */
 .hero-side{position:relative;z-index:1;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .hero-btn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:var(--accent);text-decoration:none;font-family:var(--f-display);font-weight:700;font-size:1.05em;padding:12px 22px 12px 14px;border-radius:999px;box-shadow:0 8px 24px rgb(60 0 10 / .28);transition:transform .15s, box-shadow .15s}
@@ -599,13 +617,13 @@ table.sheet td.cd small{display:block}
 <body>
 
 <div class="wrap">
-  <div class="dbbar connecting" id="dbBar" role="status" aria-live="polite">
+  <div class="dbbar error" id="dbBar" role="alert" hidden>
     <span class="dbdot" aria-hidden="true"></span>
     <div class="dbtxt"><b id="dbTx">กำลังเชื่อมต่อฐานข้อมูล…</b><small id="dbMeta">Google Sheet</small></div>
-    <button type="button" class="btn sm bellbtn" id="bellBtn" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span id="bellTx">รอยืนยัน</span><span class="bellnum" id="bellNum">0</span></button>
     <button type="button" class="btn sm dbref" id="dbRefresh"><span class="ri" aria-hidden="true">↻</span> รีเฟรช</button>
   </div>
   <header class="hero">
+    <div class="conn connecting" id="connPill" role="status" aria-live="polite"><span class="cdot" aria-hidden="true"></span><span id="connTx">กำลังเชื่อมต่อ…</span><button type="button" class="cref" id="connRef" title="รีเฟรชข้อมูลจาก Google Sheet" aria-label="รีเฟรชข้อมูล"><span class="ri">↻</span></button></div>
     <svg class="hero-art" viewBox="0 0 860 260" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
   <defs>
     <radialGradient id="heroRbc" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#FF8A9B" stop-opacity=".55"/><stop offset=".7" stop-color="#E0465E" stop-opacity=".35"/><stop offset="1" stop-color="#C02640" stop-opacity=".2"/></radialGradient>
@@ -633,6 +651,7 @@ table.sheet td.cd small{display:block}
     </div>
     <img class="hero-logo" src="assets/logo.png" alt="ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล มหาวิทยาลัยมหิดล" width="451" height="300">
     <div class="hero-side">
+      <button type="button" class="bellbtn" id="bellBtn" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span id="bellTx">รอยืนยัน</span><span class="bellnum" id="bellNum">0</span></button>
       <a class="hero-btn" id="heroBtn" href="#"><span class="plus" aria-hidden="true">＋</span><span id="heroBtnTx">บันทึกงาน</span></a>
       <div class="hero-today" id="heroToday"></div>
     </div>
@@ -761,7 +780,6 @@ table.sheet td.cd small{display:block}
     <button type="submit" class="btn primary" id="gateBtn">เข้าใช้งาน</button>
     <div class="fmsg err" id="gateMsg" role="alert"></div>
   </form>
-  <p class="gate-foot">ภาควิชาเวชศาสตร์การธนาคารเลือด · คณะแพทยศาสตร์ศิริราชพยาบาล</p>
   </div>
 </div>
 
@@ -1183,8 +1201,15 @@ function syncState(msg, err){
   const t = LAST_SYNC ? `${pad(LAST_SYNC.getHours())}.${pad(LAST_SYNC.getMinutes())} น.` : '';
   const sx=$('syncTx');
   if (sx){ $('syncBox').className='sync '+state; sx.textContent = msg || (LAST_SYNC ? `เชื่อมต่อ Google Sheet แล้ว · ${t}${ROLE==='view'?' · ดูอย่างเดียว':''}` : ''); }
+  const pill=$('connPill');
+  if (pill){
+    pill.className='conn '+state;
+    $('connTx').textContent = state==='ok' ? `เชื่อมต่อแล้ว · ${t}` : state==='error' ? 'ไม่ได้เชื่อมต่อ' : 'กำลังเชื่อมต่อ…';
+    pill.title = state==='ok' ? `เชื่อมต่อ Google Sheet แล้ว · ${FORM_DOCS.length} รายการ · ซิงค์ล่าสุด ${t}` : (msg||'');
+  }
   const bar=$('dbBar');
   if (bar){
+    bar.hidden = state!=='error';
     bar.className='dbbar '+state;
     $('dbTx').textContent = state==='ok' ? 'เชื่อมต่อฐานข้อมูลแล้ว' : state==='error' ? 'เชื่อมต่อฐานข้อมูลไม่ได้' : 'กำลังเชื่อมต่อฐานข้อมูล…';
     $('dbMeta').textContent = state==='ok'
@@ -1397,6 +1422,7 @@ async function manualRefresh(btn){
   try{ await connect(); } finally { if (btn){ btn.disabled=false; btn.classList.remove('spin'); } }
 }
 $('dbRefresh').onclick = () => manualRefresh($('dbRefresh'));
+$('connRef').onclick = () => manualRefresh($('connRef'));
 $('bellBtn').onclick = () => openAlert();
 let lastFocusRefresh = Date.now();
 window.addEventListener('focus', () => { if (DB && ROLE && Date.now()-lastFocusRefresh > 60000){ lastFocusRefresh=Date.now(); DB.refresh().catch(()=>{}); } });
