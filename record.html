@@ -1199,8 +1199,8 @@ function makeApiDB(url){
     return j;
   }
   function fire(){ const sn={docs:cache.map(d=>({id:d.id, exists:true, data:()=>d}))}; subs.forEach(f=>f(sn)); }
-  async function refresh(){
-    const j = await call('list');
+  async function refresh(pre){
+    const j = pre || await call('list');
     ROLE = j.role; PENDING = j.pending||0; CAN_LOGS = !!j.canViewLogs; setUser(j.user); cache = j.entries||[]; LAST_SYNC = new Date();
     Object.keys(HOLIDAYS).forEach(k=>delete HOLIDAYS[k]); Object.assign(HOLIDAYS, j.holidays||{});
     document.documentElement.classList.toggle('role-view', ROLE!=='edit');
@@ -1459,12 +1459,12 @@ function showGate(msg){ $('gate').hidden=false; $('gateMsg').textContent=msg||''
 const OUT_KEY='tt-logged-out';
 function isLoggedOut(){ try{ return localStorage.getItem(OUT_KEY)==='1'; }catch(_){ return false; } }
 function setLoggedOut(v){ try{ v ? localStorage.setItem(OUT_KEY,'1') : localStorage.removeItem(OUT_KEY); }catch(_){} }
-async function connect(){
+async function connect(pre){
   if (!CFG.API_URL || /PASTE|วาง/.test(CFG.API_URL)){ DB=null; applyWriteState(); syncState('ยังไม่ได้ตั้งค่า config.js', true); showGate('ยังไม่ได้ใส่ URL ของ Apps Script ในไฟล์ config.js'); $('gateBtn').disabled=true; return; }
   if (!DB){ DB = makeApiDB(CFG.API_URL); DB.collection('entries').onSnapshot(snap => { FORM_DOCS = snap.docs.map(d => ({...d.data(), id:d.id})); buildEvents(); onData(); renderAll(); checkAlerts(); }); }
   if (isLoggedOut() && !getKey()){ syncState('ออกจากระบบแล้ว', true); showGate(''); return; }
   syncState('กำลังโหลดข้อมูลจาก Google Sheet…');
-  try{ await DB.refresh(); setLoggedOut(false); $('gate').hidden=true; updateLogout(); }
+  try{ await DB.refresh(pre && pre.entries ? pre : null); setLoggedOut(false); $('gate').hidden=true; updateLogout(); }
   catch(e){ if (e.code==='must_change'){ location.href='account.html?first=1'; return; } if (e.code==='unauthorized'){ const had=!!getKey(); setKey(''); setUser(null); showGate(had?'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่':''); updateLogout(); } else { syncState(errText(e), true); if ($('gate').hidden===false) $('gateMsg').textContent=errText(e); } }
 }
 function setUser(u){
@@ -1476,7 +1476,7 @@ function setUser(u){
 async function apiLogin(username, password){
   const ctl = new AbortController(); const timer = setTimeout(()=>ctl.abort(), 30000);
   try{
-    const res = await fetch(CFG.API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action:'login', username, password}), redirect:'follow', signal:ctl.signal});
+    const res = await fetch(CFG.API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action:'login', username, password, withData:true}), redirect:'follow', signal:ctl.signal});
     try{ return await res.json(); }catch(_){ return {ok:false, error:'bad_response'}; }
   } catch(e){ return {ok:false, error: e && e.name==='AbortError' ? 'timeout' : 'network'}; }
   finally{ clearTimeout(timer); }
@@ -1488,8 +1488,9 @@ $('gateForm').addEventListener('submit', async ev => {
   if (r && r.ok && r.token){
     setKey(r.token, true); setLoggedOut(false); markActive(true); setUser(r.user);
     if (r.user && r.user.mustChange){ btn.textContent='กำลังไปหน้าตั้งรหัสผ่านใหม่…'; location.href='account.html?first=1'; return; }
-    $('gateKey').value=''; btn.disabled=false; btn.textContent='เข้าใช้งาน';
-    await connect();
+    $('gateKey').value=''; btn.textContent='กำลังเปิดตารางงาน…';
+    await connect(r);
+    btn.disabled=false; btn.textContent='เข้าใช้งาน';
     return;
   }
   btn.disabled=false; btn.textContent='เข้าใช้งาน';
