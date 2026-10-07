@@ -433,6 +433,22 @@ footer{border-top-style:dashed}
 .btn.sm{padding:4px 10px;font-size:.85em}
 .btn.danger{color:var(--accent)}
 .btn.fdel{margin-left:auto;border-color:#F0B9C2}
+.sbbox{border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.sbhead{display:flex;flex-direction:column;gap:2px}
+.sbhead small{color:var(--muted);font-size:.84em}
+.sbrows{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px}
+.sbrow{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 8px}
+.sbrow .nm{font-weight:600;flex:none}
+.sbrow select{font:inherit;font-size:.9em;border:1px solid var(--line);border-radius:8px;padding:5px 6px;background:var(--surface);flex:1;min-width:0}
+.sbrow.own{border-color:#E0A100;background:#FFF8E6}
+.sbnote{font-size:.84em;color:#7A4E00;background:#FFF8E6;border-radius:6px;padding:3px 8px;margin-top:4px}
+.mqs{margin:0 22px 8px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:.92em}
+.mqs .lb{font-weight:600}
+.mqs select{font:inherit;border:1px solid var(--line);border-radius:8px;padding:4px 8px;background:var(--surface)}
+.mqs .qmsg{color:var(--ok);font-weight:500}
+.mqs .qmsg.err{color:var(--accent)}
+.mqs .hint{flex-basis:100%;color:var(--muted)}
+@media print{ .mqs{display:none!important} }
 .btn.fdel.armed{background:var(--accent);border-color:var(--accent);color:#fff}
 .fmsg{font-size:.9em;color:var(--ok);font-weight:500}
 .fmsg.err{color:var(--accent)}
@@ -801,6 +817,7 @@ a.logoutpill{text-decoration:none}
             <label class="fld"><span>สถานะ</span><select id="fStatus"><option>ยืนยัน</option><option>รอยืนยัน</option><option>เลื่อน</option><option>ขัดข้อง</option></select></label>
             <label class="fld"><span>ระดับ</span><input id="fLevel" list="levelList" placeholder="ภาควิชาฯ / คณะฯ / ชาติ"></label>
           </div>
+          <div class="sbbox" id="fStatusBy" hidden></div>
           <label class="fld"><span>รายการ <span class="req">*</span></span><textarea id="fTitleIn" rows="2" required placeholder="ชื่อการประชุม / รายวิชา / กิจกรรม"></textarea></label>
           <fieldset class="fmode"><legend>รูปแบบการเข้าร่วม <span class="req">*</span></legend>
             <div class="modepick" id="fMode">
@@ -946,10 +963,12 @@ function stc(e){
 const activeEv = e => e._st !== 'off';
 function xkey(e){ const str=[e.who,e.date,e.time||'',e.title||''].join('|'); let h=5381; for (let i=0;i<str.length;i++) h=((h*33)^str.charCodeAt(i))>>>0; return 'x'+h.toString(36)+str.length.toString(36); }
 EXCEL_EVENTS.forEach(e => e.xk = xkey(e));
+function parseSB(v){ if (!v) return {}; if (typeof v==='object') return v; try{ const o=JSON.parse(v); return o && typeof o==='object' ? o : {}; }catch(_){ return {}; } }
+const STATUS_OPTS = ['ยืนยัน','รอยืนยัน','เลื่อน','ขัดข้อง'];
 function buildEvents(){
   const fromForm = [];
   const overridden = new Set(FORM_DOCS.map(d=>d.overrides).filter(Boolean));
-  FORM_DOCS.forEach(d => (Array.isArray(d.who)?d.who:[d.who]).filter(w => TEACHERS[w]).forEach(w => fromForm.push({...d, who:w, src:'form'})));
+  FORM_DOCS.forEach(d => { const sb = parseSB(d.statusBy); (Array.isArray(d.who)?d.who:[d.who]).filter(w => TEACHERS[w]).forEach(w => fromForm.push({...d, who:w, src:'form', baseStatus:d.status, status: sb[w] || d.status, ownStatus: !!sb[w]})); });
   EVENTS = [...EXCEL_EVENTS.filter(e => !overridden.has(e.xk)).map(e => ({...e, src:'excel'})), ...fromForm].filter(e => /^\d{4}-\d{2}-\d{2}$/.test(e.date||''));
   EVENTS.forEach(e => { e.time = e.time || ''; e._s = e.time ? startMin(e.time) : 9999; e._h = hoursOf(e); e.type = e.type || 'อื่น ๆ'; e._st = stc(e); });
   EVENTS.sort((a,b) => a.date.localeCompare(b.date) || a._s - b._s);
@@ -1281,6 +1300,7 @@ function openEvModal(e){
   box.className='modal-box t-'+e.who;
   box.innerHTML=`<div class="mhead"><span class="av">${t.ini}</span><div><div class="who">${esc(t.name)}</div><h2 id="mTitle">${esc(e.title)}</h2></div><button class="x" data-close="1" aria-label="ปิด">×</button></div>
     <div class="mquick"><span class="when">${shortDate(e.date)} · ${esc(e.time||'ไม่ระบุเวลา')}</span>${e.mode?`<span class="modebadge ${e.mode}">${MODE_TH[e.mode]}</span>`:''}<span class="tag">${esc(e.type)}</span><span class="pill ${e._st}">${esc(e.status||'ไม่ระบุสถานะ')}</span></div>
+    ${quickStatusHtml(e)}
     ${e._cf && e._cf.length ? `<div class="mcf"><b>⚠ งานนี้เวลาชนกับงานอื่นของ ${esc(t.short)} ในวันเดียวกัน</b><ul>${e._cf.map(o=>`<li>${esc(cfText(o))}${o.status?` <small>(${esc(o.status)})</small>`:''}</li>`).join('')}</ul></div>` : ''}
     <table class="mtable"><tbody>${rows.map(r=>{ const v=r[1]; const has = v && (typeof v==='object' ? v.html : true); return `<tr><th>${r[0]}</th><td class="${has?'':'empty'}">${has ? (typeof v==='object' ? v.html : esc(v).replace(/\n/g,'<br>')) : '—'}</td></tr>`; }).join('')}</tbody></table>
     <div class="mfoot"><span class="src">${e.source==='excel'?'นำเข้าจากไฟล์ Excel':'บันทึกจากหน้าเว็บ'}${e.updatedAt?' · แก้ไขล่าสุด '+esc(e.updatedAt.slice(0,16).replace('T',' ')):''}${e.createdBy?`<span class="by">บันทึกโดย ${esc(byName(e.createdBy))}${e.updatedBy && e.updatedBy!==e.createdBy?` · แก้ไขล่าสุดโดย ${esc(byName(e.updatedBy))}`:''}</span>`:''}</span>
@@ -1290,6 +1310,32 @@ function openEvModal(e){
   const m=document.getElementById('evModal'); m.hidden=false; document.body.style.overflow='hidden'; box.focus();
   document.getElementById('mCal').onclick=()=>{ closeEvModal(); selected=e.date; month=e.date.slice(0,7); setView('cal'); window.scrollTo({top:document.getElementById('view-cal').offsetTop-12,behavior:'smooth'}); };
 }
+function quickStatusHtml(e){
+  if (!canWrite || e.src!=='form' || !e.id) return '';
+  const d = FORM_DOCS.find(x=>x.id===e.id); if (!d) return '';
+  const who = (Array.isArray(d.who)?d.who:[d.who]).filter(w=>TEACHERS[w]);
+  const multi = who.length > 1, t = TEACHERS[e.who];
+  return `<div class="mqs" data-id="${esc(e.id)}" data-who="${e.who}"><span class="lb">${multi?`สถานะเฉพาะ ${esc(t.short)}`:'เปลี่ยนสถานะ'}</span>
+    <select aria-label="สถานะของ ${esc(t.short)}">${STATUS_OPTS.map(o=>`<option ${o===e.status?'selected':''}>${o}</option>`).join('')}</select>
+    <button type="button" class="btn sm primary" data-qs="1">บันทึก</button><span class="qmsg"></span>
+    ${multi?`<small class="hint">งานนี้มีอาจารย์ ${who.length} ท่าน เปลี่ยนตรงนี้จะเปลี่ยนเฉพาะ ${esc(t.short)} ท่านอื่นยังคงเป็น "${esc(d.status||'')}"</small>`:''}</div>`;
+}
+document.getElementById('evModal').addEventListener('click', async ev => {
+  const b = ev.target.closest('[data-qs]'); if (!b) return;
+  const box = b.closest('.mqs'), id = box.dataset.id, w = box.dataset.who, val = box.querySelector('select').value, msg = box.querySelector('.qmsg');
+  const d = FORM_DOCS.find(x=>x.id===id); if (!d || !DB || !canWrite) return;
+  const who = (Array.isArray(d.who)?d.who:[d.who]).filter(x=>TEACHERS[x]);
+  const payload = {...d}; delete payload.id;
+  if (who.length > 1){ const sb = {...parseSB(d.statusBy)}; if (val===d.status) delete sb[w]; else sb[w]=val; payload.statusBy = Object.keys(sb).length ? JSON.stringify(sb) : ''; }
+  else { payload.status = val; payload.statusBy = ''; }
+  b.disabled = true; msg.className='qmsg'; msg.textContent='กำลังบันทึก…';
+  try{
+    await DB.collection('entries').doc(id).set(payload);
+    const nd = FORM_DOCS.find(x=>x.id===id);
+    if (who.length > 1 && payload.statusBy && !(nd && nd.statusBy)){ msg.className='qmsg err'; msg.textContent='Apps Script ยังเป็นเวอร์ชันเก่า ยังเก็บสถานะรายบุคคลไม่ได้ กรุณาอัปเดต Apps Script'; b.disabled=false; return; }
+    msg.textContent='บันทึกแล้ว'; setTimeout(closeEvModal, 700);
+  }catch(err){ msg.className='qmsg err'; msg.textContent='บันทึกไม่สำเร็จ: '+errText(err); b.disabled=false; }
+});
 function closeEvModal(){ const m=document.getElementById('evModal'); if (m.hidden) return; m.hidden=true; document.body.style.overflow=''; if (lastFocus && lastFocus.focus) lastFocus.focus(); }
 document.getElementById('evModal').addEventListener('click', ev=>{ if (ev.target.closest('[data-close]')) closeEvModal(); });
 document.addEventListener('keydown', ev=>{ if (ev.key==='Escape') closeEvModal(); });
@@ -1439,7 +1485,7 @@ function guessMode(place){ const p=place||''; const on=/zoom|teams|meet|webex|�
 function guessPlatform(p){ p=p||''; return /teams/i.test(p)?'Microsoft Teams':/meet/i.test(p)&&!/meeting/i.test(p)?'Google Meet':/webex/i.test(p)?'Webex':/zoom/i.test(p)?'Zoom':'Zoom'; }
 function setMsg(t, err){ const m=$('fMsg'); m.textContent=t; m.className='fmsg'+(err?' err':''); }
 function resetForm(){
-  editingId = null; editingExcel = null; $('entryForm').reset(); applyMode(); edocHint(); $('fDate').value = selected || todayIso; delete $('fHours').dataset.manual;
+  editingId = null; editingExcel = null; SB = {}; $('entryForm').reset(); renderStatusBy(); applyMode(); edocHint(); $('fDate').value = selected || todayIso; delete $('fHours').dataset.manual;
   $('fTitle').textContent='บันทึกงานใหม่'; $('fSave').textContent='บันทึกงาน'; delete $('fSave').dataset.cf; delArm(false); $('fDelete').hidden=true; showDateTh(); setTimeout(checkFormConflicts,0);
   document.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad')); renderFormList();
   if (CUR_USER && !$('fRec').value) $('fRec').value = CUR_USER.name;
@@ -1464,6 +1510,7 @@ function fillForm(d){
   $('fDate').value = d.date||''; setT('fStart', d.start); setT('fEnd', d.end);
   $('fHours').value = d.hours||''; if (d.hours) $('fHours').dataset.manual='1';
   $('fType').value=d.type||''; $('fStatus').value=d.status||'ยืนยัน'; $('fLevel').value=d.level||'';
+  SB = {...parseSB(d.statusBy)}; renderStatusBy();
   $('fTitleIn').value=d.title||'';
   const mode = d.mode || guessMode(d.place); setMode(mode);
   $('fPlace').value = d.mode ? (d.venue||'') : (mode==='online' ? '' : (d.place||''));
@@ -1496,10 +1543,23 @@ function readForm(){
   const now=new Date(), recName=$('fRec').value.trim();
   const stamp=`${pad(now.getDate())}/${pad(now.getMonth()+1)}/${be(now.getFullYear())}`;
   return { who, date, start, end, time, hours: $('fHours').value ? String(Number($('fHours').value).toFixed(1)) : '',
-    type:$('fType').value.trim(), status:$('fStatus').value, level:$('fLevel').value.trim(), title, ...modeData(),
+    type:$('fType').value.trim(), status:$('fStatus').value, statusBy: statusByJSON(who, $('fStatus').value), level:$('fLevel').value.trim(), title, ...modeData(),
     inviter:$('fInviter').value.trim(), fund:$('fFund').value.trim(), docChannel:$('fDocCh').value.trim(), recName, rec: recName ? `${recName} ${stamp}` : `บันทึกผ่านเว็บ ${stamp}`,
     updatedAt: now.toISOString() };
 }
+let SB = {};
+function renderStatusBy(){
+  const box=$('fStatusBy'); if (!box) return;
+  const who=[...document.querySelectorAll('#fWho input:checked')].map(i=>i.value), main=$('fStatus').value;
+  box.hidden = who.length < 2;
+  if (who.length < 2) return;
+  box.innerHTML = `<div class="sbhead"><b>สถานะรายบุคคล</b><small>ใช้เมื่ออาจารย์บางท่านในงานนี้สถานะต่างจากสถานะหลัก เช่น ท่านหนึ่งขัดข้อง</small></div>
+    <div class="sbrows">${who.map(w=>`<label class="sbrow t-${w}"><span class="av sm">${TEACHERS[w].ini}</span><span class="nm">${esc(TEACHERS[w].short)}</span>
+      <select data-sb="${w}" aria-label="สถานะของ ${esc(TEACHERS[w].short)}"><option value="">ตามสถานะหลัก (${esc(main)})</option>${STATUS_OPTS.filter(o=>o!==main).map(o=>`<option ${SB[w]===o?'selected':''}>${o}</option>`).join('')}</select></label>`).join('')}</div>`;
+  box.querySelectorAll('select[data-sb]').forEach(sel => sel.onchange = () => { const v=sel.value; if (v) SB[sel.dataset.sb]=v; else delete SB[sel.dataset.sb]; sel.closest('.sbrow').classList.toggle('own', !!v); checkFormConflicts(); });
+  box.querySelectorAll('select[data-sb]').forEach(sel => sel.closest('.sbrow').classList.toggle('own', !!sel.value));
+}
+function statusByJSON(who, main){ if (who.length<2) return ''; const o={}; who.forEach(w=>{ if (SB[w] && SB[w]!==main) o[w]=SB[w]; }); return Object.keys(o).length ? JSON.stringify(o) : ''; }
 let cfConfirm = false;
 function formConflicts(){
   const who=[...document.querySelectorAll('#fWho input:checked')].map(i=>i.value), date=$('fDate').value;
@@ -1507,7 +1567,8 @@ function formConflicts(){
   const st=(($('fStatus')||{}).value||'');
   if (!who.length || !date || !start || /เลื่อน|ขัดข้อง|ยกเลิก|ไม่เข้าร่วม/.test(st)) return [];
   const sp = evSpan({start, end, hours:$('fHours').value});
-  return EVENTS.filter(e => who.includes(e.who) && e.date===date && e._st!=='off' && e._sp && spanOverlap(sp, e._sp)
+  const offOwn = w => SB[w] && /เลื่อน|ขัดข้อง|ยกเลิก|ไม่เข้าร่วม/.test(SB[w]);
+  return EVENTS.filter(e => who.includes(e.who) && !offOwn(e.who) && e.date===date && e._st!=='off' && e._sp && spanOverlap(sp, e._sp)
     && !(editingId && e.src==='form' && e.id===editingId) && !(editingExcel && e.xk===editingExcel));
 }
 function checkFormConflicts(){
@@ -1568,7 +1629,7 @@ function renderFormList(){
     return `<article class="fitem ${editingId===d.id?'editing':''}">
       <div class="r1"><b>${d.date?shortDate(d.date):'—'}</b><span>${esc(d.time||'ไม่ระบุเวลา')}</span>${d.type?`<span class="tag">${esc(d.type)}</span>`:''}<span class="pill ${st}" style="margin-left:auto">${esc(d.status||'')}</span></div>
       <div class="ttl">${esc(d.title||'')}${d.overrides?' <span class="srcbadge">แก้จาก Excel</span>':''}${d.edoc?` <a class="edocchip" href="${esc(d.edoc)}" target="_blank" rel="noopener">EDOC</a>`:''}</div>
-      <div class="meta">${who.map(w=>`<span class="av sm t-${w}" title="${esc(TEACHERS[w].name)}">${TEACHERS[w].ini}</span>`).join(' ')} ${esc(d.place||'')}</div>
+      <div class="meta">${who.map(w=>`<span class="av sm t-${w}" title="${esc(TEACHERS[w].name)}">${TEACHERS[w].ini}</span>`).join(' ')} ${esc(d.place||'')}</div>${Object.keys(parseSB(d.statusBy)).length?`<div class="sbnote">${Object.entries(parseSB(d.statusBy)).map(([w,v])=>`${esc(TEACHERS[w]?TEACHERS[w].short:w)}: <b>${esc(v)}</b>`).join(' · ')}</div>`:''}
       ${canWrite ? (confirmDel===d.id
         ? `<div class="confirm">${d.overrides?'ยกเลิกการแก้ไข และใช้ข้อมูลเดิมจาก Excel?':'ลบรายการนี้?'} <button class="btn sm danger" data-del="${d.id}">ลบ</button><button class="btn sm" data-cancel="1">ยกเลิก</button></div>`
         : `<div class="acts"><button class="btn sm" data-edit="${d.id}">แก้ไข</button><button class="btn sm danger" data-ask="${d.id}">${d.overrides?'คืนค่าเดิม':'ลบ'}</button></div>`) : ''}
@@ -1604,7 +1665,8 @@ function syncT(id){ const h=$(id+'H').value; let m=$(id+'M').value; if (h && !m)
 function setT(id, v){ const [h,m]=(v||'').split(':'); $(id+'H').value=h||''; $(id+'M').value = h ? (m && [...$(id+'M').options].some(o=>o.value===m) ? m : (m ? (()=>{ const o=document.createElement('option'); o.value=o.textContent=m; $(id+'M').appendChild(o); return m; })() : '00')) : ''; $(id).value = h ? `${h}:${$(id+'M').value}` : ''; }
 ['fStart','fEnd'].forEach(id => { $(id+'H').addEventListener('change', ()=>syncT(id)); $(id+'M').addEventListener('change', ()=>syncT(id)); });
 ['fStartH','fStartM','fEndH','fEndM','fDate','fStatus','fHours'].forEach(id => { const x=$(id); if (x){ x.addEventListener('change', checkFormConflicts); x.addEventListener('input', checkFormConflicts); } });
-$('fWho').addEventListener('change', checkFormConflicts);
+$('fWho').addEventListener('change', () => { renderStatusBy(); checkFormConflicts(); });
+$('fStatus').addEventListener('change', renderStatusBy);
 $('fHours').addEventListener('input', () => { if ($('fHours').value) $('fHours').dataset.manual='1'; else delete $('fHours').dataset.manual; });
 let hashDone=false;
 function onData(){
