@@ -432,6 +432,8 @@ footer{border-top-style:dashed}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .btn.sm{padding:4px 10px;font-size:.85em}
 .btn.danger{color:var(--accent)}
+.btn.fdel{margin-left:auto;border-color:#F0B9C2}
+.btn.fdel.armed{background:var(--accent);border-color:var(--accent);color:#fff}
 .fmsg{font-size:.9em;color:var(--ok);font-weight:500}
 .fmsg.err{color:var(--accent)}
 .ftools{display:flex;gap:6px;flex-wrap:wrap}
@@ -831,6 +833,7 @@ a.logoutpill{text-decoration:none}
           <div class="factions">
             <button type="submit" class="btn primary" id="fSave">บันทึกงาน</button>
             <button type="button" class="btn" id="fReset">ล้างฟอร์ม</button>
+            <button type="button" class="btn danger fdel" id="fDelete" hidden>ลบงานนี้</button>
             <span class="fmsg" id="fMsg" role="status"></span>
           </div>
         </form>
@@ -1437,7 +1440,7 @@ function guessPlatform(p){ p=p||''; return /teams/i.test(p)?'Microsoft Teams':/m
 function setMsg(t, err){ const m=$('fMsg'); m.textContent=t; m.className='fmsg'+(err?' err':''); }
 function resetForm(){
   editingId = null; editingExcel = null; $('entryForm').reset(); applyMode(); edocHint(); $('fDate').value = selected || todayIso; delete $('fHours').dataset.manual;
-  $('fTitle').textContent='บันทึกงานใหม่'; $('fSave').textContent='บันทึกงาน'; delete $('fSave').dataset.cf; showDateTh(); setTimeout(checkFormConflicts,0);
+  $('fTitle').textContent='บันทึกงานใหม่'; $('fSave').textContent='บันทึกงาน'; delete $('fSave').dataset.cf; delArm(false); $('fDelete').hidden=true; showDateTh(); setTimeout(checkFormConflicts,0);
   document.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad')); renderFormList();
   if (CUR_USER && !$('fRec').value) $('fRec').value = CUR_USER.name;
 }
@@ -1455,6 +1458,7 @@ function fillFromExcel(xk){
 }
 function fillForm(d){
   editingId = d.id; editingExcel = d.overrides || null;
+  delArm(false); $('fDelete').hidden = !(canWrite && d.id);
   const who = Array.isArray(d.who)?d.who:[d.who];
   document.querySelectorAll('#fWho input').forEach(i => i.checked = who.includes(i.value));
   $('fDate').value = d.date||''; setT('fStart', d.start); setT('fEnd', d.end);
@@ -1536,6 +1540,19 @@ async function saveForm(ev){
     setMsg('บันทึกไม่สำเร็จ: '+errText(e), true);
   } finally { $('fSave').disabled = !canWrite; }
 }
+function delArm(on){ const b=$('fDelete'); if (!b) return; b.classList.toggle('armed', !!on); b.textContent = on ? 'ยืนยันลบงานนี้' : 'ลบงานนี้'; }
+$('fDelete').onclick = async () => {
+  if (!editingId || !canWrite) return;
+  const b=$('fDelete');
+  if (!b.classList.contains('armed')){
+    delArm(true); setMsg('กด "ยืนยันลบงานนี้" อีกครั้งเพื่อลบ งานที่ลบแล้วจะหายจากตารางของอาจารย์ทุกท่านในงานนี้ (ดูย้อนหลังได้ในประวัติการใช้งาน)', true);
+    clearTimeout(b._t); b._t = setTimeout(()=>{ if (b.classList.contains('armed')){ delArm(false); setMsg(''); } }, 8000);
+    return;
+  }
+  b.disabled=true; setMsg('กำลังลบ…');
+  try{ const id=editingId; await deleteDoc(id); if (!editingId) setMsg('ลบงานแล้ว'); }
+  finally{ b.disabled=false; delArm(false); }
+};
 async function deleteDoc(id){
   try{ await DB.collection('entries').doc(id).delete(); if (editingId===id) resetForm(); confirmDel=null; setMsg('ลบแล้ว'); }
   catch(e){ setMsg('ลบไม่สำเร็จ: '+errText(e), true); }
