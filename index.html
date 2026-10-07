@@ -747,6 +747,7 @@ table.sheet td.cd small{display:block}
             <label class="fld"><span>ทุนสนับสนุน</span><input id="fFund"></label>
             <label class="fld"><span>ผู้บันทึก</span><input id="fRec" placeholder="ชื่อผู้บันทึก"></label>
           </div>
+          <label class="fld"><span>ช่องทางรับเอกสาร</span><input id="fDocCh" list="docChList" placeholder="เช่น EDOC / อีเมล / LINE / หนังสือตัวจริง"></label>
           <label class="fld edocfld"><span>URL เอกสาร EDOC</span><div class="urlin"><svg class="edoc-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg><input id="fEdoc" type="url" inputmode="url" placeholder="วางลิงก์หนังสือเชิญ / เอกสารในระบบ EDOC"><button type="button" class="btn sm" id="fEdocTest">ทดสอบเปิด</button></div><small id="fEdocHint"></small></label>
           <label class="fld"><span>รายละเอียดเพิ่มเติม</span><textarea id="fNotes" rows="3" placeholder="เช่น รับอาหารกลางวัน 11.50 น., เอกสารที่ต้องเตรียม, ผู้ประสานงาน/เบอร์โทร, การแต่งกาย"></textarea></label>
           <div class="factions">
@@ -756,6 +757,7 @@ table.sheet td.cd small{display:block}
           </div>
         </form>
         <datalist id="typeList"></datalist>
+        <datalist id="docChList"><option value="EDOC"><option value="อีเมล"><option value="LINE"><option value="หนังสือตัวจริง"><option value="โทรศัพท์"><option value="แจ้งด้วยวาจา"></datalist>
         <datalist id="levelList"><option value="ภาควิชาฯ"><option value="คณะฯ"><option value="มหาวิทยาลัย"><option value="ชาติ"><option value="นานาชาติ"></datalist>
       </section>
       <section class="fcard flist">
@@ -958,7 +960,7 @@ function renderCal(){
 function evCard(e){
   const rows = [
     ['สถานที่', e.place], ['ชั่วโมง', fmtH(e._h)+' ชม.'], ['ระดับ', e.level],
-    ['หน่วยงานที่เชิญ', e.inviter], ['ทุนสนับสนุน', e.fund], ['ลิงก์', e.link], ['EDOC', e.edoc], ['เพิ่มเติม', e.notes], ['ผู้บันทึก', e.rec]
+    ['หน่วยงานที่เชิญ', e.inviter], ['ทุนสนับสนุน', e.fund], ['ลิงก์', e.link], ['ช่องทางรับเอกสาร', e.docChannel], ['EDOC', e.edoc], ['เพิ่มเติม', e.notes], ['ผู้บันทึก', e.rec]
   ].filter(r => r[1]);
   return `<article class="ev t-${e.who} ${e._st}">
     <div class="r1"><span class="time">${esc(e.time||'ไม่ระบุเวลา')}</span><span class="tag">${esc(e.type)}</span>
@@ -1125,7 +1127,7 @@ function openEvModal(e){
   const rows=[['วัน/เดือน/ปี',`${fullDate(e.date)}`],['เวลา',e.time?`${e.time} น.`:''],['ประเภท',e.type],['รายการ',e.title],['รูปแบบ',modeTx],
     ...(e.mode ? [['สถานที่', e.mode==='online' ? '' : e.venue], ['แพลตฟอร์ม', e.platform], ['Meeting ID', e.meetingId], ['Passcode', e.passcode], ['ลิงก์เข้าร่วม', {html:linkHtml}]].filter(r=>r[0]==='สถานที่'?e.mode!=='online':e.mode!=='onsite') : [['สถานที่',e.place]]),
     ['หมายเหตุ (สถานะ)',e.status],
-    ['ชั่วโมง', (e.hours||e._h.v) ? fmtH(e._h)+' ชม.' : ''],['ระดับของการประชุม',e.level],['หน่วยงานที่เชิญ',e.inviter],['ทุนสนับสนุน',e.fund],['เอกสาร EDOC', e.edoc ? {html:`<a href="${esc(e.edoc)}" target="_blank" rel="noopener">${esc(e.edoc)}</a>`} : ''],['รายละเอียดเพิ่มเติม',e.notes],['ผู้บันทึก',e.rec],['วันที่บันทึกลงระบบ',{html:recDate(e).replace(/<small[^>]*>/g,' · ').replace(/<\/small>/g,'')}]];
+    ['ชั่วโมง', (e.hours||e._h.v) ? fmtH(e._h)+' ชม.' : ''],['ระดับของการประชุม',e.level],['หน่วยงานที่เชิญ',e.inviter],['ทุนสนับสนุน',e.fund],['ช่องทางรับเอกสาร',e.docChannel],['เอกสาร EDOC', e.edoc ? {html:`<a href="${esc(e.edoc)}" target="_blank" rel="noopener">${esc(e.edoc)}</a>`} : ''],['รายละเอียดเพิ่มเติม',e.notes],['ผู้บันทึก',e.rec],['วันที่บันทึกลงระบบ',{html:recDate(e).replace(/<small[^>]*>/g,' · ').replace(/<\/small>/g,'')}]];
   const box=document.getElementById('evBox');
   box.className='modal-box t-'+e.who;
   box.innerHTML=`<div class="mhead"><span class="av">${t.ini}</span><div><div class="who">${esc(t.name)}</div><h2 id="mTitle">${esc(e.title)}</h2></div><button class="x" data-close="1" aria-label="ปิด">×</button></div>
@@ -1239,11 +1241,11 @@ function downloadText(name, text, type){
   setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
 }
 function exportCSV(){
-  const head=['อาจารย์','วัน','วัน/เดือน/ปี','เวลา','ประเภท','รายการ','สถานที่','หมายเหตุ','ชม.','ระดับ','หน่วยงานที่เชิญ','ทุนสนับสนุน','ผู้บันทึก','รูปแบบ','ลิงก์เข้าร่วม','URL เอกสาร EDOC','รายละเอียดเพิ่มเติม'];
+  const head=['อาจารย์','วัน','วัน/เดือน/ปี','เวลา','ประเภท','รายการ','สถานที่','หมายเหตุ','ชม.','ระดับ','หน่วยงานที่เชิญ','ทุนสนับสนุน','ผู้บันทึก','รูปแบบ','ลิงก์เข้าร่วม','ช่องทางรับเอกสาร','URL เอกสาร EDOC','รายละเอียดเพิ่มเติม'];
   const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
   const rows=[]; [...FORM_DOCS].sort((a,b)=>(a.date||'').localeCompare(b.date||'')).forEach(d=>{
     (Array.isArray(d.who)?d.who:[d.who]).filter(w=>TEACHERS[w]).forEach(w=>{ const dt=parseIso(d.date);
-      rows.push([TEACHERS[w].name,TH_D[dt.getDay()],`${dt.getDate()} ${TH_M[dt.getMonth()]} ${be(dt.getFullYear())}`,d.time,d.type,d.title,d.place,d.status,d.hours,d.level,d.inviter,d.fund,d.rec,MODE_TH[d.mode]||'',d.link||'',d.edoc||'',d.notes||''].map(q).join(',')); });
+      rows.push([TEACHERS[w].name,TH_D[dt.getDay()],`${dt.getDate()} ${TH_M[dt.getMonth()]} ${be(dt.getFullYear())}`,d.time,d.type,d.title,d.place,d.status,d.hours,d.level,d.inviter,d.fund,d.rec,MODE_TH[d.mode]||'',d.link||'',d.docChannel||'',d.edoc||'',d.notes||''].map(q).join(',')); });
   });
   downloadText('teacher-schedule-entries.csv',[head.map(q).join(','),...rows].join('\r\n'),'text/csv;charset=utf-8');
 }
@@ -1309,7 +1311,7 @@ function fillForm(d){
   $('fPlatform').value = d.platform || guessPlatform(d.place); $('fLink').value = d.link||'';
   $('fMeetId').value = d.meetingId || (!d.mode && mode!=='onsite' ? ((d.place||'').match(/(?:id\s*[:：]?\s*)([\d\s]{9,})/i)||[])[1]?.trim()||'' : '');
   $('fPass').value = d.passcode || (!d.mode ? ((d.place||'').match(/passcode\s*[:：]?\s*(\w+)/i)||[])[1]||'' : '');
-  $('fEdoc').value = d.edoc || ''; edocHint();
+  $('fDocCh').value = d.docChannel || ''; $('fEdoc').value = d.edoc || ''; edocHint();
   $('fNotes').value = d.notes || (!d.mode && mode!=='onsite' && d.place ? 'ข้อมูลเดิม: '+d.place : ''); $('fInviter').value=d.inviter||''; $('fFund').value=d.fund||''; $('fRec').value=(d.recName||'');
   $('fTitle').textContent= d.overrides ? 'แก้ไขงาน (ข้อมูลจาก Excel)' : 'แก้ไขงาน'; $('fSave').textContent='บันทึกการแก้ไข'; showDateTh(); setMsg('');
   renderFormList(); $('entryForm').scrollIntoView({behavior:'smooth',block:'start'});
@@ -1336,7 +1338,7 @@ function readForm(){
   const stamp=`${pad(now.getDate())}/${pad(now.getMonth()+1)}/${be(now.getFullYear())}`;
   return { who, date, start, end, time, hours: $('fHours').value ? String(Number($('fHours').value).toFixed(1)) : '',
     type:$('fType').value.trim(), status:$('fStatus').value, level:$('fLevel').value.trim(), title, ...modeData(),
-    inviter:$('fInviter').value.trim(), fund:$('fFund').value.trim(), recName, rec: recName ? `${recName} ${stamp}` : `บันทึกผ่านเว็บ ${stamp}`,
+    inviter:$('fInviter').value.trim(), fund:$('fFund').value.trim(), docChannel:$('fDocCh').value.trim(), recName, rec: recName ? `${recName} ${stamp}` : `บันทึกผ่านเว็บ ${stamp}`,
     updatedAt: now.toISOString() };
 }
 async function saveForm(ev){
