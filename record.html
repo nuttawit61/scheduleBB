@@ -139,6 +139,37 @@ footer{font-size:.84em;color:var(--muted);display:flex;flex-direction:column;gap
 .pill.off{background:var(--surface-2);color:var(--muted);text-decoration:line-through}
 .pill.none{background:var(--surface-2);color:var(--muted)}
 .chip.off{opacity:.5}
+/* เวลาชนกัน */
+.chip.cf{box-shadow:inset 0 0 0 1.5px #D93025;background:#FDECEA}
+.chip.cf .tm::before{content:"⚠ ";color:#D93025}
+.day .cfmark{position:absolute;top:6px;right:7px;width:20px;height:20px;border-radius:50%;background:#D93025;color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;line-height:1;box-shadow:0 1px 3px rgb(0 0 0 / .2)}
+.ev.cf{border-color:#F0A8A1;box-shadow:inset 3px 0 0 #D93025}
+.cfnote{background:#FDECEA;color:#8A1C12;border-radius:8px;padding:6px 10px;font-size:.88em;line-height:1.5}
+.cfnote b{margin-right:4px}
+.cfnote .sep{margin:0 6px;opacity:.5}
+table.sheet tr.srow.cf td{background:#FFF1F0}
+table.sheet tr.srow.cf td.tt{color:#B3261E;font-weight:700;box-shadow:inset 3px 0 0 #D93025}
+.cfi{color:#D93025}
+.mcf{margin:0 22px 6px;background:#FDECEA;border:1px solid #F3B8B2;color:#7A1A12;border-radius:10px;padding:10px 14px;font-size:.92em}
+.mcf ul{margin:6px 0 0;padding-left:18px}
+.cfbar{border:1px solid #F3B8B2;background:#FFF4F3;border-radius:12px;padding:0;color:#7A1A12}
+.cfbar summary{cursor:pointer;padding:10px 14px;list-style:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cfbar summary::-webkit-details-marker{display:none}
+.cfbar summary small{color:#9A4A42;font-weight:400}
+.cfbar .cfic{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#D93025;color:#fff;font-size:13px;font-weight:700;flex:none}
+.cflist{display:flex;flex-direction:column;gap:6px;padding:0 14px 12px}
+.cfitem{display:grid;grid-template-columns:auto auto auto minmax(0,1fr);gap:10px;align-items:center;text-align:left;border:1px solid #F3D0CC;background:#fff;border-radius:10px;padding:8px 12px;font:inherit;font-size:.92em;color:var(--ink);cursor:pointer}
+.cfitem:hover{border-color:#D93025}
+.cfitem .sw{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.cfitem .cfw{font-weight:600}
+.cfitem .cfd{color:var(--muted);font-variant-numeric:tabular-nums}
+.cfitem .cfx i{font-style:normal;color:#D93025;font-weight:600;margin:0 4px}
+.cfwarn{grid-column:1/-1;background:#FDECEA;border:1px solid #F3B8B2;color:#7A1A12;border-radius:10px;padding:10px 14px;font-size:.92em;margin-top:8px}
+.cfwarn ul{margin:6px 0;padding-left:0;list-style:none}
+.cfwarn li{display:flex;align-items:center;gap:8px}
+.cfwarn .sw{width:10px;height:10px;border-radius:50%;background:var(--c);flex:none}
+@media (max-width:640px){ .cfitem{grid-template-columns:auto auto minmax(0,1fr)} .cfitem .cfx{grid-column:1/-1} }
+@media print{ .cfbar,.cfmark{display:none!important} table.sheet tr.srow.cf td{background:none} }
 .chip.off .tx{text-decoration:line-through}
 .ev.off .ttl{text-decoration:line-through;color:var(--muted)}
 .ev.off{opacity:.75}
@@ -729,6 +760,8 @@ a.logoutpill{text-decoration:none}
     </div>
   </div>
 
+  <details class="cfbar" id="cfBar" hidden><summary id="cfSum"></summary><div class="cflist" id="cfList"></div></details>
+
   <div id="view-cal" class="work">
     <section class="cal" aria-label="ปฏิทินรายเดือน">
       <div class="calhead">
@@ -760,6 +793,7 @@ a.logoutpill{text-decoration:none}
             <div class="fld"><span>เวลาสิ้นสุด</span><div class="tsel" role="group" aria-label="เวลาสิ้นสุด"><select id="fEndH" aria-label="ชั่วโมง"><option value="">--</option><option value="00">00</option><option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option></select><b>.</b><select id="fEndM" aria-label="นาที"><option value="">--</option><option value="00">00</option><option value="05">05</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option><option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option></select><em>น.</em></div><input type="hidden" id="fEnd" value=""></div>
             <label class="fld sm"><span>ชั่วโมง</span><input type="number" id="fHours" step="0.25" min="0" inputmode="decimal" placeholder="คำนวณให้"></label>
           </div>
+          <div class="cfwarn" id="fConflict" role="alert" hidden></div>
           <div class="frow">
             <label class="fld"><span>ประเภท</span><input id="fType" list="typeList" placeholder="เช่น ประชุม สอน วิทยากร"></label>
             <label class="fld"><span>สถานะ</span><select id="fStatus"><option>ยืนยัน</option><option>รอยืนยัน</option><option>เลื่อน</option><option>ขัดข้อง</option></select></label>
@@ -923,6 +957,30 @@ function buildEvents(){
   const y0 = +lo.slice(0,4), y1 = Math.min(Math.max(+hi.slice(0,4), new Date().getFullYear()+1), y0+9);
   YEARS = []; MONTHS = [];
   for (let yy=y0; yy<=y1; yy++){ YEARS.push(yy); for (let mm=1; mm<=12; mm++) MONTHS.push(`${yy}-${pad(mm)}`); }
+  findConflicts();
+}
+/* ===== ตรวจงานที่เวลาชน/ซ้อนกัน (อาจารย์คนเดียวกัน วันเดียวกัน ช่วงเวลาทับกัน) ===== */
+function evSpan(e){
+  const hm = v => { const m=String(v||'').match(/^(\d{1,2})[.:](\d{2})/); return m ? +m[1]*60 + +m[2] : null; };
+  let s = hm(e.start), en = hm(e.end);
+  const t = String(e.time||'');
+  if (s==null){ const m=t.match(/(\d{1,2})[.:](\d{2})(?:\s*(?:-|–|ถึง)\s*(\d{1,2})[.:](\d{2}))?/); if (m){ s=+m[1]*60 + +m[2]; if (m[3]!=null) en=+m[3]*60 + +m[4]; } }
+  if (s==null){ if (/ทั้งวัน|เต็มวัน/.test(t)){ s=480; en=990; } else if (/เช้า/.test(t)){ s=480; en=720; } else if (/บ่าย/.test(t)){ s=780; en=990; } }
+  if (s==null) return null;
+  if (en==null || en<=s){ const h=parseFloat(e.hours); en = s + (h>0 ? Math.round(h*60) : 60); }
+  return [s,en];
+}
+const spanOverlap = (a,b) => a && b && a[0] < b[1] && b[0] < a[1];
+function findConflicts(){
+  EVENTS.forEach(e => { e._cf = []; e._sp = evSpan(e); });
+  const g = {};
+  EVENTS.forEach(e => { if (e._st==='off' || !e._sp) return; (g[e.who+'|'+e.date] ||= []).push(e); });
+  Object.values(g).forEach(l => { for (let i=0;i<l.length;i++) for (let j=i+1;j<l.length;j++) if (spanOverlap(l[i]._sp, l[j]._sp)){ l[i]._cf.push(l[j]); l[j]._cf.push(l[i]); } });
+}
+const cfText = e => `${e.time||'ไม่ระบุเวลา'} ${e.title||''}`.trim();
+function cfNote(e){
+  if (!e._cf || !e._cf.length) return '';
+  return `<div class="cfnote" role="note"><b>⚠ เวลาชนกับ</b> ${e._cf.map(o=>`<span>${esc(cfText(o))}</span>`).join('<span class="sep">·</span>')}</div>`;
 }
 buildEvents();
 
@@ -1016,10 +1074,11 @@ function renderCal(){
     const ds = `${y}-${pad(m)}-${pad(d)}`, dow = new Date(y,m-1,d).getDay();
     const ev = map[ds] || [], hol = HOLIDAYS[ds];
     const cls = ['day', (dow===0||dow===6)?'we':'', ds===todayIso?'today':'', ds===selected?'sel':''].join(' ');
-    const chips = ev.slice(0,3).map(e => `<span class="chip t-${e.who} ${e._st}" title="${esc(TEACHERS[e.who].short+' · '+e.time+' · '+e.title)}"><i></i><span class="tx"><span class="tm">${esc(startLabel(e.time))}</span> ${esc(e.type)}</span></span>`).join('');
+    const dayCf = ev.some(e => e._cf && e._cf.length);
+    const chips = ev.slice(0,3).map(e => `<span class="chip t-${e.who} ${e._st}${e._cf&&e._cf.length?' cf':''}" title="${esc(TEACHERS[e.who].short+' · '+e.time+' · '+e.title+(e._cf&&e._cf.length?' · ⚠ เวลาชนกับ '+e._cf.map(cfText).join(', '):''))}"><i></i><span class="tx"><span class="tm">${esc(startLabel(e.time))}</span> ${esc(e.type)}</span></span>`).join('');
     const more = ev.length>3 ? `<span class="more">+${ev.length-3} รายการ</span>` : '';
     const label = `${d} ${TH_M[m-1]}${hol?' '+hol:''}${ev.length?` มี ${ev.length} ภารกิจ`:''}`;
-    html += `<button class="${cls}" data-d="${ds}" aria-label="${esc(label)}"><span class="dn num">${d}</span>${hol?`<span class="hol">${esc(hol)}</span>`:''}<span class="chips">${chips}${more}</span></button>`;
+    html += `<button class="${cls}${dayCf?' hascf':''}" data-d="${ds}" aria-label="${esc(label+(dayCf?' มีงานเวลาชนกัน':''))}"><span class="dn num">${d}</span>${dayCf?'<span class="cfmark" title="มีงานเวลาชนกัน">⚠</span>':''}${hol?`<span class="hol">${esc(hol)}</span>`:''}<span class="chips">${chips}${more}</span></button>`;
   }
   const tail = (7 - (lead+days)%7)%7;
   for (let k=0;k<tail;k++) html += `<div class="day blank" aria-hidden="true"></div>`;
@@ -1036,10 +1095,10 @@ function evCard(e){
     ['สถานที่', e.place], ['ชั่วโมง', fmtH(e._h)+' ชม.'], ['ระดับ', e.level],
     ['หน่วยงานที่เชิญ', e.inviter], ['ทุนสนับสนุน', e.fund], ['ลิงก์', e.link], ['ช่องทางรับเอกสาร', e.docChannel], ['EDOC', e.edoc], ['เพิ่มเติม', e.notes], ['ผู้บันทึก', e.rec]
   ].filter(r => r[1]);
-  return `<article class="ev t-${e.who} ${e._st}">
+  return `<article class="ev t-${e.who} ${e._st}${e._cf&&e._cf.length?' cf':''}">
     <div class="r1"><span class="time">${esc(e.time||'ไม่ระบุเวลา')}</span><span class="tag">${esc(e.type)}</span>
       <span class="pill ${e._st}" style="margin-left:auto">${esc(e.status||'ไม่ระบุสถานะ')}</span></div>
-    <div class="ttl">${esc(e.title)}${e.source==='web'?` <span class="srcbadge">เพิ่มจากหน้าเว็บ</span>`:''}</div>
+    <div class="ttl">${esc(e.title)}${e.source==='web'?` <span class="srcbadge">เพิ่มจากหน้าเว็บ</span>`:''}</div>${cfNote(e)}
     <dl class="kv">${rows.map(r=>`<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join('')}</dl>
     <div class="evacts">${e.edoc?`<a class="btn sm edocbtn" href="${esc(e.edoc)}" target="_blank" rel="noopener"><svg class="edoc-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg> EDOC</a>`:''}<a class="btn sm" href="${editHref(e)}">✎ แก้ไข</a></div>
   </article>`;
@@ -1111,7 +1170,19 @@ function renderHero(){
   el.innerHTML = `<div class="ht-date"><span>${TH_D[d.getDay()]}</span><b>${d.getDate()}</b><span>${TH_MS[d.getMonth()]} ${String(be(d.getFullYear())).slice(2)}</span></div><div class="ht-body"><div class="ht-lbl">วันนี้</div><div class="ht-n">${td.length ? td.length+' ภารกิจ' : 'ไม่มีภารกิจ'}</div><div class="ht-who">${ORDER.filter(c=>td.some(e=>e.who===c)).map(c=>`<span class="av sm t-${c}" title="${esc(TEACHERS[c].name)}">${TEACHERS[c].ini}</span>`).join('')}</div></div>`;
   el.onclick = () => { if (PAGE==='form') { location.href=encodeURI(MAIN_FILE); return; } selected = todayIso; month = todayIso.slice(0,7); setView('cal'); };
 }
-function renderAll(){ renderHero(); renderTeachers(); if (view==='cal'){ renderCal(); renderDetail(); } else if (view==='sheet') renderSheet(); else if (view==='form') renderFormList(); else renderList(); }
+function renderCfBar(){
+  const bar = $('cfBar'); if (!bar) return;
+  const seen = new Set(), pairs = [];
+  EVENTS.forEach((a,ia) => (a._cf||[]).forEach(b => { const ib = EVENTS.indexOf(b); const k = ia<ib ? ia+'-'+ib : ib+'-'+ia; if (seen.has(k)) return; seen.add(k);
+    if (a.date >= todayIso && active.has(a.who)) pairs.push(ia<ib ? [a,b] : [b,a]); }));
+  pairs.sort((p,q) => p[0].date.localeCompare(q[0].date) || p[0]._s - q[0]._s);
+  bar.hidden = PAGE==='form' || !pairs.length;
+  if (!pairs.length) return;
+  $('cfSum').innerHTML = `<span class="cfic">⚠</span> พบงานที่เวลาชนหรือซ้อนกัน <b>${pairs.length}</b> จุด <small>(ตั้งแต่วันนี้เป็นต้นไป · กดเพื่อดูรายการ)</small>`;
+  $('cfList').innerHTML = pairs.map(([a,b]) => `<button type="button" class="cfitem t-${a.who}" data-d="${a.date}"><span class="sw"></span><span class="cfw">${esc(TEACHERS[a.who].short)}</span><span class="cfd">${shortDate(a.date)}</span><span class="cfx">${esc(cfText(a))} <i>ชนกับ</i> ${esc(cfText(b))}</span></button>`).join('');
+  $('cfList').querySelectorAll('.cfitem').forEach(btn => btn.onclick = () => { selected = btn.dataset.d; month = selected.slice(0,7); sheetMonth = month; if (view!=='cal') setView('cal'); else { renderCal(); renderDetail(); } document.getElementById('view-cal').scrollIntoView({behavior:'smooth', block:'start'}); });
+}
+function renderAll(){ renderCfBar(); renderHero(); renderTeachers(); if (view==='cal'){ renderCal(); renderDetail(); } else if (view==='sheet') renderSheet(); else if (view==='form') renderFormList(); else renderList(); }
 
 function recDate(e){
   const v = e.createdAt || '';
@@ -1142,8 +1213,9 @@ function renderSheet(){
       continue;
     }
     list.forEach((e,i) => {
-      rows += `<tr class="srow ${e._st}${tcls}" data-d="${ds}" data-k="${EVENTS.indexOf(e)}" tabindex="0" title="ดูรายละเอียด">${i===0?dayCells(list.length + (hol?1:0)):''}
-        <td class="tt">${esc(e.time||'—')}</td>
+      const cf = e._cf && e._cf.length;
+      rows += `<tr class="srow ${e._st}${tcls}${cf?' cf':''}" data-d="${ds}" data-k="${EVENTS.indexOf(e)}" tabindex="0" title="${cf?esc('⚠ เวลาชนกับ '+e._cf.map(cfText).join(', ')):'ดูรายละเอียด'}">${i===0?dayCells(list.length + (hol?1:0)):''}
+        <td class="tt">${cf?'<span class="cfi" aria-label="เวลาชน">⚠</span> ':''}${esc(e.time||'—')}</td>
         <td><span class="tag">${esc(e.type)}</span></td>
         <td class="ti">${esc(e.title)}${e.edoc?` <a class="edocchip" href="${esc(e.edoc)}" target="_blank" rel="noopener" title="เปิดเอกสาร EDOC">EDOC</a>`:''}</td>
         <td class="sm">${esc(e.place||'')}</td>
@@ -1206,6 +1278,7 @@ function openEvModal(e){
   box.className='modal-box t-'+e.who;
   box.innerHTML=`<div class="mhead"><span class="av">${t.ini}</span><div><div class="who">${esc(t.name)}</div><h2 id="mTitle">${esc(e.title)}</h2></div><button class="x" data-close="1" aria-label="ปิด">×</button></div>
     <div class="mquick"><span class="when">${shortDate(e.date)} · ${esc(e.time||'ไม่ระบุเวลา')}</span>${e.mode?`<span class="modebadge ${e.mode}">${MODE_TH[e.mode]}</span>`:''}<span class="tag">${esc(e.type)}</span><span class="pill ${e._st}">${esc(e.status||'ไม่ระบุสถานะ')}</span></div>
+    ${e._cf && e._cf.length ? `<div class="mcf"><b>⚠ งานนี้เวลาชนกับงานอื่นของ ${esc(t.short)} ในวันเดียวกัน</b><ul>${e._cf.map(o=>`<li>${esc(cfText(o))}${o.status?` <small>(${esc(o.status)})</small>`:''}</li>`).join('')}</ul></div>` : ''}
     <table class="mtable"><tbody>${rows.map(r=>{ const v=r[1]; const has = v && (typeof v==='object' ? v.html : true); return `<tr><th>${r[0]}</th><td class="${has?'':'empty'}">${has ? (typeof v==='object' ? v.html : esc(v).replace(/\n/g,'<br>')) : '—'}</td></tr>`; }).join('')}</tbody></table>
     <div class="mfoot"><span class="src">${e.source==='excel'?'นำเข้าจากไฟล์ Excel':'บันทึกจากหน้าเว็บ'}${e.updatedAt?' · แก้ไขล่าสุด '+esc(e.updatedAt.slice(0,16).replace('T',' ')):''}${e.createdBy?`<span class="by">บันทึกโดย ${esc(byName(e.createdBy))}${e.updatedBy && e.updatedBy!==e.createdBy?` · แก้ไขล่าสุดโดย ${esc(byName(e.updatedBy))}`:''}</span>`:''}</span>
       ${e.edoc?`<a class="btn edocbtn" href="${esc(e.edoc)}" target="_blank" rel="noopener"><svg class="edoc-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg> เปิดเอกสาร EDOC</a>`:''}
@@ -1364,7 +1437,7 @@ function guessPlatform(p){ p=p||''; return /teams/i.test(p)?'Microsoft Teams':/m
 function setMsg(t, err){ const m=$('fMsg'); m.textContent=t; m.className='fmsg'+(err?' err':''); }
 function resetForm(){
   editingId = null; editingExcel = null; $('entryForm').reset(); applyMode(); edocHint(); $('fDate').value = selected || todayIso; delete $('fHours').dataset.manual;
-  $('fTitle').textContent='บันทึกงานใหม่'; $('fSave').textContent='บันทึกงาน'; showDateTh();
+  $('fTitle').textContent='บันทึกงานใหม่'; $('fSave').textContent='บันทึกงาน'; delete $('fSave').dataset.cf; showDateTh(); setTimeout(checkFormConflicts,0);
   document.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad')); renderFormList();
   if (CUR_USER && !$('fRec').value) $('fRec').value = CUR_USER.name;
 }
@@ -1423,8 +1496,31 @@ function readForm(){
     inviter:$('fInviter').value.trim(), fund:$('fFund').value.trim(), docChannel:$('fDocCh').value.trim(), recName, rec: recName ? `${recName} ${stamp}` : `บันทึกผ่านเว็บ ${stamp}`,
     updatedAt: now.toISOString() };
 }
+let cfConfirm = false;
+function formConflicts(){
+  const who=[...document.querySelectorAll('#fWho input:checked')].map(i=>i.value), date=$('fDate').value;
+  const start=$('fStart').value, end=$('fEnd').value;
+  const st=(($('fStatus')||{}).value||'');
+  if (!who.length || !date || !start || /เลื่อน|ขัดข้อง|ยกเลิก|ไม่เข้าร่วม/.test(st)) return [];
+  const sp = evSpan({start, end, hours:$('fHours').value});
+  return EVENTS.filter(e => who.includes(e.who) && e.date===date && e._st!=='off' && e._sp && spanOverlap(sp, e._sp)
+    && !(editingId && e.src==='form' && e.id===editingId) && !(editingExcel && e.xk===editingExcel));
+}
+function checkFormConflicts(){
+  const box=$('fConflict'); if (!box) return [];
+  const list = formConflicts(); cfConfirm = false;
+  if ($('fSave').dataset.cf){ $('fSave').textContent = $('fSave').dataset.cf; delete $('fSave').dataset.cf; }
+  box.hidden = !list.length;
+  if (list.length) box.innerHTML = `<b>⚠ ช่วงเวลานี้ชนกับงานที่มีอยู่แล้ว</b><ul>${list.map(e=>`<li><span class="sw t-${e.who}"></span>${esc(TEACHERS[e.who].short)} · ${esc(cfText(e))}${e.status?` <small>(${esc(e.status)})</small>`:''}</li>`).join('')}</ul><small>ถ้าตั้งใจให้ซ้อนกัน บันทึกต่อได้</small>`;
+  return list;
+}
 async function saveForm(ev){
   ev.preventDefault();
+  if (!cfConfirm && checkFormConflicts().length && DB && canWrite){
+    cfConfirm = true; $('fSave').dataset.cf = $('fSave').textContent; $('fSave').textContent = 'บันทึกทั้งที่เวลาชน';
+    setMsg('งานนี้เวลาชนกับงานอื่น ตรวจสอบด้านบน ถ้าถูกต้องแล้วกด "บันทึกทั้งที่เวลาชน" อีกครั้ง', true);
+    $('fConflict').scrollIntoView({behavior:'smooth', block:'center'}); return;
+  }
   if (!DB || !canWrite){ setMsg('หน้านี้ยังบันทึกไม่ได้ ดูข้อความด้านบน', true); return; }
   const data = readForm(); if (!data) return;
   $('fSave').disabled = true; setMsg('กำลังบันทึก…');
@@ -1490,6 +1586,8 @@ edocHint();
 function syncT(id){ const h=$(id+'H').value; let m=$(id+'M').value; if (h && !m){ m='00'; $(id+'M').value='00'; } $(id).value = h ? `${h}:${m}` : ''; autoHours(); }
 function setT(id, v){ const [h,m]=(v||'').split(':'); $(id+'H').value=h||''; $(id+'M').value = h ? (m && [...$(id+'M').options].some(o=>o.value===m) ? m : (m ? (()=>{ const o=document.createElement('option'); o.value=o.textContent=m; $(id+'M').appendChild(o); return m; })() : '00')) : ''; $(id).value = h ? `${h}:${$(id+'M').value}` : ''; }
 ['fStart','fEnd'].forEach(id => { $(id+'H').addEventListener('change', ()=>syncT(id)); $(id+'M').addEventListener('change', ()=>syncT(id)); });
+['fStartH','fStartM','fEndH','fEndM','fDate','fStatus','fHours'].forEach(id => { const x=$(id); if (x){ x.addEventListener('change', checkFormConflicts); x.addEventListener('input', checkFormConflicts); } });
+$('fWho').addEventListener('change', checkFormConflicts);
 $('fHours').addEventListener('input', () => { if ($('fHours').value) $('fHours').dataset.manual='1'; else delete $('fHours').dataset.manual; });
 let hashDone=false;
 function onData(){
