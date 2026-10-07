@@ -588,6 +588,11 @@ table.sheet td.cd small{display:block}
 .logoutpill svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .logoutpill:hover{background:#fff;color:var(--accent)}
 .logoutpill[hidden]{display:none}
+a.logoutpill{text-decoration:none}
+.acctpill .an{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gate-help{font-size:.85em!important}
+.gate-help a{color:var(--accent);font-weight:600}
+.abadge{background:#FFD54F;color:#5C3D00;border-radius:999px;font-size:.85em;font-weight:700;padding:0 7px;line-height:1.5}
 @media (max-width:640px){ .topright{top:10px;right:10px;flex-direction:column;align-items:flex-end;gap:6px} }
 @media print{ .topright{display:none} }
 /* compact connection pill + bell near record button */
@@ -621,6 +626,15 @@ table.sheet td.cd small{display:block}
 @media (max-width:640px){ .hero-side{width:100%} .hero-btn{flex:1;justify-content:center} }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 @media print{ html .hero, html .wrap>.dbbar, .modal{display:none!important} *{outline:none!important} }
+/* idle auto-logout warning */
+.idlewarn{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:58;display:flex;gap:16px;align-items:center;background:var(--surface);color:inherit;border-radius:16px;border-left:5px solid var(--accent);box-shadow:0 18px 48px rgb(20 10 14 / .28);padding:14px 16px 14px 18px;width:min(460px,calc(100% - 32px))}
+.idlewarn[hidden]{display:none}
+.idlewarn>div{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.idlewarn span{color:var(--muted);font-size:.92em}
+.idlewarn span b{color:var(--accent);font-variant-numeric:tabular-nums}
+.idlewarn .btn{white-space:nowrap}
+@media (max-width:480px){ .idlewarn{flex-direction:column;align-items:stretch;gap:10px;bottom:12px} }
+@media print{ .idlewarn{display:none!important} }
 </style>
 </head>
 <body>
@@ -634,6 +648,7 @@ table.sheet td.cd small{display:block}
   <header class="hero">
     <div class="topright">
     <div class="conn connecting" id="connPill" role="status" aria-live="polite"><span class="cdot" aria-hidden="true"></span><span id="connTx">กำลังเชื่อมต่อ…</span><button type="button" class="cref" id="connRef" title="รีเฟรชข้อมูลจาก Google Sheet" aria-label="รีเฟรชข้อมูล"><span class="ri">↻</span></button></div>
+    <a class="logoutpill acctpill" id="acctTop" href="account.html" title="บัญชีผู้ใช้ · เปลี่ยนรหัสผ่าน" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="an" id="acctName">บัญชีผู้ใช้</span><span class="abadge" id="acctBadge" hidden></span></a>
     <button type="button" class="logoutpill" id="logoutTop" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l-5-5 5-5M5 12h11"/></svg>ออกจากระบบ</button>
     </div>
     <svg class="hero-art" viewBox="0 0 860 260" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
@@ -782,17 +797,22 @@ table.sheet td.cd small{display:block}
   <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="mTitle" tabindex="-1" id="evBox"></div>
 </div>
 
+<div class="idlewarn" id="idleWarn" role="alertdialog" aria-live="assertive" hidden>
+  <div><b>ไม่มีการใช้งานมาระยะหนึ่ง</b><span>ระบบจะออกจากระบบอัตโนมัติใน <b id="idleSec">60</b> วินาที</span></div>
+  <button type="button" class="btn primary" id="idleStay">ใช้งานต่อ</button>
+</div>
 <div class="gate" id="gate" hidden>
   <div class="gate-inner">
   <img class="gate-logo" src="assets/logo.png" alt="ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล มหาวิทยาลัยมหิดล">
   <form class="gate-box" id="gateForm">
     <div class="gate-title"><span class="gate-lock" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15" r="1.3"/></svg></span>
     <h2>ตารางงานอาจารย์แพทย์</h2></div>
-    <p>กรุณาใส่รหัสเข้าใช้งานที่ได้รับจากผู้ดูแลระบบ</p>
-    <label class="fld"><span>รหัสเข้าใช้งาน</span><input type="password" id="gateKey" autocomplete="current-password" required></label>
-    <label class="gate-rem"><input type="checkbox" id="gateRem" checked> จำรหัสไว้ในเครื่องนี้</label>
+    <p>เข้าสู่ระบบด้วยบัญชีที่ได้รับจากผู้ดูแลระบบ</p>
+    <label class="fld"><span>ชื่อผู้ใช้</span><input type="text" id="gateUser" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+    <label class="fld"><span>รหัสผ่าน</span><input type="password" id="gateKey" autocomplete="current-password" required></label>
     <button type="submit" class="btn primary" id="gateBtn">เข้าใช้งาน</button>
     <div class="fmsg err" id="gateMsg" role="alert"></div>
+    <p class="gate-help">ยังไม่มีบัญชี? <a href="register.html">สมัครใช้งาน</a> · <a href="register.html#forgot">ลืมรหัสผ่าน</a></p>
   </form>
   </div>
 </div>
@@ -1149,6 +1169,10 @@ let DB = null, canWrite = false, editingId = null, editingExcel = null, confirmD
 const CFG = window.APP_CONFIG || {};
 let ROLE = null, LAST_SYNC = null;
 const KEY_STORE = 'tt-gs-key';
+const USER_STORE='tt-user';
+let PENDING = 0;
+let CUR_USER = (()=>{ try{ return JSON.parse(localStorage.getItem(USER_STORE)||'null'); }catch(_){ return null; } })();
+function lastUsername(){ try{ return localStorage.getItem('tt-last-user')||''; }catch(_){ return ''; } }
 function getKey(){ try{ return localStorage.getItem(KEY_STORE) || sessionStorage.getItem(KEY_STORE) || ''; }catch(_){ return ''; } }
 function setKey(k, remember){ try{ localStorage.removeItem(KEY_STORE); sessionStorage.removeItem(KEY_STORE); if (k) (remember?localStorage:sessionStorage).setItem(KEY_STORE,k); }catch(_){} }
 function makeApiDB(url){
@@ -1166,7 +1190,7 @@ function makeApiDB(url){
   function fire(){ const sn={docs:cache.map(d=>({id:d.id, exists:true, data:()=>d}))}; subs.forEach(f=>f(sn)); }
   async function refresh(){
     const j = await call('list');
-    ROLE = j.role; cache = j.entries||[]; LAST_SYNC = new Date();
+    ROLE = j.role; PENDING = j.pending||0; setUser(j.user); cache = j.entries||[]; LAST_SYNC = new Date();
     Object.keys(HOLIDAYS).forEach(k=>delete HOLIDAYS[k]); Object.assign(HOLIDAYS, j.holidays||{});
     document.documentElement.classList.toggle('role-view', ROLE!=='edit');
     canWrite = ROLE==='edit'; applyWriteState(); fire(); syncState();
@@ -1229,11 +1253,11 @@ function syncState(msg, err){
     bar.className='dbbar '+state;
     $('dbTx').textContent = state==='ok' ? 'เชื่อมต่อฐานข้อมูลแล้ว' : state==='error' ? 'เชื่อมต่อฐานข้อมูลไม่ได้' : 'กำลังเชื่อมต่อฐานข้อมูล…';
     $('dbMeta').textContent = state==='ok'
-      ? `Google Sheet · ${FORM_DOCS.length} รายการ · ซิงค์ล่าสุด ${t} · สิทธิ์: ${ROLE==='edit'?'บันทึกและแก้ไขได้':'ดูอย่างเดียว'}`
+      ? `Google Sheet · ${FORM_DOCS.length} รายการ · ซิงค์ล่าสุด ${t} · ${CUR_USER?esc(CUR_USER.name)+' · ':''}สิทธิ์: ${ROLE==='edit'?'บันทึกและแก้ไขได้':'ดูอย่างเดียว'}`
       : (msg || 'Google Sheet');
   }
 }
-const ERR_TH = {timeout:'Google Sheet ตอบช้าเกินไป ลองอีกครั้ง', network:'เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ต', bad_response:'Apps Script ตอบกลับไม่ถูกต้อง ตรวจสอบ URL ใน config.js', unauthorized:'รหัสเข้าใช้งานไม่ถูกต้อง', forbidden:'รหัสนี้ดูได้อย่างเดียว บันทึกหรือแก้ไขไม่ได้', server_error:'เกิดข้อผิดพลาดที่ Apps Script'};
+const ERR_TH = {timeout:'Google Sheet ตอบช้าเกินไป ลองอีกครั้ง', network:'เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ต', bad_response:'Apps Script ตอบกลับไม่ถูกต้อง ตรวจสอบ URL ใน config.js', unauthorized:'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่', forbidden:'บัญชีนี้ดูได้อย่างเดียว บันทึกหรือแก้ไขไม่ได้', must_change:'ต้องตั้งรหัสผ่านใหม่ก่อนใช้งาน', invalid_login:'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', locked:'บัญชีถูกล็อกชั่วคราว', disabled:'บัญชีนี้ถูกปิดใช้งาน ติดต่อผู้ดูแลระบบ', pending:'บัญชีนี้รอผู้ดูแลระบบอนุมัติ', server_error:'เกิดข้อผิดพลาดที่ Apps Script'};
 function errText(e){ return (ERR_TH[e&&e.code]||'เกิดข้อผิดพลาด') + (e&&e.message?` (${e.message})`:''); }
 function downloadText(name, text, type){
   const blob=new Blob(['\ufeff'+text],{type}); const a=document.createElement('a');
@@ -1285,6 +1309,7 @@ function resetForm(){
   editingId = null; editingExcel = null; $('entryForm').reset(); applyMode(); edocHint(); $('fDate').value = selected || todayIso; delete $('fHours').dataset.manual;
   $('fTitle').textContent='บันทึกงานใหม่'; $('fSave').textContent='บันทึกงาน'; showDateTh();
   document.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad')); renderFormList();
+  if (CUR_USER && !$('fRec').value) $('fRec').value = CUR_USER.name;
 }
 function timeParts(t){ const m=(t||'').match(/(\d{1,2})[.:](\d{2})(?:\s*-\s*(\d{1,2})[.:](\d{2}))?/); if(!m) return ['','']; const f=(h,mm)=>`${pad(+h)}:${mm}`; return [f(m[1],m[2]), m[3]?f(m[3],m[4]):'']; }
 function fillFromExcel(xk){
@@ -1353,7 +1378,8 @@ async function saveForm(ev){
     const saved = data.date; resetForm(); selected = saved; month = saved.slice(0,7); sheetMonth = month;
     setMsg(`บันทึกแล้ว · ${shortDate(saved)}`);
   }catch(e){
-    if (e && e.code==='unauthorized'){ showGate('รหัสหมดอายุหรือถูกเปลี่ยน กรุณาใส่รหัสใหม่'); }
+    if (e && e.code==='unauthorized'){ setKey(''); showGate('หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่ ข้อมูลที่กรอกไว้ยังอยู่'); }
+    else if (e && e.code==='must_change'){ location.href='account.html?first=1'; return; }
     setMsg('บันทึกไม่สำเร็จ: '+errText(e), true);
   } finally { $('fSave').disabled = !canWrite; }
 }
@@ -1387,7 +1413,7 @@ function applyWriteState(){
   const n=$('fNotice'); n.className='fnotice';
   if (!DB){ n.hidden=false; n.textContent='ยังไม่ได้ตั้งค่า URL ของ Apps Script ในไฟล์ config.js'; }
   else if (!ROLE){ n.hidden=false; n.className='fnotice info'; n.textContent='กำลังเชื่อมต่อ Google Sheet…'; }
-  else if (!canWrite){ n.hidden=false; n.textContent='รหัสที่ใช้อยู่ดูได้อย่างเดียว ออกจากระบบแล้วเข้าใหม่ด้วยรหัสสำหรับบันทึกงาน'; }
+  else if (!canWrite){ n.hidden=false; n.textContent='บัญชีนี้มีสิทธิ์ดูอย่างเดียว ถ้าต้องการบันทึกงาน ติดต่อผู้ดูแลระบบให้เปลี่ยนสิทธิ์'; }
   else n.hidden=true;
   document.querySelectorAll('#entryForm input:not([type=hidden]),#entryForm select,#entryForm textarea,#fSave').forEach(x=>x.disabled=!canWrite);
   renderFormList();
@@ -1418,7 +1444,7 @@ function onData(){
     if (doc){ fillForm(doc); } else setMsg('ไม่พบรายการนี้ อาจถูกลบไปแล้ว', true);
   }
 }
-function showGate(msg){ $('gate').hidden=false; $('gateMsg').textContent=msg||''; setTimeout(()=>$('gateKey').focus(),50); }
+function showGate(msg){ $('gate').hidden=false; $('gateMsg').textContent=msg||''; $('idleWarn').hidden=true; if (!$('gateUser').value) $('gateUser').value=lastUsername(); setTimeout(()=>($('gateUser').value?$('gateKey'):$('gateUser')).focus(),50); }
 const OUT_KEY='tt-logged-out';
 function isLoggedOut(){ try{ return localStorage.getItem(OUT_KEY)==='1'; }catch(_){ return false; } }
 function setLoggedOut(v){ try{ v ? localStorage.setItem(OUT_KEY,'1') : localStorage.removeItem(OUT_KEY); }catch(_){} }
@@ -1428,40 +1454,83 @@ async function connect(){
   if (isLoggedOut() && !getKey()){ syncState('ออกจากระบบแล้ว', true); showGate(''); return; }
   syncState('กำลังโหลดข้อมูลจาก Google Sheet…');
   try{ await DB.refresh(); setLoggedOut(false); $('gate').hidden=true; updateLogout(); }
-  catch(e){ if (e.code==='unauthorized'){ const had=!!getKey(); setKey(''); showGate(had?'รหัสไม่ถูกต้อง':''); updateLogout(); } else { syncState(errText(e), true); if ($('gate').hidden===false) $('gateMsg').textContent=errText(e); } }
+  catch(e){ if (e.code==='must_change'){ location.href='account.html?first=1'; return; } if (e.code==='unauthorized'){ const had=!!getKey(); setKey(''); setUser(null); showGate(had?'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่':''); updateLogout(); } else { syncState(errText(e), true); if ($('gate').hidden===false) $('gateMsg').textContent=errText(e); } }
 }
-async function verifyKey(k){
+function setUser(u){
+  CUR_USER = u ? {username:u.username, name:u.name||u.username, role:u.role} : null;
+  try{ CUR_USER ? localStorage.setItem(USER_STORE, JSON.stringify(CUR_USER)) : localStorage.removeItem(USER_STORE); if (CUR_USER) localStorage.setItem('tt-last-user', CUR_USER.username); }catch(_){}
+  if (CUR_USER && PAGE==='form' && !editingId && $('fRec') && !$('fRec').value) $('fRec').value = CUR_USER.name;
+  updateLogout();
+}
+async function apiLogin(username, password){
   const ctl = new AbortController(); const timer = setTimeout(()=>ctl.abort(), 30000);
   try{
-    const res = await fetch(CFG.API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action:'ping', key:k}), redirect:'follow', signal:ctl.signal});
-    return await res.json();
+    const res = await fetch(CFG.API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action:'login', username, password}), redirect:'follow', signal:ctl.signal});
+    try{ return await res.json(); }catch(_){ return {ok:false, error:'bad_response'}; }
   } catch(e){ return {ok:false, error: e && e.name==='AbortError' ? 'timeout' : 'network'}; }
   finally{ clearTimeout(timer); }
 }
 $('gateForm').addEventListener('submit', async ev => {
-  ev.preventDefault(); const k=$('gateKey').value.trim(); if(!k) return;
+  ev.preventDefault(); const u=$('gateUser').value.trim(), k=$('gateKey').value; if(!u || !k) return;
   const btn=$('gateBtn'); btn.disabled=true; btn.textContent='กำลังตรวจสอบ…'; $('gateMsg').textContent='';
-  const r = await verifyKey(k);
-  if (r && r.ok){
-    setKey(k, $('gateRem').checked); setLoggedOut(false);
-    btn.textContent='เข้าสู่ระบบสำเร็จ กำลังเปิดตารางงาน…';
-    location.reload();
+  const r = await apiLogin(u, k);
+  if (r && r.ok && r.token){
+    setKey(r.token, true); setLoggedOut(false); markActive(true); setUser(r.user);
+    if (r.user && r.user.mustChange){ btn.textContent='กำลังไปหน้าตั้งรหัสผ่านใหม่…'; location.href='account.html?first=1'; return; }
+    $('gateKey').value=''; btn.disabled=false; btn.textContent='เข้าใช้งาน';
+    await connect();
     return;
   }
   btn.disabled=false; btn.textContent='เข้าใช้งาน';
-  $('gateMsg').textContent = r && r.error==='unauthorized' ? 'รหัสไม่ถูกต้อง' : errText({code:r&&r.error});
+  $('gateMsg').textContent = (ERR_TH[r&&r.error]||errText({code:r&&r.error})) + (r&&r.message?' '+r.message:'');
   $('gateKey').select();
 });
 function doLogout(){
-  setKey(''); setLoggedOut(true); ROLE=null;
+  const tok=getKey(); if (tok && CFG.API_URL){ try{ fetch(CFG.API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'logout',key:tok}),keepalive:true}).catch(()=>{}); }catch(_){} }
+  setKey(''); setUser(null); setLoggedOut(true); ROLE=null;
   try{ localStorage.removeItem(ALERT_KEY); }catch(_){}
   // ล้างข้อมูลบนหน้าและแสดงหน้าใส่รหัสทันที
   FORM_DOCS=[]; buildEvents(); renderAll(); closeEvModal(); closeAlert(false);
   $('gateKey').value=''; updateLogout(); syncState('ออกจากระบบแล้ว', true); showGate('ออกจากระบบแล้ว');
 }
 $('logoutBtn').onclick = doLogout; $('logoutTop').onclick = doLogout;
-function updateLogout(){ const show = !!getKey() || (!!ROLE && !isLoggedOut()); $('logoutBtn').hidden=!show; $('logoutTop').hidden=!show; }
+function updateLogout(){ const show = !!getKey() || (!!ROLE && !isLoggedOut()); $('logoutBtn').hidden=!show; $('logoutTop').hidden=!show;
+  const a=$('acctTop'); if (a){ a.hidden = !(show && CUR_USER); if (CUR_USER) $('acctName').textContent = CUR_USER.name + (CUR_USER.role==='admin' && !/ผู้ดูแล/.test(CUR_USER.name) ? ' · ผู้ดูแลระบบ' : '');
+    const bd=$('acctBadge'); bd.hidden = !(CUR_USER && CUR_USER.role==='admin' && PENDING>0); bd.textContent = PENDING; a.title = !bd.hidden ? `มีคำขอรออนุมัติ ${PENDING} รายการ` : 'บัญชีผู้ใช้ · เปลี่ยนรหัสผ่าน'; } }
 updateLogout();
+/* ===== ออกจากระบบอัตโนมัติเมื่อไม่มีการใช้งาน ===== */
+const IDLE_MIN = (CFG.IDLE_MINUTES!=null && isFinite(+CFG.IDLE_MINUTES)) ? +CFG.IDLE_MINUTES : 30;
+const IDLE_MS = IDLE_MIN*60000, IDLE_WARN_MS = Math.min(60000, IDLE_MS/2);
+const ACT_KEY = 'tt-last-active';
+const IDLE_MSG = `ไม่มีการใช้งานเกิน ${IDLE_MIN} นาที ระบบออกจากระบบให้อัตโนมัติ กรุณาใส่รหัสอีกครั้ง`;
+let memActive = Date.now(), lastActWrite = 0, IDLE_ON_LOAD = false;
+function storedActive(){ try{ const v=localStorage.getItem(ACT_KEY); return v==null ? null : (+v||0); }catch(_){ return null; } }
+function lastActive(){ const s=storedActive(); return s==null ? memActive : Math.max(s, memActive); }
+function isSignedIn(){ return $('gate').hidden && (!!getKey() || (!!ROLE && !isLoggedOut())); }
+function markActive(force){
+  const n=Date.now(); const warn=!$('idleWarn').hidden;
+  if (!force && !warn && n-lastActWrite<5000) return;
+  memActive=n; lastActWrite=n; try{ localStorage.setItem(ACT_KEY, String(n)); }catch(_){}
+  if (warn) $('idleWarn').hidden=true;
+}
+function idleCheck(){
+  if (IDLE_MS<=0 || !isSignedIn()){ $('idleWarn').hidden=true; return; }
+  const left = IDLE_MS - (Date.now()-lastActive());
+  if (left<=0){ $('idleWarn').hidden=true; doLogout(); $('gateMsg').textContent=IDLE_MSG; return; }
+  if (left<=IDLE_WARN_MS){ $('idleSec').textContent=Math.ceil(left/1000); $('idleWarn').hidden=false; }
+  else $('idleWarn').hidden=true;
+}
+if (IDLE_MS>0 && getKey()){
+  const s=storedActive();
+  if (s && Date.now()-s>IDLE_MS){ setKey(''); setLoggedOut(true); IDLE_ON_LOAD=true; updateLogout(); }
+}
+if (!IDLE_ON_LOAD) markActive(true);
+['pointerdown','keydown','wheel','touchstart','scroll','mousemove'].forEach(t=>window.addEventListener(t, ()=>{ if (isSignedIn()) markActive(false); }, {passive:true, capture:true}));
+$('idleStay').onclick = () => markActive(true);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) idleCheck(); });
+window.addEventListener('pageshow', idleCheck);
+window.addEventListener('storage', ev => { if (ev.key===OUT_KEY && ev.newValue==='1' && $('gate').hidden){ doLogout(); $('gateMsg').textContent='ออกจากระบบจากอีกหน้าต่างหนึ่งแล้ว'; } });
+setInterval(idleCheck, 1000);
 async function manualRefresh(btn){
   if (btn) { btn.disabled=true; btn.classList.add('spin'); }
   try{ await connect(); } finally { if (btn){ btn.disabled=false; btn.classList.remove('spin'); } }
@@ -1472,6 +1541,7 @@ $('bellBtn').onclick = () => openAlert();
 let lastFocusRefresh = Date.now();
 window.addEventListener('focus', () => { if (DB && ROLE && Date.now()-lastFocusRefresh > 60000){ lastFocusRefresh=Date.now(); DB.refresh().catch(()=>{}); } });
 connect();
+if (IDLE_ON_LOAD) $('gateMsg').textContent = IDLE_MSG;
 document.getElementById('showAll').onclick = () => { active = new Set(ORDER); store.set('active',ORDER); renderAll(); };
 document.getElementById('prev').onclick = () => { const i=MONTHS.indexOf(month); if(i>0){month=MONTHS[i-1]; renderCal();} };
 document.getElementById('next').onclick = () => { const i=MONTHS.indexOf(month); if(i<MONTHS.length-1){month=MONTHS[i+1]; renderCal();} };

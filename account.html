@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>บัญชีผู้ใช้ · ตารางงานอาจารย์</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#FAFBFC; --surface:#FFFFFF; --surface-2:#F2F5F7; --ink:#1A2227; --muted:#5B676F; --line:#D9DFE3;
+  --accent:#9B1C31; --accent-soft:#F6E4E7; --ok:#2C7A47; --ok-soft:#E3F1E8; --warn:#8A5A00; --warn-soft:#FFF4D6;
+  --f-display:"Anuphan","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai","Anuphan",system-ui,sans-serif;
+  --shadow:0 1px 2px rgb(20 30 40 / .05), 0 4px 14px rgb(20 30 40 / .05);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+[hidden]{display:none!important}
+body{background:radial-gradient(1200px 380px at 85% -120px, #F8E9EC 0%, transparent 70%), linear-gradient(#FBFCFD, #F4F6F8) fixed;background-color:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:clamp(14px,.3vw + 12px,17px);line-height:1.55;min-height:100vh}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(16px,3vw,36px) 16px 56px;display:flex;flex-direction:column;gap:20px}
+
+/* hero */
+.hero{position:relative;overflow:hidden;border-radius:22px;padding:clamp(20px,3vw,32px);color:#fff;display:flex;align-items:center;gap:clamp(14px,2.4vw,28px);
+  background:radial-gradient(600px 260px at 15% 0%, #B8304A 0%, transparent 70%), linear-gradient(120deg,#6E0F21 0%,#931B32 45%,#A8233C 100%);box-shadow:0 10px 30px rgb(110 15 33 / .25)}
+.hero-logo{height:clamp(70px,7vw,104px);width:auto;padding-right:clamp(14px,2.4vw,28px);border-right:1px solid rgb(255 255 255 / .35);filter:drop-shadow(0 2px 6px rgb(40 0 10 / .35))}
+.hero .eyebrow{color:#FFE3E8;font-size:.9em}
+.hero h1{font-size:clamp(26px,2.6vw,40px);line-height:1.2;margin-top:2px;text-shadow:0 2px 12px rgb(60 0 10 / .25)}
+.hero .sub{color:#FFD7DE;margin-top:4px;font-size:.93em}
+.hero-main{flex:1;min-width:0}
+.toplinks{position:absolute;top:12px;right:14px;display:flex;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid rgb(255 255 255 / .28);background:rgb(255 255 255 / .16);color:#fff;border-radius:999px;padding:5px 12px 5px 9px;font:inherit;font-size:.8em;cursor:pointer;text-decoration:none;backdrop-filter:blur(6px)}
+.pill:hover{background:#fff;color:var(--accent)}
+.pill svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* banners & cards */
+.banner{display:flex;gap:12px;align-items:flex-start;border-radius:14px;padding:14px 16px;background:var(--warn-soft);border:1px solid #F1D58A;color:#4A3300}
+.banner b{display:block;font-family:var(--f-display)}
+.banner svg{flex:none;width:22px;height:22px;margin-top:2px;fill:none;stroke:var(--warn);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.banner.ok{background:var(--ok-soft);border-color:#B9DEC6;color:#173F25}
+.banner.ok svg{stroke:var(--ok)}
+.grid{display:grid;grid-template-columns:minmax(260px,1fr) minmax(0,1.6fr);gap:20px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:clamp(18px,2.4vw,26px);display:flex;flex-direction:column;gap:16px;min-width:0}
+.card h2{font-size:1.18em;display:flex;align-items:center;gap:10px}
+.card h2 .ic{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--accent-soft);flex:none}
+.card h2 .ic svg{width:18px;height:18px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.card .lead{margin:-8px 0 0;color:var(--muted);font-size:.92em}
+
+.me{display:flex;gap:14px;align-items:center}
+.avatar{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-family:var(--f-display);font-weight:700;font-size:1.4em;flex:none}
+.me b{font-family:var(--f-display);font-size:1.12em;display:block;line-height:1.3}
+.me code{font-family:inherit;color:var(--muted);font-size:.92em}
+dl.info{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:0;font-size:.93em}
+dl.info dt{color:var(--muted)}
+dl.info dd{margin:0}
+.role{display:inline-flex;align-items:center;border-radius:999px;padding:1px 10px;font-size:.84em;font-weight:600;white-space:nowrap}
+.role.admin{background:#1A2227;color:#fff}
+.role.edit{background:var(--accent-soft);color:var(--accent)}
+.role.view{background:var(--surface-2);color:var(--muted)}
+
+/* forms */
+.fld{display:flex;flex-direction:column;gap:5px;min-width:0}
+.fld>span{font-size:.88em;font-weight:600}
+.fld input,.fld select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;width:100%;min-width:0}
+.fld input:focus,.fld select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.pw{position:relative}
+.pw input{padding-right:44px}
+.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:none;width:36px;height:36px;border-radius:8px;cursor:pointer;display:grid;place-items:center;color:var(--muted)}
+.eye:hover{background:var(--surface-2);color:var(--ink)}
+.eye svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.eye .off{display:none}
+.eye[aria-pressed="true"] .on{display:none}
+.eye[aria-pressed="true"] .off{display:block}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rules{list-style:none;margin:0;padding:12px 14px;border-radius:12px;background:var(--surface-2);display:grid;gap:4px;font-size:.88em;color:var(--muted)}
+.rules li{display:flex;gap:8px;align-items:center}
+.rules li::before{content:"";width:16px;height:16px;border-radius:50%;border:1.5px solid #B7C0C6;flex:none;box-sizing:border-box}
+.rules li.ok{color:var(--ok)}
+.rules li.ok::before{border:0;background:var(--ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.3l2.6 2.5L12 5.4' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/16px no-repeat}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{font:inherit;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 18px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sm{padding:5px 11px;font-size:.85em;border-radius:8px}
+.btn.danger{color:var(--accent)}
+.btn.danger.solid{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fmsg{font-size:.9em;color:var(--ok);font-weight:500;min-height:1.2em}
+.fmsg.err{color:var(--accent)}
+
+/* users */
+.uhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.uhead .meta{color:var(--muted);font-size:.9em;font-weight:400;font-family:var(--f-body)}
+.addbox{border:1px dashed #C9CFD4;border-radius:14px;padding:16px;display:grid;grid-template-columns:1.3fr 1fr 1fr auto;gap:12px;align-items:end;background:#FCFDFD}
+.addbox .hint{grid-column:1/-1;margin:0;color:var(--muted);font-size:.86em}
+.utable{width:100%;border-collapse:collapse;font-size:.93em}
+.utable th{text-align:left;font-weight:600;color:var(--muted);font-size:.86em;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.utable td{padding:10px;border-bottom:1px solid #EEF1F3;vertical-align:middle}
+.utable tr:last-child td{border-bottom:0}
+.utable tr.off td{color:var(--muted)}
+.utable tr.off .uname b{text-decoration:line-through;text-decoration-color:#B7C0C6}
+.uname b{display:block;font-weight:600}
+.uname code{font-family:inherit;color:var(--muted);font-size:.9em}
+.uname .you{font-size:.78em;background:var(--surface-2);color:var(--muted);border-radius:6px;padding:0 6px;margin-left:6px;font-weight:500}
+.utable select{font:inherit;font-size:.92em;border:1px solid var(--line);border-radius:8px;padding:5px 8px;background:var(--surface);color:var(--ink);max-width:100%}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:.88em;white-space:nowrap}
+.status::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.status.off::before{background:#B7C0C6}
+.status.temp::before{background:#E0A100}
+.uacts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.muted{color:var(--muted)}
+.empty{padding:20px;text-align:center;color:var(--muted)}
+
+/* approval requests */
+.reqlist{display:flex;flex-direction:column;gap:10px}
+.req{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 16px;align-items:center;border:1px solid var(--line);border-left:4px solid #E0A100;border-radius:12px;padding:12px 14px;background:#FFFCF3}
+.req.reset{border-left-color:var(--accent);background:#FFF8F9}
+.req .rk{font-size:.78em;font-weight:600;letter-spacing:.02em;color:#8A5A00;text-transform:none}
+.req.reset .rk{color:var(--accent)}
+.req b{display:block;font-weight:600}
+.req .rmeta{color:var(--muted);font-size:.88em}
+.req .rmeta code{font-family:inherit;color:var(--ink)}
+.req .ra{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.req select{font:inherit;font-size:.9em;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--surface)}
+.req .warn{grid-column:1/-1;margin:0;font-size:.84em;color:#6B4600}
+.reqempty{padding:14px;border-radius:12px;background:var(--surface-2);color:var(--muted);text-align:center;font-size:.92em}
+.status.reset::before{background:var(--accent)}
+@media (max-width:720px){ .req{grid-template-columns:1fr} .req .ra{justify-content:flex-start} }
+/* temp password modal */
+.modal{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:16px}
+.modal-bg{position:absolute;inset:0;background:rgb(20 10 14 / .45)}
+.modal-box{position:relative;background:var(--surface);border-radius:18px;box-shadow:0 24px 60px rgb(20 10 14 / .35);padding:26px;width:min(440px,100%);display:flex;flex-direction:column;gap:14px}
+.modal-box h3{font-size:1.2em}
+.modal-box p{margin:0;color:var(--muted);font-size:.92em}
+.tempbox{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:12px 14px}
+.tempbox dl{margin:0;flex:1;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.92em}
+.tempbox dt{color:var(--muted)}
+.tempbox dd{margin:0;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;font-weight:600;word-break:break-all}
+.tempbox dd.big{font-size:1.25em;letter-spacing:.06em;color:var(--accent)}
+
+/* gate */
+.gate{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:24px 16px;overflow:auto;background:radial-gradient(900px 500px at 50% -10%, #C23A55 0%, transparent 60%),radial-gradient(700px 400px at 100% 110%, #5A0B1B 0%, transparent 60%),linear-gradient(135deg,#6E0F21,#A8233C)}
+.gate-inner{display:flex;flex-direction:column;align-items:center;gap:22px;width:min(420px,100%)}
+.gate-logo{width:min(300px,78%);height:auto;filter:drop-shadow(0 4px 14px rgb(40 0 10 / .4))}
+.gate-box{background:var(--surface);border-radius:20px;box-shadow:0 24px 60px rgb(20 10 14 / .35);padding:28px;width:100%;text-align:center;display:flex;flex-direction:column;gap:14px}
+.gate-box h2{font-size:1.3em}
+.gate-title{display:flex;flex-direction:column;align-items:center;gap:10px}
+.gate-lock{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--accent-soft)}
+.gate-lock svg{width:24px;height:24px;fill:none;stroke:var(--accent);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.gate-box .fld{text-align:center}
+.gate-box .fld input{text-align:center;font-size:1.05em}
+.gate-box .btn{width:100%;padding:11px;justify-content:center}
+.gate-box p{margin:0;color:var(--muted);font-size:.92em}
+.gate-box .gate-help{font-size:.88em}
+.gate-box .gate-help a{color:var(--accent);font-weight:600}
+
+/* idle warning */
+.idlewarn{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:58;display:flex;gap:16px;align-items:center;background:var(--surface);border-radius:16px;border-left:5px solid var(--accent);box-shadow:0 18px 48px rgb(20 10 14 / .28);padding:14px 16px 14px 18px;width:min(460px,calc(100% - 32px))}
+.idlewarn>div{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.idlewarn span{color:var(--muted);font-size:.92em}
+.idlewarn span b{color:var(--accent);font-variant-numeric:tabular-nums}
+
+@media (max-width:900px){
+  .grid{grid-template-columns:1fr}
+  .addbox{grid-template-columns:1fr 1fr}
+  .addbox .btn{grid-column:1/-1;justify-content:center}
+}
+@media (max-width:720px){
+  .hero{flex-direction:column;align-items:flex-start;padding-top:56px}
+  .hero-logo{border-right:0;padding-right:0;height:64px}
+  .row2{grid-template-columns:1fr}
+  .addbox{grid-template-columns:1fr}
+  .utable thead{display:none}
+  .utable,.utable tbody,.utable tr,.utable td{display:block;width:100%}
+  .utable tr{border:1px solid var(--line);border-radius:12px;padding:6px 4px;margin-bottom:10px}
+  .utable td{border:0;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .utable td[data-l]::before{content:attr(data-l);color:var(--muted);font-size:.85em;flex:none}
+  .utable td.uname{display:block}
+  .uacts{justify-content:flex-start}
+  .idlewarn{flex-direction:column;align-items:stretch;gap:10px;bottom:12px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="toplinks">
+      <a class="pill" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>กลับไปตารางงาน</a>
+      <button type="button" class="pill" id="logoutTop" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l-5-5 5-5M5 12h11"/></svg>ออกจากระบบ</button>
+    </div>
+    <img class="hero-logo" src="assets/logo.png" alt="ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล">
+    <div class="hero-main">
+      <div class="eyebrow">ตารางงานอาจารย์แพทย์</div>
+      <h1>บัญชีผู้ใช้และรหัสผ่าน</h1>
+      <div class="sub" id="heroSub">ตั้งรหัสผ่านของคุณ และจัดการผู้ใช้ (สำหรับผู้ดูแลระบบ)</div>
+    </div>
+  </header>
+
+  <div class="banner" id="firstBanner" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <div><b>ตั้งรหัสผ่านใหม่ก่อนเริ่มใช้งาน</b>คุณเข้าสู่ระบบด้วยรหัสชั่วคราว กรุณาตั้งรหัสผ่านของคุณเองด้านล่าง แล้วจะเข้าใช้ตารางงานได้ทันที</div>
+  </div>
+  <div class="banner ok" id="doneBanner" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.6L16 9.8"/></svg>
+    <div><b>ตั้งรหัสผ่านใหม่เรียบร้อย</b><span id="doneTx">ครั้งต่อไปให้เข้าสู่ระบบด้วยรหัสผ่านใหม่นี้</span></div>
+    <a class="btn primary sm" href="index.html" id="goSchedule" style="margin-left:auto;flex:none">ไปที่ตารางงาน</a>
+  </div>
+
+  <section class="card" id="reqCard" aria-labelledby="reqH" hidden>
+    <div class="uhead">
+      <h2 id="reqH"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 8v4l2.5 2.5"/><circle cx="12" cy="12" r="9"/></svg></span>คำขอรออนุมัติ <span class="meta" id="reqCount"></span></h2>
+    </div>
+    <div class="reqlist" id="reqList"></div>
+  </section>
+
+  <div class="grid" id="mainGrid" hidden>
+    <section class="card" aria-labelledby="meH">
+      <h2 id="meH"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>บัญชีของฉัน</h2>
+      <div class="me"><div class="avatar" id="meAv">?</div><div><b id="meName">—</b><code id="meUser">—</code></div></div>
+      <dl class="info">
+        <dt>สิทธิ์</dt><dd id="meRole">—</dd>
+        <dt>เข้าสู่ระบบล่าสุด</dt><dd id="meLast">—</dd>
+      </dl>
+      <p class="muted" style="margin:0;font-size:.88em">ต้องการเปลี่ยนชื่อหรือสิทธิ์ ติดต่อผู้ดูแลระบบ</p>
+    </section>
+
+    <section class="card" aria-labelledby="pwH">
+      <h2 id="pwH"><span class="ic"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>เปลี่ยนรหัสผ่าน</h2>
+      <p class="lead">เปลี่ยนแล้ว อุปกรณ์อื่นที่เข้าสู่ระบบด้วยบัญชีนี้ค้างไว้จะถูกออกจากระบบ</p>
+      <form id="pwForm" autocomplete="on" novalidate>
+        <input type="text" name="username" id="pwUserHidden" autocomplete="username" hidden>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <label class="fld"><span id="oldLbl">รหัสผ่านปัจจุบัน</span><div class="pw"><input type="password" id="pwOld" autocomplete="current-password" required><button type="button" class="eye" aria-label="แสดงรหัสผ่าน" aria-pressed="false"><svg class="on" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c6.5 0 10 6 10 6a17 17 0 0 1-3.2 3.8M6.2 7.2A17 17 0 0 0 2 12s3.5 6 10 6a9.7 9.7 0 0 0 4.2-.9"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button></div></label>
+          <div class="row2">
+            <label class="fld"><span>รหัสผ่านใหม่</span><div class="pw"><input type="password" id="pwNew" autocomplete="new-password" required><button type="button" class="eye" aria-label="แสดงรหัสผ่าน" aria-pressed="false"><svg class="on" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c6.5 0 10 6 10 6a17 17 0 0 1-3.2 3.8M6.2 7.2A17 17 0 0 0 2 12s3.5 6 10 6a9.7 9.7 0 0 0 4.2-.9"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button></div></label>
+            <label class="fld"><span>ยืนยันรหัสผ่านใหม่</span><div class="pw"><input type="password" id="pwNew2" autocomplete="new-password" required><button type="button" class="eye" aria-label="แสดงรหัสผ่าน" aria-pressed="false"><svg class="on" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c6.5 0 10 6 10 6a17 17 0 0 1-3.2 3.8M6.2 7.2A17 17 0 0 0 2 12s3.5 6 10 6a9.7 9.7 0 0 0 4.2-.9"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button></div></label>
+          </div>
+          <ul class="rules" id="pwRules">
+            <li data-r="len">ยาวอย่างน้อย <span class="minlen">8</span> ตัวอักษร</li>
+            <li data-r="mix">มีทั้งตัวอักษรและตัวเลข</li>
+            <li data-r="diff">ไม่ซ้ำกับรหัสผ่านปัจจุบันและชื่อผู้ใช้</li>
+            <li data-r="match">ช่องยืนยันตรงกับรหัสผ่านใหม่</li>
+          </ul>
+          <div class="actions"><button type="submit" class="btn primary" id="pwSave">บันทึกรหัสผ่านใหม่</button><div class="fmsg" id="pwMsg" role="status"></div></div>
+        </div>
+      </form>
+    </section>
+  </div>
+
+
+  <section class="card" id="adminCard" aria-labelledby="admH" hidden>
+    <div class="uhead">
+      <h2 id="admH"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6.5 6.5 0 0 1 3.5 6"/></svg></span>ผู้ใช้ทั้งหมด <span class="meta" id="uCount"></span></h2>
+      <div class="actions"><button type="button" class="btn sm" id="copyReg" title="คัดลอกลิงก์หน้าสมัครใช้งานไปส่งให้ผู้ใช้"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>คัดลอกลิงก์สมัครใช้งาน</button><button type="button" class="btn sm" id="uReload">↻ โหลดใหม่</button></div>
+    </div>
+    <p class="lead" style="margin:0">ผู้ใช้สมัครและตั้งรหัสผ่านเองที่หน้าสมัครใช้งาน คำขอจะมาแสดงที่ "คำขอรออนุมัติ" ด้านบน</p>
+    <div class="fmsg" id="uMsg" role="status"></div>
+    <div style="overflow-x:auto">
+      <table class="utable">
+        <thead><tr><th>ผู้ใช้</th><th>สิทธิ์</th><th>สถานะ</th><th>เข้าสู่ระบบล่าสุด</th><th style="text-align:right">จัดการ</th></tr></thead>
+        <tbody id="uBody"><tr><td colspan="5" class="empty">กำลังโหลด…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div class="idlewarn" id="idleWarn" role="alertdialog" aria-live="assertive" hidden>
+  <div><b>ไม่มีการใช้งานมาระยะหนึ่ง</b><span>ระบบจะออกจากระบบอัตโนมัติใน <b id="idleSec">60</b> วินาที</span></div>
+  <button type="button" class="btn primary" id="idleStay">ใช้งานต่อ</button>
+</div>
+
+<div class="gate" id="gate" hidden>
+  <div class="gate-inner">
+  <img class="gate-logo" src="assets/logo.png" alt="ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล มหาวิทยาลัยมหิดล">
+  <form class="gate-box" id="gateForm">
+    <div class="gate-title"><span class="gate-lock" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15" r="1.3"/></svg></span>
+    <h2>บัญชีผู้ใช้</h2></div>
+    <p>เข้าสู่ระบบด้วยบัญชีที่ได้รับจากผู้ดูแลระบบ</p>
+    <label class="fld"><span>ชื่อผู้ใช้</span><input type="text" id="gateUser" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+    <label class="fld"><span>รหัสผ่าน</span><input type="password" id="gateKey" autocomplete="current-password" required></label>
+    <button type="submit" class="btn primary" id="gateBtn">เข้าใช้งาน</button>
+    <div class="fmsg err" id="gateMsg" role="alert"></div>
+    <p class="gate-help">ยังไม่มีบัญชี? <a href="register.html">สมัครใช้งาน</a> · <a href="register.html#forgot">ลืมรหัสผ่าน</a></p>
+  </form>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const CFG = window.APP_CONFIG || {};
+const MIN_PW = 8;
+const ROLE_TH = {admin:'ผู้ดูแลระบบ', edit:'บันทึกและแก้ไขงาน', view:'ดูอย่างเดียว'};
+const ERR_TH = {timeout:'Google Sheet ตอบช้าเกินไป ลองอีกครั้ง', network:'เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ต', bad_response:'Apps Script ตอบกลับไม่ถูกต้อง ตรวจสอบว่าอัปเดตโค้ด Apps Script เป็นเวอร์ชันบัญชีผู้ใช้แล้ว', unauthorized:'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่', forbidden:'บัญชีนี้ไม่มีสิทธิ์ทำรายการนี้', must_change:'ต้องตั้งรหัสผ่านใหม่ก่อน', invalid_login:'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', locked:'บัญชีถูกล็อกชั่วคราว', disabled:'บัญชีนี้ถูกปิดใช้งาน ติดต่อผู้ดูแลระบบ', pending:'บัญชีนี้รอผู้ดูแลระบบอนุมัติ', wrong_password:'รหัสผ่านปัจจุบันไม่ถูกต้อง', weak_password:'รหัสผ่านใหม่ยังไม่ผ่านเงื่อนไข', exists:'มีชื่อผู้ใช้นี้แล้ว', not_found:'ไม่พบผู้ใช้นี้', last_admin:'ต้องมีผู้ดูแลระบบอย่างน้อย 1 คน', invalid_argument:'ข้อมูลไม่ถูกต้อง', unknown_action:'Apps Script ยังเป็นเวอร์ชันเก่า กรุณาอัปเดตโค้ดและทำให้ใช้งานได้เวอร์ชันใหม่', server_error:'เกิดข้อผิดพลาดที่ Apps Script'};
+function errText(e){ const c=e&&(e.code||e.error); return e&&e.message ? e.message : (ERR_TH[c]||'เกิดข้อผิดพลาด'); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+const TH_MS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+function thDate(v){
+  if (!v) return 'ยังไม่เคย';
+  const d = new Date(v); if (isNaN(d)) return esc(v);
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getDate()} ${TH_MS[d.getMonth()]} ${String(d.getFullYear()+543).slice(-2)} · ${p(d.getHours())}.${p(d.getMinutes())} น.`;
+}
+
+/* ===== session storage (ใช้ร่วมกับหน้าตารางงาน) ===== */
+const KEY_STORE='tt-gs-key', USER_STORE='tt-user', OUT_KEY='tt-logged-out', ACT_KEY='tt-last-active';
+function getKey(){ try{ return localStorage.getItem(KEY_STORE) || sessionStorage.getItem(KEY_STORE) || ''; }catch(_){ return ''; } }
+function setKey(k){ try{ localStorage.removeItem(KEY_STORE); sessionStorage.removeItem(KEY_STORE); if (k) localStorage.setItem(KEY_STORE,k); }catch(_){} }
+function setLoggedOut(v){ try{ v ? localStorage.setItem(OUT_KEY,'1') : localStorage.removeItem(OUT_KEY); }catch(_){} }
+function storeUser(u){ try{ if (u){ localStorage.setItem(USER_STORE, JSON.stringify({username:u.username,name:u.name,role:u.role})); localStorage.setItem('tt-last-user', u.username); } else localStorage.removeItem(USER_STORE); }catch(_){} }
+function lastUsername(){ try{ return localStorage.getItem('tt-last-user')||''; }catch(_){ return ''; } }
+
+async function api(action, payload, withKey=true){
+  if (!CFG.API_URL || /PASTE|วาง/.test(CFG.API_URL)) throw {code:'bad_response', message:'ยังไม่ได้ใส่ URL ของ Apps Script ในไฟล์ config.js'};
+  const ctl = new AbortController(); const timer = setTimeout(()=>ctl.abort(), 30000);
+  let res;
+  try{ res = await fetch(CFG.API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action, ...(withKey?{key:getKey()}:{}), ...(payload||{})}), redirect:'follow', signal:ctl.signal}); }
+  catch(e){ throw {code: e && e.name==='AbortError' ? 'timeout' : 'network'}; }
+  finally{ clearTimeout(timer); }
+  let j; try{ j = await res.json(); }catch(_){ throw {code:'bad_response'}; }
+  if (!j.ok){
+    if (j.error==='unauthorized' && withKey){ setKey(''); showGate('หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่'); }
+    throw {code:j.error||'server_error', message:j.message||''};
+  }
+  return j;
+}
+
+/* ===== state ===== */
+let ME = null, FIRST = false, USERS = [], confirmDel = null;
+
+function showGate(msg){
+  $('gate').hidden=false; $('mainGrid').hidden=true; $('adminCard').hidden=true; $('reqCard').hidden=true; $('firstBanner').hidden=true; $('logoutTop').hidden=true; $('idleWarn').hidden=true;
+  $('gateMsg').textContent=msg||''; if (!$('gateUser').value) $('gateUser').value=lastUsername();
+  setTimeout(()=>($('gateUser').value?$('gateKey'):$('gateUser')).focus(),50);
+}
+
+async function start(){
+  if (!getKey()){ showGate(''); return; }
+  try{
+    const j = await api('me');
+    $('gate').hidden=true; setLoggedOut(false);
+    render(j.user);
+  }catch(e){ if (e.code!=='unauthorized'){ showGate(errText(e)); } }
+}
+
+function render(u){
+  ME = u; storeUser(u);
+  FIRST = !!u.mustChange;
+  $('mainGrid').hidden=false; $('logoutTop').hidden=false;
+  const bare=(u.name||u.username).replace(/^([^\s.]{1,8}\.)+/,''); $('meAv').textContent = ((bare.match(/[ก-ฮA-Za-z0-9]/)||['?'])[0]).toUpperCase();
+  $('meName').textContent = u.name || u.username;
+  $('meUser').textContent = u.username;
+  $('pwUserHidden').value = u.username;
+  $('meRole').innerHTML = `<span class="role ${esc(u.role)}">${ROLE_TH[u.role]||esc(u.role)}</span>`;
+  $('meLast').textContent = thDate(u.lastLogin);
+  $('firstBanner').hidden = !FIRST;
+  $('oldLbl').textContent = FIRST ? 'รหัสชั่วคราวที่ได้รับ' : 'รหัสผ่านปัจจุบัน';
+  $('heroSub').textContent = FIRST ? 'ตั้งรหัสผ่านของคุณเองก่อนเริ่มใช้งาน' : (u.role==='admin' ? 'เปลี่ยนรหัสผ่านของคุณ และจัดการบัญชีผู้ใช้ทั้งหมด' : 'เปลี่ยนรหัสผ่านของคุณ');
+  document.querySelectorAll('a[href="index.html"]').forEach(a=>a.style.visibility = FIRST ? 'hidden' : '');
+  $('adminCard').hidden = !(u.role==='admin' && !FIRST); $('reqCard').hidden = $('adminCard').hidden;
+  if (u.role==='admin' && !FIRST) loadUsers();
+  checkRules();
+  if (FIRST) setTimeout(()=>$('pwOld').focus(), 60);
+}
+
+/* ===== change password ===== */
+function rules(){
+  const o=$('pwOld').value, n=$('pwNew').value, n2=$('pwNew2').value;
+  return {
+    len: n.length >= MIN_PW,
+    mix: /[A-Za-z฀-๿]/.test(n) && /[0-9]/.test(n),
+    diff: !!n && n!==o && (!ME || n.toLowerCase()!==ME.username),
+    match: !!n && n===n2,
+  };
+}
+function checkRules(){
+  const r = rules();
+  document.querySelectorAll('#pwRules li').forEach(li => li.classList.toggle('ok', !!r[li.dataset.r]));
+  return Object.values(r).every(Boolean);
+}
+document.querySelectorAll('.minlen').forEach(x=>x.textContent=MIN_PW);
+['pwOld','pwNew','pwNew2'].forEach(id => $(id).addEventListener('input', ()=>{ checkRules(); $('pwMsg').textContent=''; }));
+document.querySelectorAll('.eye').forEach(b => b.onclick = () => {
+  const inp = b.parentElement.querySelector('input'); const show = inp.type==='password';
+  inp.type = show ? 'text' : 'password'; b.setAttribute('aria-pressed', show); b.setAttribute('aria-label', show ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน');
+});
+$('pwForm').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const msg=$('pwMsg'); msg.className='fmsg err';
+  if (!$('pwOld').value){ msg.textContent = FIRST ? 'กรุณาใส่รหัสชั่วคราว' : 'กรุณาใส่รหัสผ่านปัจจุบัน'; $('pwOld').focus(); return; }
+  if (!checkRules()){ msg.textContent='รหัสผ่านใหม่ยังไม่ผ่านเงื่อนไขด้านบน'; $('pwNew').focus(); return; }
+  const btn=$('pwSave'); btn.disabled=true; msg.className='fmsg'; msg.textContent='กำลังบันทึก…';
+  try{
+    const j = await api('changePassword', {oldPassword:$('pwOld').value, newPassword:$('pwNew').value});
+    setKey(j.token); markActive(true);
+    const wasFirst = FIRST;
+    ['pwOld','pwNew','pwNew2'].forEach(id=>$(id).value='');
+    msg.textContent='';
+    render(j.user);
+    $('doneBanner').hidden=false;
+    $('doneTx').textContent = wasFirst ? 'เข้าใช้ตารางงานได้แล้ว ครั้งต่อไปให้เข้าสู่ระบบด้วยรหัสผ่านใหม่นี้' : 'ครั้งต่อไปให้เข้าสู่ระบบด้วยรหัสผ่านใหม่นี้ อุปกรณ์อื่นที่เข้าสู่ระบบค้างไว้ต้องเข้าสู่ระบบใหม่';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }catch(e){
+    msg.className='fmsg err'; msg.textContent = errText(e);
+    if (e.code==='wrong_password') { $('pwOld').select(); }
+  }finally{ btn.disabled=false; }
+});
+
+/* ===== admin: users & approval requests ===== */
+async function loadUsers(){
+  try{ const j = await api('users_list'); USERS = j.users||[]; renderAll(); }
+  catch(e){ $('uBody').innerHTML = `<tr><td colspan="5" class="empty">${esc(errText(e))}</td></tr>`; $('reqList').innerHTML=''; }
+}
+function renderAll(){ renderRequests(); renderUsers(); }
+function renderRequests(){
+  const regs = USERS.filter(u=>!u.approved).sort((a,b)=>String(a.createdAt).localeCompare(String(b.createdAt)));
+  const resets = USERS.filter(u=>u.approved && u.resetRequested && u.active);
+  const n = regs.length + resets.length;
+  $('reqCount').textContent = n ? `· ${n} รายการ` : '';
+  if (!n){ $('reqList').innerHTML = '<div class="reqempty">ไม่มีคำขอค้างอยู่</div>'; return; }
+  $('reqList').innerHTML = regs.map(u => `
+    <div class="req">
+      <div><span class="rk">ขอสมัครใช้งาน</span><b>${esc(u.name)}</b>
+        <div class="rmeta">ชื่อผู้ใช้ <code>${esc(u.username)}</code>${u.note?` · ${esc(u.note)}`:''} · ส่งเมื่อ ${thDate(u.createdAt)}</div></div>
+      <div class="ra"><select data-approve-role="${esc(u.username)}" aria-label="สิทธิ์ที่ให้ ${esc(u.name)}"><option value="edit">บันทึกและแก้ไขงาน</option><option value="view">ดูอย่างเดียว</option><option value="admin">ผู้ดูแลระบบ</option></select>
+        <button class="btn sm primary" data-act="approve" data-u="${esc(u.username)}">อนุมัติ</button>
+        ${confirmDel===u.username ? `<button class="btn sm danger solid" data-act="reject2" data-u="${esc(u.username)}">ยืนยันปฏิเสธ</button><button class="btn sm" data-act="cancel">ยกเลิก</button>` : `<button class="btn sm danger" data-act="reject" data-u="${esc(u.username)}">ปฏิเสธ</button>`}</div>
+    </div>`).join('') + resets.map(u => `
+    <div class="req reset">
+      <div><span class="rk">ขอตั้งรหัสผ่านใหม่</span><b>${esc(u.name)}</b>
+        <div class="rmeta">ชื่อผู้ใช้ <code>${esc(u.username)}</code> · ส่งเมื่อ ${thDate(u.resetAt)}</div></div>
+      <div class="ra"><button class="btn sm primary" data-act="rapprove" data-u="${esc(u.username)}">อนุมัติรหัสใหม่</button><button class="btn sm" data-act="rreject" data-u="${esc(u.username)}">ไม่อนุมัติ</button></div>
+      <p class="warn">ใครก็ส่งคำขอนี้ได้ถ้ารู้ชื่อผู้ใช้ ตรวจสอบกับเจ้าของบัญชีก่อนอนุมัติ</p>
+    </div>`).join('');
+}
+function renderUsers(){
+  const order = {admin:0, edit:1, view:2};
+  const list = USERS.filter(u=>u.approved).sort((a,b)=> (b.active-a.active) || (order[a.role]-order[b.role]) || String(a.name).localeCompare(String(b.name),'th'));
+  const act = list.filter(u=>u.active).length;
+  $('uCount').textContent = `· ${list.length} บัญชี${act<list.length?` (ใช้งาน ${act})`:''}`;
+  if (!list.length){ $('uBody').innerHTML = '<tr><td colspan="5" class="empty">ยังไม่มีผู้ใช้</td></tr>'; return; }
+  $('uBody').innerHTML = list.map(u => {
+    const me = ME && u.username===ME.username;
+    const st = !u.active ? '<span class="status off">ปิดใช้งาน</span>' : u.mustChange ? '<span class="status temp">รอตั้งรหัสใหม่</span>' : u.resetRequested ? '<span class="status reset">ขอรหัสใหม่</span>' : '<span class="status">ใช้งานได้</span>';
+    const acts = me ? '<span class="muted" style="font-size:.85em">บัญชีของคุณ</span>' : confirmDel===u.username
+      ? `<button class="btn sm danger solid" data-act="del2" data-u="${esc(u.username)}">ยืนยันลบ</button><button class="btn sm" data-act="cancel">ยกเลิก</button>`
+      : `<button class="btn sm" data-act="toggle" data-u="${esc(u.username)}">${u.active?'ปิดใช้งาน':'เปิดใช้งาน'}</button><button class="btn sm danger" data-act="del" data-u="${esc(u.username)}">ลบ</button>`;
+    return `<tr class="${u.active?'':'off'}">
+      <td class="uname"><b>${esc(u.name)}${me?'<span class="you">คุณ</span>':''}</b><code>${esc(u.username)}</code>${u.note?`<small class="muted" style="display:block;font-size:.84em">${esc(u.note)}</small>`:''}</td>
+      <td data-l="สิทธิ์"><select data-role="${esc(u.username)}" aria-label="สิทธิ์ของ ${esc(u.name)}" ${me?'disabled title="เปลี่ยนสิทธิ์ของตัวเองไม่ได้"':''}>${['admin','edit','view'].map(r=>`<option value="${r}" ${u.role===r?'selected':''}>${ROLE_TH[r]}</option>`).join('')}</select></td>
+      <td data-l="สถานะ">${st}</td>
+      <td data-l="เข้าสู่ระบบล่าสุด" class="muted">${thDate(u.lastLogin)}</td>
+      <td><div class="uacts">${acts}</div></td></tr>`;
+  }).join('');
+}
+function uMsg(t, err){ const m=$('uMsg'); m.className='fmsg'+(err?' err':''); m.textContent=t||''; }
+$('uBody').addEventListener('change', async ev => {
+  const sel = ev.target.closest('select[data-role]'); if (!sel) return;
+  const u = USERS.find(x=>x.username===sel.dataset.role); const prev=u.role;
+  sel.disabled=true; uMsg('กำลังบันทึก…');
+  try{ const j=await api('users_update',{username:u.username, role:sel.value}); Object.assign(u,j.user); uMsg(`เปลี่ยนสิทธิ์ ${u.name} เป็น "${ROLE_TH[u.role]}" แล้ว`); }
+  catch(e){ sel.value=prev; uMsg(errText(e), true); }
+  finally{ renderUsers(); }
+});
+async function onAct(ev){
+  const b = ev.target.closest('button[data-act]'); if (!b) return;
+  const act=b.dataset.act, u=USERS.find(x=>x.username===b.dataset.u);
+  if (act==='cancel'){ confirmDel=null; renderAll(); return; }
+  if (act==='del' || act==='reject'){ confirmDel=u.username; renderAll(); return; }
+  b.disabled=true; uMsg('กำลังดำเนินการ…');
+  try{
+    if (act==='approve'){
+      const role = document.querySelector(`select[data-approve-role="${CSS.escape(u.username)}"]`).value;
+      const j=await api('users_approve',{username:u.username, role}); Object.assign(u,j.user);
+      uMsg(`อนุมัติ ${u.name} แล้ว (สิทธิ์: ${ROLE_TH[u.role]}) ผู้ใช้เข้าสู่ระบบด้วยรหัสผ่านที่ตั้งไว้ได้เลย`);
+    } else if (act==='reject2'){
+      await api('users_reject',{username:u.username}); USERS=USERS.filter(x=>x!==u); confirmDel=null; uMsg(`ปฏิเสธคำขอของ ${u.name} แล้ว`);
+    } else if (act==='rapprove'){
+      const j=await api('users_reset_approve',{username:u.username}); Object.assign(u,j.user); uMsg(`อนุมัติรหัสผ่านใหม่ของ ${u.name} แล้ว รหัสเดิมใช้ไม่ได้อีก`);
+    } else if (act==='rreject'){
+      const j=await api('users_reset_reject',{username:u.username}); Object.assign(u,j.user); uMsg(`ไม่อนุมัติคำขอรหัสใหม่ของ ${u.name} รหัสเดิมยังใช้ได้`);
+    } else if (act==='toggle'){
+      const j=await api('users_update',{username:u.username, active:!u.active}); Object.assign(u,j.user); uMsg(`${u.active?'เปิด':'ปิด'}ใช้งานบัญชี ${u.name} แล้ว${u.active?'':' ผู้ใช้นี้จะเข้าสู่ระบบไม่ได้จนกว่าจะเปิดใหม่'}`);
+    } else if (act==='del2'){
+      await api('users_delete',{username:u.username}); USERS=USERS.filter(x=>x!==u); confirmDel=null; uMsg(`ลบบัญชี ${u.name} แล้ว`);
+    }
+  }catch(e){ uMsg(errText(e), true); }
+  renderAll();
+}
+$('uBody').addEventListener('click', onAct);
+$('reqList').addEventListener('click', onAct);
+$('uReload').onclick = () => { uMsg(''); loadUsers(); };
+$('copyReg').onclick = async () => {
+  const url = location.href.replace(/account\.html.*$/,'') + 'register.html';
+  try{ await navigator.clipboard.writeText(url); uMsg('คัดลอกลิงก์แล้ว: '+url); }
+  catch(_){ uMsg('ลิงก์หน้าสมัครใช้งาน: '+url); }
+};
+function closeTemp(){}
+
+/* ===== login / logout ===== */
+$('gateForm').addEventListener('submit', async ev => {
+  ev.preventDefault(); const u=$('gateUser').value.trim(), k=$('gateKey').value; if(!u || !k) return;
+  const btn=$('gateBtn'); btn.disabled=true; btn.textContent='กำลังตรวจสอบ…'; $('gateMsg').textContent='';
+  try{
+    const j = await api('login', {username:u, password:k}, false);
+    setKey(j.token); setLoggedOut(false); markActive(true); $('gateKey').value='';
+    $('gate').hidden=true; render(j.user);
+  }catch(e){
+    $('gateMsg').textContent = (ERR_TH[e.code]||errText(e)) + (e.message && ERR_TH[e.code] ? ' '+e.message : '');
+    $('gateKey').select();
+  }finally{ btn.disabled=false; btn.textContent='เข้าใช้งาน'; }
+});
+function doLogout(msg){
+  const tok=getKey(); if (tok && CFG.API_URL){ try{ fetch(CFG.API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'logout',key:tok}),keepalive:true}).catch(()=>{}); }catch(_){} }
+  setKey(''); storeUser(null); setLoggedOut(true); ME=null; USERS=[]; closeTemp(); $('doneBanner').hidden=true;
+  ['pwOld','pwNew','pwNew2'].forEach(id=>$(id).value='');
+  showGate(msg||'ออกจากระบบแล้ว');
+}
+$('logoutTop').onclick = () => doLogout();
+
+/* ===== ออกจากระบบอัตโนมัติเมื่อไม่มีการใช้งาน (ใช้ค่าเดียวกับหน้าตารางงาน) ===== */
+const IDLE_MIN = (CFG.IDLE_MINUTES!=null && isFinite(+CFG.IDLE_MINUTES)) ? +CFG.IDLE_MINUTES : 30;
+const IDLE_MS = IDLE_MIN*60000, IDLE_WARN_MS = Math.min(60000, IDLE_MS/2);
+const IDLE_MSG = `ไม่มีการใช้งานเกิน ${IDLE_MIN} นาที ระบบออกจากระบบให้อัตโนมัติ กรุณาเข้าสู่ระบบอีกครั้ง`;
+let memActive = Date.now(), lastActWrite = 0;
+function storedActive(){ try{ const v=localStorage.getItem(ACT_KEY); return v==null ? null : (+v||0); }catch(_){ return null; } }
+function lastActive(){ const s=storedActive(); return s==null ? memActive : Math.max(s, memActive); }
+function isSignedIn(){ return $('gate').hidden && !!getKey(); }
+function markActive(force){
+  const n=Date.now(); const warn=!$('idleWarn').hidden;
+  if (!force && !warn && n-lastActWrite<5000) return;
+  memActive=n; lastActWrite=n; try{ localStorage.setItem(ACT_KEY, String(n)); }catch(_){}
+  if (warn) $('idleWarn').hidden=true;
+}
+function idleCheck(){
+  if (IDLE_MS<=0 || !isSignedIn()){ $('idleWarn').hidden=true; return; }
+  const left = IDLE_MS - (Date.now()-lastActive());
+  if (left<=0){ doLogout(IDLE_MSG); return; }
+  if (left<=IDLE_WARN_MS){ $('idleSec').textContent=Math.ceil(left/1000); $('idleWarn').hidden=false; }
+  else $('idleWarn').hidden=true;
+}
+let idleOnLoad=false;
+if (IDLE_MS>0 && getKey()){ const s=storedActive(); if (s && Date.now()-s>IDLE_MS){ setKey(''); storeUser(null); setLoggedOut(true); idleOnLoad=true; } }
+if (!idleOnLoad) markActive(true);
+['pointerdown','keydown','wheel','touchstart','scroll','mousemove'].forEach(t=>window.addEventListener(t, ()=>{ if (isSignedIn()) markActive(false); }, {passive:true, capture:true}));
+$('idleStay').onclick = () => markActive(true);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) idleCheck(); });
+window.addEventListener('pageshow', idleCheck);
+window.addEventListener('storage', ev => { if (ev.key===OUT_KEY && ev.newValue==='1' && $('gate').hidden){ setKey(''); ME=null; closeTemp(); showGate('ออกจากระบบจากอีกหน้าต่างหนึ่งแล้ว'); } });
+setInterval(idleCheck, 1000);
+
+if (idleOnLoad) showGate(IDLE_MSG); else start();
+</script>
+</body>
+</html>

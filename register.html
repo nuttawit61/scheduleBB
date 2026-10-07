@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>สมัครใช้งาน · ตารางงานอาจารย์</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+:root{
+  --surface:#FFFFFF; --surface-2:#F2F5F7; --ink:#1A2227; --muted:#5B676F; --line:#D9DFE3;
+  --accent:#9B1C31; --accent-soft:#F6E4E7; --ok:#2C7A47; --ok-soft:#E3F1E8;
+  --f-display:"Anuphan","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai","Anuphan",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+[hidden]{display:none!important}
+body{min-height:100vh;font-family:var(--f-body);color:var(--ink);font-size:clamp(14px,.3vw + 12px,17px);line-height:1.55;
+  background:radial-gradient(900px 500px at 50% -10%, #C23A55 0%, transparent 60%),radial-gradient(700px 400px at 100% 110%, #5A0B1B 0%, transparent 60%),linear-gradient(135deg,#6E0F21,#A8233C) fixed;background-color:#7A1426}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:28px 16px 40px}
+.logo{width:min(280px,72%);height:auto;filter:drop-shadow(0 4px 14px rgb(40 0 10 / .4))}
+.card{background:var(--surface);border-radius:20px;box-shadow:0 24px 60px rgb(20 10 14 / .35);width:min(520px,100%);padding:clamp(20px,4vw,30px);display:flex;flex-direction:column;gap:18px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--surface-2);border-radius:12px;padding:4px;gap:4px}
+.tabs button{border:0;background:none;border-radius:9px;padding:9px 10px;cursor:pointer;font-weight:600;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--accent);box-shadow:0 1px 3px rgb(20 30 40 / .12)}
+.head{display:flex;flex-direction:column;gap:4px}
+.head h1{font-size:1.35em}
+.head p{margin:0;color:var(--muted);font-size:.93em}
+form{display:flex;flex-direction:column;gap:13px}
+.fld{display:flex;flex-direction:column;gap:5px;min-width:0}
+.fld>span{font-size:.88em;font-weight:600}
+.fld>span em{font-style:normal;font-weight:400;color:var(--muted)}
+.fld small{color:var(--muted);font-size:.82em}
+.fld input{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;width:100%;min-width:0}
+.fld input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.fld input.bad{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.pw{position:relative}
+.pw input{padding-right:44px}
+.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:none;width:36px;height:36px;border-radius:8px;cursor:pointer;display:grid;place-items:center;color:var(--muted)}
+.eye:hover{background:var(--surface-2);color:var(--ink)}
+.eye svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.eye .off{display:none}
+.eye[aria-pressed="true"] .on{display:none}
+.eye[aria-pressed="true"] .off{display:block}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rules{list-style:none;margin:0;padding:11px 14px;border-radius:12px;background:var(--surface-2);display:grid;gap:3px;font-size:.86em;color:var(--muted)}
+.rules li{display:flex;gap:8px;align-items:center}
+.rules li::before{content:"";width:16px;height:16px;border-radius:50%;border:1.5px solid #B7C0C6;flex:none;box-sizing:border-box}
+.rules li.ok{color:var(--ok)}
+.rules li.ok::before{border:0;background:var(--ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.3l2.6 2.5L12 5.4' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/16px no-repeat}
+.btn{font:inherit;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:11px 18px;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.msg{font-size:.9em;color:var(--accent);font-weight:500;min-height:1.2em;margin:-4px 0 0}
+.note{margin:0;padding:10px 12px;border-radius:10px;background:#FFF7E1;color:#4A3300;font-size:.86em}
+.foot{text-align:center;color:var(--muted);font-size:.9em;margin:0}
+.foot a{color:var(--accent);font-weight:600}
+.done{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:8px 0}
+.done .tick{width:60px;height:60px;border-radius:50%;background:var(--ok-soft);display:grid;place-items:center}
+.done .tick svg{width:30px;height:30px;fill:none;stroke:var(--ok);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.done h2{font-size:1.3em}
+.done p{margin:0;color:var(--muted)}
+.done dl{margin:4px 0;display:grid;grid-template-columns:auto auto;gap:4px 14px;background:var(--surface-2);border-radius:12px;padding:12px 18px;text-align:left}
+.done dt{color:var(--muted);font-size:.92em}
+.done dd{margin:0;font-weight:600;word-break:break-all}
+.done .btn{width:100%}
+.under{color:rgb(255 255 255 / .75);font-size:.82em;text-align:center;margin:0}
+@media (max-width:520px){ .row2{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<main class="page">
+  <img class="logo" src="assets/logo.png" alt="ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล มหาวิทยาลัยมหิดล">
+  <div class="card">
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" id="tabReg" aria-selected="true" aria-controls="regPane">สมัครใช้งาน</button>
+      <button type="button" role="tab" id="tabForgot" aria-selected="false" aria-controls="forgotPane">ลืมรหัสผ่าน</button>
+    </div>
+
+    <!-- สมัครใช้งาน -->
+    <section id="regPane" role="tabpanel" aria-labelledby="tabReg">
+      <div id="regFormWrap">
+        <div class="head"><h1>สมัครใช้งานตารางงานอาจารย์</h1><p>ตั้งชื่อผู้ใช้และรหัสผ่านเอง แล้วรอผู้ดูแลระบบอนุมัติ</p></div>
+        <form id="regForm" novalidate style="margin-top:16px">
+          <label class="fld"><span>ชื่อ-นามสกุล</span><input id="rName" autocomplete="name" placeholder="เช่น ผศ.พญ.กุลวรา กิตติสาเรศ" required></label>
+          <label class="fld"><span>ชื่อผู้ใช้</span><input id="rUser" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="เช่น kulwara.kit" required><small>ภาษาอังกฤษตัวเล็ก ตัวเลข และ . _ - @ ได้ ยาว 3–60 ตัว ใช้ตอนเข้าสู่ระบบ</small></label>
+          <label class="fld"><span>ตำแหน่ง / หน่วยงาน <em>(ไม่บังคับ)</em></span><input id="rNote" placeholder="เช่น อาจารย์ภาควิชาฯ, เจ้าหน้าที่ธุรการ"><small>ช่วยให้ผู้ดูแลระบบรู้ว่าเป็นใคร</small></label>
+          <div class="row2">
+            <label class="fld"><span>รหัสผ่าน</span><div class="pw"><input type="password" id="rPw" autocomplete="new-password" required><button type="button" class="eye" aria-label="แสดงรหัสผ่าน" aria-pressed="false"><svg class="on" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c6.5 0 10 6 10 6a17 17 0 0 1-3.2 3.8M6.2 7.2A17 17 0 0 0 2 12s3.5 6 10 6a9.7 9.7 0 0 0 4.2-.9"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button></div></label>
+            <label class="fld"><span>ยืนยันรหัสผ่าน</span><div class="pw"><input type="password" id="rPw2" autocomplete="new-password" required><button type="button" class="eye" aria-label="แสดงรหัสผ่าน" aria-pressed="false"><svg class="on" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c6.5 0 10 6 10 6a17 17 0 0 1-3.2 3.8M6.2 7.2A17 17 0 0 0 2 12s3.5 6 10 6a9.7 9.7 0 0 0 4.2-.9"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button></div></label>
+          </div>
+          <ul class="rules" id="rRules">
+            <li data-r="len">ยาวอย่างน้อย 8 ตัวอักษร</li>
+            <li data-r="mix">มีทั้งตัวอักษรและตัวเลข</li>
+            <li data-r="diff">ไม่เหมือนชื่อผู้ใช้</li>
+            <li data-r="match">ช่องยืนยันตรงกับรหัสผ่าน</li>
+          </ul>
+          <button type="submit" class="btn primary" id="rBtn">ส่งคำขอสมัคร</button>
+          <p class="msg" id="rMsg" role="alert"></p>
+        </form>
+      </div>
+      <div class="done" id="regDone" hidden>
+        <div class="tick"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 3.8L18 8"/></svg></div>
+        <h2>ส่งคำขอสมัครแล้ว</h2>
+        <p>เมื่อผู้ดูแลระบบอนุมัติ จะเข้าสู่ระบบได้ด้วยชื่อผู้ใช้และรหัสผ่านที่ตั้งไว้</p>
+        <dl><dt>ชื่อ</dt><dd id="dName"></dd><dt>ชื่อผู้ใช้</dt><dd id="dUser"></dd></dl>
+        <p style="font-size:.88em">ถ้ารีบใช้งาน แจ้งผู้ดูแลระบบให้อนุมัติได้เลย</p>
+        <a class="btn primary" href="index.html">ไปหน้าเข้าสู่ระบบ</a>
+      </div>
+    </section>
+
+    <!-- ลืมรหัสผ่าน -->
+    <section id="forgotPane" role="tabpanel" aria-labelledby="tabForgot" hidden>
+      <div id="fgFormWrap">
+        <div class="head"><h1>ตั้งรหัสผ่านใหม่</h1><p>ตั้งรหัสผ่านใหม่เอง แล้วรอผู้ดูแลระบบอนุมัติ ระหว่างนี้รหัสเดิมยังใช้ได้</p></div>
+        <form id="fgForm" novalidate style="margin-top:16px">
+          <label class="fld"><span>ชื่อผู้ใช้</span><input id="fUser" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+          <div class="row2">
+            <label class="fld"><span>รหัสผ่านใหม่</span><div class="pw"><input type="password" id="fPw" autocomplete="new-password" required><button type="button" class="eye" aria-label="แสดงรหัสผ่าน" aria-pressed="false"><svg class="on" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c6.5 0 10 6 10 6a17 17 0 0 1-3.2 3.8M6.2 7.2A17 17 0 0 0 2 12s3.5 6 10 6a9.7 9.7 0 0 0 4.2-.9"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button></div></label>
+            <label class="fld"><span>ยืนยันรหัสผ่านใหม่</span><div class="pw"><input type="password" id="fPw2" autocomplete="new-password" required><button type="button" class="eye" aria-label="แสดงรหัสผ่าน" aria-pressed="false"><svg class="on" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c6.5 0 10 6 10 6a17 17 0 0 1-3.2 3.8M6.2 7.2A17 17 0 0 0 2 12s3.5 6 10 6a9.7 9.7 0 0 0 4.2-.9"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button></div></label>
+          </div>
+          <ul class="rules" id="fRules">
+            <li data-r="len">ยาวอย่างน้อย 8 ตัวอักษร</li>
+            <li data-r="mix">มีทั้งตัวอักษรและตัวเลข</li>
+            <li data-r="diff">ไม่เหมือนชื่อผู้ใช้</li>
+            <li data-r="match">ช่องยืนยันตรงกับรหัสผ่านใหม่</li>
+          </ul>
+          <button type="submit" class="btn primary" id="fBtn">ส่งคำขอตั้งรหัสใหม่</button>
+          <p class="msg" id="fMsg" role="alert"></p>
+        </form>
+      </div>
+      <div class="done" id="fgDone" hidden>
+        <div class="tick"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 3.8L18 8"/></svg></div>
+        <h2>ส่งคำขอแล้ว</h2>
+        <p>แจ้งผู้ดูแลระบบให้อนุมัติรหัสผ่านใหม่ หลังอนุมัติแล้วให้เข้าสู่ระบบด้วยรหัสใหม่ ระหว่างนี้รหัสเดิมยังใช้ได้</p>
+        <p class="note">ถ้าพิมพ์ชื่อผู้ใช้ผิด คำขอนี้จะไม่มีผล ลองตรวจชื่อผู้ใช้แล้วส่งใหม่</p>
+        <a class="btn primary" href="index.html">ไปหน้าเข้าสู่ระบบ</a>
+      </div>
+    </section>
+
+    <p class="foot">มีบัญชีแล้ว? <a href="index.html">เข้าสู่ระบบ</a></p>
+  </div>
+  <p class="under">ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล</p>
+</main>
+
+<script src="config.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const CFG = window.APP_CONFIG || {};
+const MIN_PW = 8;
+const ERR_TH = {timeout:'Google Sheet ตอบช้าเกินไป ลองอีกครั้ง', network:'เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ต', bad_response:'ระบบยังไม่พร้อม แจ้งผู้ดูแลระบบให้อัปเดต Apps Script', unknown_action:'ระบบยังไม่พร้อม แจ้งผู้ดูแลระบบให้อัปเดต Apps Script', server_error:'เกิดข้อผิดพลาดที่ระบบ ลองใหม่อีกครั้ง'};
+
+async function api(action, payload){
+  if (!CFG.API_URL || /PASTE|วาง/.test(CFG.API_URL)) throw {code:'bad_response'};
+  const ctl = new AbortController(); const timer = setTimeout(()=>ctl.abort(), 30000);
+  let res;
+  try{ res = await fetch(CFG.API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action, ...payload}), redirect:'follow', signal:ctl.signal}); }
+  catch(e){ throw {code: e && e.name==='AbortError' ? 'timeout' : 'network'}; }
+  finally{ clearTimeout(timer); }
+  let j; try{ j = await res.json(); }catch(_){ throw {code:'bad_response'}; }
+  if (!j.ok) throw {code:j.error||'server_error', message:j.message||''};
+  return j;
+}
+function errText(e){ return (e && e.message) || ERR_TH[e && e.code] || 'เกิดข้อผิดพลาด ลองใหม่อีกครั้ง'; }
+
+/* tabs */
+function setTab(t){
+  const forgot = t==='forgot';
+  $('tabReg').setAttribute('aria-selected', !forgot); $('tabForgot').setAttribute('aria-selected', forgot);
+  $('regPane').hidden = forgot; $('forgotPane').hidden = !forgot;
+  document.title = (forgot ? 'ลืมรหัสผ่าน' : 'สมัครใช้งาน') + ' · ตารางงานอาจารย์';
+  if (location.hash !== (forgot?'#forgot':'')) history.replaceState(null,'', forgot ? '#forgot' : location.pathname);
+}
+$('tabReg').onclick = () => setTab('reg');
+$('tabForgot').onclick = () => setTab('forgot');
+setTab(location.hash==='#forgot' ? 'forgot' : 'reg');
+try{ const last=localStorage.getItem('tt-last-user'); if (last) $('fUser').value = last; }catch(_){}
+
+/* show/hide password */
+document.querySelectorAll('.eye').forEach(b => b.onclick = () => {
+  const inp = b.parentElement.querySelector('input'); const show = inp.type==='password';
+  inp.type = show ? 'text' : 'password'; b.setAttribute('aria-pressed', show); b.setAttribute('aria-label', show ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน');
+});
+
+/* password rules */
+function rulesFor(user, pw, pw2){
+  return { len: pw.length >= MIN_PW, mix: /[A-Za-z฀-๿]/.test(pw) && /[0-9]/.test(pw), diff: !!pw && pw.toLowerCase() !== user.trim().toLowerCase(), match: !!pw && pw===pw2 };
+}
+function paint(listId, r){ document.querySelectorAll('#'+listId+' li').forEach(li => li.classList.toggle('ok', !!r[li.dataset.r])); return Object.values(r).every(Boolean); }
+const regRules = () => paint('rRules', rulesFor($('rUser').value, $('rPw').value, $('rPw2').value));
+const fgRules = () => paint('fRules', rulesFor($('fUser').value, $('fPw').value, $('fPw2').value));
+['rUser','rPw','rPw2'].forEach(id => $(id).addEventListener('input', ()=>{ regRules(); $('rMsg').textContent=''; $(id).classList.remove('bad'); }));
+['fUser','fPw','fPw2'].forEach(id => $(id).addEventListener('input', ()=>{ fgRules(); $('fMsg').textContent=''; $(id).classList.remove('bad'); }));
+['rUser','fUser'].forEach(id => $(id).addEventListener('input', ()=>{ const v=$(id).value, n=v.toLowerCase().replace(/\s+/g,''); if (n!==v) $(id).value=n; }));
+$('rName').addEventListener('input', ()=>{ $('rName').classList.remove('bad'); $('rMsg').textContent=''; });
+regRules(); fgRules();
+
+function bad(id, msgEl, text){ $(id).classList.add('bad'); $(id).focus(); $(msgEl).textContent = text; }
+
+/* register */
+$('regForm').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const name=$('rName').value.trim(), username=$('rUser').value.trim().toLowerCase(), note=$('rNote').value.trim(), pw=$('rPw').value;
+  if (!name) return bad('rName','rMsg','กรุณาใส่ชื่อ-นามสกุล');
+  if (!/^[a-z0-9._@-]{3,60}$/.test(username)) return bad('rUser','rMsg','ชื่อผู้ใช้ใช้ได้เฉพาะ a-z 0-9 . _ - @ ยาว 3–60 ตัว');
+  if (!regRules()) return bad(pw ? 'rPw2' : 'rPw','rMsg','รหัสผ่านยังไม่ผ่านเงื่อนไขด้านบน');
+  const btn=$('rBtn'); btn.disabled=true; btn.textContent='กำลังส่งคำขอ…'; $('rMsg').textContent='';
+  try{
+    await api('register', {name, username, note, password:pw});
+    try{ localStorage.setItem('tt-last-user', username); }catch(_){}
+    $('dName').textContent=name; $('dUser').textContent=username;
+    $('regFormWrap').hidden=true; $('regDone').hidden=false;
+  }catch(e){
+    if (e.code==='exists') bad('rUser','rMsg', errText(e)); else $('rMsg').textContent = errText(e);
+  }finally{ btn.disabled=false; btn.textContent='ส่งคำขอสมัคร'; }
+});
+
+/* forgot password */
+$('fgForm').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const username=$('fUser').value.trim().toLowerCase(), pw=$('fPw').value;
+  if (!username) return bad('fUser','fMsg','กรุณาใส่ชื่อผู้ใช้');
+  if (!fgRules()) return bad(pw ? 'fPw2' : 'fPw','fMsg','รหัสผ่านใหม่ยังไม่ผ่านเงื่อนไขด้านบน');
+  const btn=$('fBtn'); btn.disabled=true; btn.textContent='กำลังส่งคำขอ…'; $('fMsg').textContent='';
+  try{
+    await api('request_reset', {username, password:pw});
+    try{ localStorage.setItem('tt-last-user', username); }catch(_){}
+    $('fgFormWrap').hidden=true; $('fgDone').hidden=false;
+  }catch(e){ $('fMsg').textContent = errText(e); }
+  finally{ btn.disabled=false; btn.textContent='ส่งคำขอตั้งรหัสใหม่'; }
+});
+</script>
+</body>
+</html>
