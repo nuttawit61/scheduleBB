@@ -233,7 +233,21 @@ footer{font-size:.84em;color:var(--muted);display:flex;flex-direction:column;gap
 .seg{display:inline-flex;flex-wrap:wrap;gap:6px}
 .seg button{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:500}
 .seg button[aria-pressed="true"]{border-color:var(--c);background:var(--soft);color:var(--ink);box-shadow:inset 0 0 0 1px var(--c)}
-.sheetbar .mchips{margin-left:auto}
+.sheetbar .ympick{margin-left:auto}
+.sheetbar .pdfbtn{margin-left:auto}
+.ympwrap{margin-left:auto;min-width:0;max-width:100%}
+.ympick{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;max-width:100%}
+.ympick .mchips{margin-left:0;flex-wrap:wrap}
+.ysel{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:2px;gap:2px;flex:none}
+.ysel button{border:0;background:none;border-radius:999px;padding:3px 12px;font:inherit;font-weight:600;font-size:.86em;cursor:pointer;color:var(--muted);font-variant-numeric:tabular-nums}
+.ysel button:hover{color:var(--ink)}
+.ysel button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.ympick .mchips button{display:inline-flex;align-items:center;gap:3px}
+.ympick .mchips button i{font-style:normal;font-size:.78em;font-weight:700;opacity:.8;font-variant-numeric:tabular-nums}
+.ympick .mchips button.none:not([aria-current="true"]){opacity:.6}
+.ympick .mchips button.now:not([aria-current="true"]){border-color:var(--accent);color:var(--accent)}
+@media (max-width:760px){ .ympwrap,.sheetbar .ympick{margin-left:0;width:100%} .ympick .mchips{flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:2px} .ympick .mchips button{flex:none} }
+@media print{ .ympick{display:none!important} }
 .sheetwrap{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .sheethead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:16px 18px;border-bottom:3px solid var(--c)}
 .sheethead .eyebrow{font-size:.84em;color:var(--muted)}
@@ -714,7 +728,7 @@ a.logoutpill{text-decoration:none}
         <button class="navbtn" id="prev" aria-label="เดือนก่อนหน้า">‹</button>
         <button class="navbtn" id="next" aria-label="เดือนถัดไป">›</button>
         <h2 id="mtitle"></h2>
-        <div class="mchips" id="mchips"></div>
+        <div class="ympwrap" id="mpick"></div>
       </div>
       <div class="dow"><div>อา.</div><div>จ.</div><div>อ.</div><div>พ.</div><div>พฤ.</div><div>ศ.</div><div>ส.</div></div>
       <div class="grid" id="grid"></div>
@@ -846,6 +860,7 @@ const ORDER = ['AJ','AK','APAO','AS'];
 const EXCEL_EVENTS = [];
 const HOLIDAYS = {};
 let MONTHS = ['2026-10','2026-11','2026-12','2027-01'];
+let YEARS = [], DATA_LO = '', DATA_HI = '';
 let EVENTS = [];
 let FORM_DOCS = [];
 
@@ -896,8 +911,11 @@ function buildEvents(){
   EVENTS.sort((a,b) => a.date.localeCompare(b.date) || a._s - b._s);
   let lo = iso(new Date()).slice(0,7), hi = lo;
   EVENTS.forEach(e => { const k=e.date.slice(0,7); if (k<lo) lo=k; if (k>hi) hi=k; });
-  MONTHS = []; let [y,m] = lo.split('-').map(Number);
-  while (`${y}-${pad(m)}` <= hi && MONTHS.length < 36) { MONTHS.push(`${y}-${pad(m)}`); m++; if (m>12){m=1;y++;} }
+  // แบ่งเป็นรายปี: ทุกเดือนของทุกปีที่มีงาน และปีถัดไปจากปีปัจจุบันเสมอ (วางแผนล่วงหน้าได้)
+  DATA_LO = lo; DATA_HI = hi;
+  const y0 = +lo.slice(0,4), y1 = Math.min(Math.max(+hi.slice(0,4), new Date().getFullYear()+1), y0+9);
+  YEARS = []; MONTHS = [];
+  for (let yy=y0; yy<=y1; yy++){ YEARS.push(yy); for (let mm=1; mm<=12; mm++) MONTHS.push(`${yy}-${pad(mm)}`); }
 }
 buildEvents();
 
@@ -908,6 +926,27 @@ const store = {
 };
 const todayIso = iso(new Date());
 const inRange = s => MONTHS.includes(s.slice(0,7));
+/* ตัวเลือกปี แล้วเลือกเดือน */
+function ymPicker(cur, counts){
+  const [cy] = cur.split('-').map(Number), nowM = todayIso.slice(0,7);
+  const ys = YEARS.map(y => { const n = Object.keys(counts).filter(k=>k.startsWith(y+'-')).reduce((a,k)=>a+counts[k],0);
+    return `<button type="button" data-y="${y}" aria-pressed="${y===cy}" title="ปี ${be(y)}${n?` · ${n} ภารกิจ`:' · ยังไม่มีภารกิจ'}">${be(y)}</button>`; }).join('');
+  const ms = TH_MS.map((lb,i) => { const k=`${cy}-${pad(i+1)}`, n=counts[k]||0;
+    return `<button type="button" data-m="${k}" aria-current="${k===cur}" class="${n?'has':'none'}${k===nowM?' now':''}" title="${TH_M[i]} ${be(cy)}${n?` · ${n} ภารกิจ`:' · ยังไม่มีภารกิจ'}">${lb}${n?`<i>${n}</i>`:''}</button>`; }).join('');
+  return `<div class="ympick"><div class="ysel" role="group" aria-label="เลือกปี">${ys}</div><div class="mchips" role="group" aria-label="เลือกเดือน">${ms}</div></div>`;
+}
+function bindPicker(root, counts, cur, set){
+  root.querySelectorAll('.ysel button').forEach(b => b.onclick = () => {
+    const y = +b.dataset.y; if (cur.startsWith(y+'-')) return;
+    const nowM = todayIso.slice(0,7);
+    const withData = Object.keys(counts).filter(k=>k.startsWith(y+'-') && counts[k]).sort();
+    set(nowM.startsWith(y+'-') ? nowM : withData.length ? withData[0] : `${y}-01`);
+  });
+  root.querySelectorAll('.mchips button').forEach(b => b.onclick = () => set(b.dataset.m));
+  const box=root.querySelector('.ympick .mchips'), sel=box && box.querySelector('[aria-current="true"]');
+  if (box && sel && box.scrollWidth>box.clientWidth) box.scrollLeft = sel.offsetLeft - box.offsetLeft - box.clientWidth/2 + sel.offsetWidth/2;
+}
+function monthCounts(list){ const c={}; list.forEach(e => { const k=e.date.slice(0,7); c[k]=(c[k]||0)+1; }); return c; }
 let active = new Set(store.get('active', ORDER).filter(c => ORDER.includes(c)));
 if (!active.size) active = new Set(ORDER);
 const PAGE = 'form';
@@ -957,9 +996,9 @@ function renderCal(){
   const i = MONTHS.indexOf(month);
   document.getElementById('prev').disabled = i<=0;
   document.getElementById('next').disabled = i>=MONTHS.length-1;
-  document.getElementById('mchips').innerHTML = MONTHS.map(k => { const [yy,mm]=k.split('-').map(Number);
-    return `<button data-m="${k}" aria-current="${k===month}">${TH_MS[mm-1]} ${String(be(yy)).slice(2)}</button>`; }).join('');
-  document.querySelectorAll('#mchips button').forEach(b => b.onclick = () => { month=b.dataset.m; renderCal(); });
+  const calCounts = monthCounts(visible().filter(activeEv));
+  const mp = document.getElementById('mpick'); mp.innerHTML = ymPicker(month, calCounts);
+  bindPicker(mp, calCounts, month, k => { month=k; renderCal(); });
 
   const map = byDate();
   const first = new Date(y,m-1,1), days = new Date(y,m,0).getDate();
@@ -1113,7 +1152,7 @@ function renderSheet(){
   el.innerHTML = `
     <div class="sheetbar">
       <div class="seg" role="group" aria-label="เลือกอาจารย์">${ORDER.map(c=>`<button class="t-${c}" data-who="${c}" aria-pressed="${c===who}"><span class="sw"></span>${esc(TEACHERS[c].short)}</button>`).join('')}</div>
-      <div class="mchips">${MONTHS.map(k=>{const [yy,mm]=k.split('-').map(Number);return `<button data-m="${k}" aria-current="${k===sheetMonth}">${TH_MS[mm-1]} ${String(be(yy)).slice(2)}</button>`;}).join('')}</div>
+      ${ymPicker(sheetMonth, monthCounts(EVENTS.filter(e=>e.who===who && activeEv(e))))}
       <button type="button" class="btn primary pdfbtn" id="pdfBtn" title="บันทึกเป็น PDF ขนาด A4 แนวนอน"><span aria-hidden="true">⤓</span> Export PDF</button>
     </div>
     <section class="sheetwrap t-${who}">
@@ -1135,7 +1174,7 @@ function renderSheet(){
     setTimeout(restore, 1500);
   };
   el.querySelectorAll('.seg button').forEach(b => b.onclick = () => { sheetWho = b.dataset.who; store.set('sheetWho',sheetWho); renderAll(); });
-  el.querySelectorAll('.mchips button').forEach(b => b.onclick = () => { sheetMonth = b.dataset.m; renderSheet(); });
+  bindPicker(el.querySelector('.sheetbar'), monthCounts(EVENTS.filter(e=>e.who===who && activeEv(e))), sheetMonth, k => { sheetMonth = k; renderSheet(); });
   el.querySelectorAll('tr.srow').forEach(r => { const go=(ev)=>{ if(ev && ev.target.closest('a')) return; openEvModal(EVENTS[+r.dataset.k]); }; r.onclick=go; r.onkeydown=ev=>{ if(ev.key==='Enter' && !ev.target.closest('a')){ ev.preventDefault(); go(); } }; });
 }
 
@@ -1447,7 +1486,7 @@ function setT(id, v){ const [h,m]=(v||'').split(':'); $(id+'H').value=h||''; $(i
 $('fHours').addEventListener('input', () => { if ($('fHours').value) $('fHours').dataset.manual='1'; else delete $('fHours').dataset.manual; });
 let hashDone=false;
 function onData(){
-  if (MONTHS.length){ const a=MONTHS[0].split('-').map(Number), z=MONTHS[MONTHS.length-1].split('-').map(Number);
+  if (DATA_LO){ const a=DATA_LO.split('-').map(Number), z=DATA_HI.split('-').map(Number);
     $('heroRange').textContent = `${TH_M[a[1]-1]} ${a[0]===z[0]?'':be(a[0])+' '}– ${TH_M[z[1]-1]} ${be(z[0])}`; }
   if (!inRange(selected)) { selected = inRange(todayIso) ? todayIso : (EVENTS[0]?.date || todayIso); month = selected.slice(0,7); sheetMonth = month; }
   if (!hashDone && PAGE==='form' && location.hash.startsWith('#edit-')){
