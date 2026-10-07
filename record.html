@@ -275,6 +275,13 @@ body{background:radial-gradient(1200px 380px at 85% -120px, #F8E9EC 0%, transpar
 .hero h1{color:#fff;text-shadow:0 2px 12px rgb(60 0 10 / .25)}
 .hero .sub{color:#FFD7DE}
 .hero .sub code{background:rgb(255 255 255 / .16);color:#fff}
+.whoami{display:inline-flex;align-items:center;gap:8px;margin-top:10px;background:rgb(255 255 255 / .14);border:1px solid rgb(255 255 255 / .22);border-radius:999px;padding:4px 14px 4px 5px;font-size:.9em;color:#fff;max-width:100%}
+.whoami .wav{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#fff;color:var(--accent);font-weight:700;font-size:.85em;flex:none}
+.whoami b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.whoami .wr{color:#FFD7DE;font-size:.9em;white-space:nowrap}
+.whoami[hidden]{display:none}
+.mfoot .src .by{display:block;margin-top:2px}
+@media print{ .whoami{display:none!important} }
 .hero-today{color:var(--ink);display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 16px 10px 10px;box-shadow:var(--shadow);cursor:pointer}
 .hero-today:hover{transform:translateY(-2px)}
 .hero-today{border-color:transparent;box-shadow:0 8px 24px rgb(60 0 10 / .25);transition:transform .15s}
@@ -675,6 +682,7 @@ a.logoutpill{text-decoration:none}
       <div class="eyebrow"><span class="drop" aria-hidden="true"></span>ภาควิชาเวชศาสตร์การธนาคารเลือด · คณะแพทยศาสตร์ศิริราชพยาบาล</div>
       <h1 id="heroH1">ตารางงานอาจารย์แพทย์</h1>
       <div class="sub"><span id="heroRange">ข้อมูลจาก Google Sheet</span> · แบบบันทึก <code>TM-QM-F-092</code></div>
+      <div class="whoami" id="whoami" hidden><span class="wav" id="whoAv" aria-hidden="true">?</span><span style="display:flex;gap:6px;align-items:baseline;min-width:0;flex-wrap:wrap">เข้าสู่ระบบโดย <b id="whoName"></b><span class="wr" id="whoRole"></span></span></div>
     </div>
     <img class="hero-logo" src="assets/logo.png" alt="ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล มหาวิทยาลัยมหิดล" width="451" height="300">
     <div class="hero-side">
@@ -787,7 +795,7 @@ a.logoutpill{text-decoration:none}
 
 
   <footer>
-    <div>ข้อมูลจาก Google Sheet (ชีต entries และ holidays) · ชั่วโมงรวมไม่นับรายการที่เลื่อนหรือขัดข้อง · <button type="button" class="linkbtn" id="logoutBtn">ออกจากระบบ</button></div>
+    <div>ข้อมูลจาก Google Sheet (ชีต entries และ holidays) · ชั่วโมงรวมไม่นับรายการที่เลื่อนหรือขัดข้อง · <a class="linkbtn" id="logsLink" href="log.html" hidden>ประวัติการใช้งาน</a><span id="logsSep" hidden> · </span><button type="button" class="linkbtn" id="logoutBtn">ออกจากระบบ</button></div>
     <div>ชั่วโมงที่มีเครื่องหมาย ≈ ไม่ได้กรอกไว้ คำนวณจากช่วงเวลาแทน</div>
   </footer>
 </div>
@@ -1153,7 +1161,7 @@ function openEvModal(e){
   box.innerHTML=`<div class="mhead"><span class="av">${t.ini}</span><div><div class="who">${esc(t.name)}</div><h2 id="mTitle">${esc(e.title)}</h2></div><button class="x" data-close="1" aria-label="ปิด">×</button></div>
     <div class="mquick"><span class="when">${shortDate(e.date)} · ${esc(e.time||'ไม่ระบุเวลา')}</span>${e.mode?`<span class="modebadge ${e.mode}">${MODE_TH[e.mode]}</span>`:''}<span class="tag">${esc(e.type)}</span><span class="pill ${e._st}">${esc(e.status||'ไม่ระบุสถานะ')}</span></div>
     <table class="mtable"><tbody>${rows.map(r=>{ const v=r[1]; const has = v && (typeof v==='object' ? v.html : true); return `<tr><th>${r[0]}</th><td class="${has?'':'empty'}">${has ? (typeof v==='object' ? v.html : esc(v).replace(/\n/g,'<br>')) : '—'}</td></tr>`; }).join('')}</tbody></table>
-    <div class="mfoot"><span class="src">${e.source==='excel'?'นำเข้าจากไฟล์ Excel':'บันทึกจากหน้าเว็บ'}${e.updatedAt?' · แก้ไขล่าสุด '+esc(e.updatedAt.slice(0,16).replace('T',' ')):''}</span>
+    <div class="mfoot"><span class="src">${e.source==='excel'?'นำเข้าจากไฟล์ Excel':'บันทึกจากหน้าเว็บ'}${e.updatedAt?' · แก้ไขล่าสุด '+esc(e.updatedAt.slice(0,16).replace('T',' ')):''}${e.createdBy?`<span class="by">บันทึกโดย ${esc(byName(e.createdBy))}${e.updatedBy && e.updatedBy!==e.createdBy?` · แก้ไขล่าสุดโดย ${esc(byName(e.updatedBy))}`:''}</span>`:''}</span>
       ${e.edoc?`<a class="btn edocbtn" href="${esc(e.edoc)}" target="_blank" rel="noopener"><svg class="edoc-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg> เปิดเอกสาร EDOC</a>`:''}
       <button class="btn" id="mCal">ดูในปฏิทิน</button>
       <a class="btn primary" href="${editHref(e)}">✎ แก้ไขข้อมูล</a></div>`;
@@ -1170,7 +1178,10 @@ const CFG = window.APP_CONFIG || {};
 let ROLE = null, LAST_SYNC = null;
 const KEY_STORE = 'tt-gs-key';
 const USER_STORE='tt-user';
-let PENDING = 0;
+let PENDING = 0, CAN_LOGS = false;
+const ROLE_LABEL = {admin:'ผู้ดูแลระบบ', edit:'บันทึกและแก้ไขงาน', view:'ดูอย่างเดียว'};
+function byName(s){ return String(s||'').replace(/\s*\([^()]*\)\s*$/,''); }
+function initialOf(name){ const bare=String(name||'').replace(/^([^\s.]{1,8}\.)+/,''); return ((bare.match(/[ก-ฮA-Za-z0-9]/)||['?'])[0]).toUpperCase(); }
 let CUR_USER = (()=>{ try{ return JSON.parse(localStorage.getItem(USER_STORE)||'null'); }catch(_){ return null; } })();
 function lastUsername(){ try{ return localStorage.getItem('tt-last-user')||''; }catch(_){ return ''; } }
 function getKey(){ try{ return localStorage.getItem(KEY_STORE) || sessionStorage.getItem(KEY_STORE) || ''; }catch(_){ return ''; } }
@@ -1190,7 +1201,7 @@ function makeApiDB(url){
   function fire(){ const sn={docs:cache.map(d=>({id:d.id, exists:true, data:()=>d}))}; subs.forEach(f=>f(sn)); }
   async function refresh(){
     const j = await call('list');
-    ROLE = j.role; PENDING = j.pending||0; setUser(j.user); cache = j.entries||[]; LAST_SYNC = new Date();
+    ROLE = j.role; PENDING = j.pending||0; CAN_LOGS = !!j.canViewLogs; setUser(j.user); cache = j.entries||[]; LAST_SYNC = new Date();
     Object.keys(HOLIDAYS).forEach(k=>delete HOLIDAYS[k]); Object.assign(HOLIDAYS, j.holidays||{});
     document.documentElement.classList.toggle('role-view', ROLE!=='edit');
     canWrite = ROLE==='edit'; applyWriteState(); fire(); syncState();
@@ -1487,7 +1498,7 @@ $('gateForm').addEventListener('submit', async ev => {
 });
 function doLogout(){
   const tok=getKey(); if (tok && CFG.API_URL){ try{ fetch(CFG.API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'logout',key:tok}),keepalive:true}).catch(()=>{}); }catch(_){} }
-  setKey(''); setUser(null); setLoggedOut(true); ROLE=null;
+  setKey(''); CAN_LOGS=false; setUser(null); setLoggedOut(true); ROLE=null;
   try{ localStorage.removeItem(ALERT_KEY); }catch(_){}
   // ล้างข้อมูลบนหน้าและแสดงหน้าใส่รหัสทันที
   FORM_DOCS=[]; buildEvents(); renderAll(); closeEvModal(); closeAlert(false);
@@ -1496,7 +1507,9 @@ function doLogout(){
 $('logoutBtn').onclick = doLogout; $('logoutTop').onclick = doLogout;
 function updateLogout(){ const show = !!getKey() || (!!ROLE && !isLoggedOut()); $('logoutBtn').hidden=!show; $('logoutTop').hidden=!show;
   const a=$('acctTop'); if (a){ a.hidden = !(show && CUR_USER); if (CUR_USER) $('acctName').textContent = CUR_USER.name + (CUR_USER.role==='admin' && !/ผู้ดูแล/.test(CUR_USER.name) ? ' · ผู้ดูแลระบบ' : '');
-    const bd=$('acctBadge'); bd.hidden = !(CUR_USER && CUR_USER.role==='admin' && PENDING>0); bd.textContent = PENDING; a.title = !bd.hidden ? `มีคำขอรออนุมัติ ${PENDING} รายการ` : 'บัญชีผู้ใช้ · เปลี่ยนรหัสผ่าน'; } }
+    const bd=$('acctBadge'); bd.hidden = !(CUR_USER && CUR_USER.role==='admin' && PENDING>0); bd.textContent = PENDING; a.title = !bd.hidden ? `มีคำขอรออนุมัติ ${PENDING} รายการ` : 'บัญชีผู้ใช้ · เปลี่ยนรหัสผ่าน'; }
+  const wm=$('whoami'); if (wm){ wm.hidden = !(show && CUR_USER); if (CUR_USER){ $('whoName').textContent = CUR_USER.name; $('whoRole').textContent = '· '+(ROLE_LABEL[CUR_USER.role]||''); $('whoAv').textContent = initialOf(CUR_USER.name); } }
+  const lg=$('logsLink'); if (lg){ lg.hidden = !(show && CAN_LOGS); $('logsSep').hidden = lg.hidden; } }
 updateLogout();
 /* ===== ออกจากระบบอัตโนมัติเมื่อไม่มีการใช้งาน ===== */
 const IDLE_MIN = (CFG.IDLE_MINUTES!=null && isFinite(+CFG.IDLE_MINUTES)) ? +CFG.IDLE_MINUTES : 30;

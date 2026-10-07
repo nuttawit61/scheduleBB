@@ -119,6 +119,30 @@ dl.info dd{margin:0}
 .muted{color:var(--muted)}
 .empty{padding:20px;text-align:center;color:var(--muted)}
 
+/* loading + name edit */
+.loading{display:flex;align-items:center;gap:10px;justify-content:center;padding:40px 16px;color:var(--muted)}
+.loading .sp{width:20px;height:20px;border-radius:50%;border:2.5px solid var(--accent-soft);border-top-color:var(--accent);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.namerow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.namerow input{flex:1;min-width:180px;font:inherit;border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.namerow input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.utable input.rn{font:inherit;font-size:.95em;border:1px solid var(--accent);border-radius:8px;padding:5px 8px;width:100%;max-width:280px;margin-bottom:6px}
+/* admin menu tiles */
+.amenu h2{font-size:1.1em;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tile{display:flex;gap:14px;align-items:flex-start;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--surface);text-decoration:none;color:var(--ink);transition:border-color .15s,box-shadow .15s,transform .15s;position:relative}
+.tile:hover{border-color:var(--accent);box-shadow:0 6px 18px rgb(155 28 49 / .10);transform:translateY(-1px)}
+.tile .ti{flex:none;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--accent-soft)}
+.tile .ti svg{width:22px;height:22px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tile b{display:block;font-family:var(--f-display);font-size:1.05em}
+.tile small{display:block;color:var(--muted);font-size:.86em;line-height:1.45;margin-top:2px}
+.tile .tn{position:absolute;top:12px;right:12px;background:#FFD54F;color:#5C3D00;border-radius:999px;font-size:.8em;font-weight:700;padding:0 8px;line-height:1.6}
+.tile.logs .ti{background:#E3EDF9}
+.tile.logs .ti svg{stroke:#1F5FA8}
+.tile.users .ti{background:#EFE8F8}
+.tile.users .ti svg{stroke:#7A4FB0}
+#reqCard,#adminCard{scroll-margin-top:16px}
+@media (max-width:900px){ .tiles{grid-template-columns:1fr} }
 /* approval requests */
 .reqlist{display:flex;flex-direction:column;gap:10px}
 .req{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 16px;align-items:center;border:1px solid var(--line);border-left:4px solid #E0A100;border-radius:12px;padding:12px 14px;background:#FFFCF3}
@@ -194,6 +218,7 @@ dl.info dd{margin:0}
   <header class="hero">
     <div class="toplinks">
       <a class="pill" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>กลับไปตารางงาน</a>
+      <a class="pill" id="logsTop" href="log.html" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v4l2.5 2.5"/><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 4v4.5H8"/></svg>ประวัติการใช้งาน</a>
       <button type="button" class="pill" id="logoutTop" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l-5-5 5-5M5 12h11"/></svg>ออกจากระบบ</button>
     </div>
     <img class="hero-logo" src="assets/logo.png" alt="ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล">
@@ -204,6 +229,8 @@ dl.info dd{margin:0}
     </div>
   </header>
 
+  <div class="loading" id="loadingBox" role="status"><span class="sp" aria-hidden="true"></span>กำลังโหลดข้อมูลบัญชี…</div>
+
   <div class="banner" id="firstBanner" hidden>
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
     <div><b>ตั้งรหัสผ่านใหม่ก่อนเริ่มใช้งาน</b>คุณเข้าสู่ระบบด้วยรหัสชั่วคราว กรุณาตั้งรหัสผ่านของคุณเองด้านล่าง แล้วจะเข้าใช้ตารางงานได้ทันที</div>
@@ -213,6 +240,15 @@ dl.info dd{margin:0}
     <div><b>ตั้งรหัสผ่านใหม่เรียบร้อย</b><span id="doneTx">ครั้งต่อไปให้เข้าสู่ระบบด้วยรหัสผ่านใหม่นี้</span></div>
     <a class="btn primary sm" href="index.html" id="goSchedule" style="margin-left:auto;flex:none">ไปที่ตารางงาน</a>
   </div>
+
+  <section class="card amenu" id="adminMenu" aria-labelledby="amH" hidden>
+    <h2 id="amH"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></span>เมนูผู้ดูแลระบบ</h2>
+    <div class="tiles">
+      <a class="tile" href="#reqCard" id="tileReq"><span class="ti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span><span><b>คำขอรออนุมัติ</b><small id="tileReqTx">คำขอสมัครใช้งานและขอตั้งรหัสผ่านใหม่</small></span><span class="tn" id="tileReqN" hidden></span></a>
+      <a class="tile users" href="#adminCard" id="tileUsers"><span class="ti"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6.5 6.5 0 0 1 3.5 6"/></svg></span><span><b>จัดการผู้ใช้</b><small id="tileUsersTx">เปลี่ยนสิทธิ์ แก้ชื่อ ปิดหรือลบบัญชี</small></span></a>
+      <a class="tile logs" href="log.html" id="tileLogs"><span class="ti"><svg viewBox="0 0 24 24"><path d="M12 8v4l2.5 2.5"/><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 4v4.5H8"/></svg></span><span><b>ประวัติการใช้งาน</b><small>ดูว่าใครเพิ่ม แก้ไข หรือลบงานอะไร เมื่อไร</small></span></a>
+    </div>
+  </section>
 
   <section class="card" id="reqCard" aria-labelledby="reqH" hidden>
     <div class="uhead">
@@ -229,7 +265,10 @@ dl.info dd{margin:0}
         <dt>สิทธิ์</dt><dd id="meRole">—</dd>
         <dt>เข้าสู่ระบบล่าสุด</dt><dd id="meLast">—</dd>
       </dl>
-      <p class="muted" style="margin:0;font-size:.88em">ต้องการเปลี่ยนชื่อหรือสิทธิ์ ติดต่อผู้ดูแลระบบ</p>
+      <div><button type="button" class="btn sm" id="nameEdit"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>แก้ไขชื่อ-นามสกุล</button></div>
+      <form class="namerow" id="nameForm" hidden novalidate><input id="nameInp" autocomplete="name" aria-label="ชื่อ-นามสกุล" maxlength="120"><button type="submit" class="btn sm primary" id="nameSave">บันทึก</button><button type="button" class="btn sm" id="nameCancel">ยกเลิก</button></form>
+      <div class="fmsg" id="nameMsg" role="status" style="min-height:0"></div>
+      <p class="muted" style="margin:0;font-size:.88em">ชื่อนี้จะแสดงบนหน้าตารางงานและในประวัติการใช้งาน · ต้องการเปลี่ยนสิทธิ์ ติดต่อผู้ดูแลระบบ</p>
     </section>
 
     <section class="card" aria-labelledby="pwH">
@@ -334,10 +373,10 @@ async function api(action, payload, withKey=true){
 }
 
 /* ===== state ===== */
-let ME = null, FIRST = false, USERS = [], confirmDel = null;
+let ME = null, FIRST = false, USERS = [], confirmDel = null, RENAMING = null, CAN_LOGS = false;
 
 function showGate(msg){
-  $('gate').hidden=false; $('mainGrid').hidden=true; $('adminCard').hidden=true; $('reqCard').hidden=true; $('firstBanner').hidden=true; $('logoutTop').hidden=true; $('idleWarn').hidden=true;
+  $('gate').hidden=false; $('loadingBox').hidden=true; $('logsTop').hidden=true; $('mainGrid').hidden=true; $('adminCard').hidden=true; $('reqCard').hidden=true; $('adminMenu').hidden=true; $('firstBanner').hidden=true; $('logoutTop').hidden=true; $('idleWarn').hidden=true;
   $('gateMsg').textContent=msg||''; if (!$('gateUser').value) $('gateUser').value=lastUsername();
   setTimeout(()=>($('gateUser').value?$('gateKey'):$('gateUser')).focus(),50);
 }
@@ -345,14 +384,18 @@ function showGate(msg){
 async function start(){
   if (!getKey()){ showGate(''); return; }
   try{
+    $('loadingBox').hidden=false;
     const j = await api('me');
     $('gate').hidden=true; setLoggedOut(false);
+    CAN_LOGS = !!j.canViewLogs;
     render(j.user);
   }catch(e){ if (e.code!=='unauthorized'){ showGate(errText(e)); } }
+  finally{ $('loadingBox').hidden=true; }
 }
 
 function render(u){
-  ME = u; storeUser(u);
+  ME = u; storeUser(u); $('loadingBox').hidden=true;
+  $('logsTop').hidden = !(CAN_LOGS && !u.mustChange);
   FIRST = !!u.mustChange;
   $('mainGrid').hidden=false; $('logoutTop').hidden=false;
   const bare=(u.name||u.username).replace(/^([^\s.]{1,8}\.)+/,''); $('meAv').textContent = ((bare.match(/[ก-ฮA-Za-z0-9]/)||['?'])[0]).toUpperCase();
@@ -365,7 +408,7 @@ function render(u){
   $('oldLbl').textContent = FIRST ? 'รหัสชั่วคราวที่ได้รับ' : 'รหัสผ่านปัจจุบัน';
   $('heroSub').textContent = FIRST ? 'ตั้งรหัสผ่านของคุณเองก่อนเริ่มใช้งาน' : (u.role==='admin' ? 'เปลี่ยนรหัสผ่านของคุณ และจัดการบัญชีผู้ใช้ทั้งหมด' : 'เปลี่ยนรหัสผ่านของคุณ');
   document.querySelectorAll('a[href="index.html"]').forEach(a=>a.style.visibility = FIRST ? 'hidden' : '');
-  $('adminCard').hidden = !(u.role==='admin' && !FIRST); $('reqCard').hidden = $('adminCard').hidden;
+  $('adminCard').hidden = !(u.role==='admin' && !FIRST); $('reqCard').hidden = $('adminCard').hidden; $('adminMenu').hidden = $('adminCard').hidden; $('tileLogs').hidden = !CAN_LOGS;
   if (u.role==='admin' && !FIRST) loadUsers();
   checkRules();
   if (FIRST) setTimeout(()=>$('pwOld').focus(), 60);
@@ -414,6 +457,23 @@ $('pwForm').addEventListener('submit', async ev => {
   }finally{ btn.disabled=false; }
 });
 
+/* ===== edit own name ===== */
+function nameMode(on){ $('nameForm').hidden=!on; $('nameEdit').parentElement.hidden=on; if (on){ $('nameInp').value=ME?ME.name:''; $('nameInp').focus(); $('nameInp').select(); } }
+$('nameEdit').onclick = () => { $('nameMsg').textContent=''; nameMode(true); };
+$('nameCancel').onclick = () => nameMode(false);
+$('nameForm').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const name=$('nameInp').value.trim(), m=$('nameMsg');
+  if (!name){ m.className='fmsg err'; m.textContent='กรุณาใส่ชื่อ-นามสกุล'; return; }
+  $('nameSave').disabled=true; m.className='fmsg'; m.textContent='กำลังบันทึก…';
+  try{
+    const j=await api('updateProfile',{name});
+    nameMode(false); render(j.user); m.textContent='บันทึกชื่อแล้ว';
+    const mine=USERS.find(x=>x.username===j.user.username); if (mine){ Object.assign(mine,j.user); renderUsers(); }
+  }catch(e){ m.className='fmsg err'; m.textContent=errText(e); }
+  finally{ $('nameSave').disabled=false; }
+});
+
 /* ===== admin: users & approval requests ===== */
 async function loadUsers(){
   try{ const j = await api('users_list'); USERS = j.users||[]; renderAll(); }
@@ -425,6 +485,7 @@ function renderRequests(){
   const resets = USERS.filter(u=>u.approved && u.resetRequested && u.active);
   const n = regs.length + resets.length;
   $('reqCount').textContent = n ? `· ${n} รายการ` : '';
+  $('tileReqN').hidden = !n; $('tileReqN').textContent = n; $('tileReqTx').textContent = n ? `มี ${n} รายการรอให้คุณอนุมัติ` : 'ไม่มีคำขอค้าง';
   if (!n){ $('reqList').innerHTML = '<div class="reqempty">ไม่มีคำขอค้างอยู่</div>'; return; }
   $('reqList').innerHTML = regs.map(u => `
     <div class="req">
@@ -446,15 +507,18 @@ function renderUsers(){
   const list = USERS.filter(u=>u.approved).sort((a,b)=> (b.active-a.active) || (order[a.role]-order[b.role]) || String(a.name).localeCompare(String(b.name),'th'));
   const act = list.filter(u=>u.active).length;
   $('uCount').textContent = `· ${list.length} บัญชี${act<list.length?` (ใช้งาน ${act})`:''}`;
+  $('tileUsersTx').textContent = `${list.length} บัญชี · เปลี่ยนสิทธิ์ แก้ชื่อ ปิดหรือลบบัญชี`;
   if (!list.length){ $('uBody').innerHTML = '<tr><td colspan="5" class="empty">ยังไม่มีผู้ใช้</td></tr>'; return; }
   $('uBody').innerHTML = list.map(u => {
     const me = ME && u.username===ME.username;
     const st = !u.active ? '<span class="status off">ปิดใช้งาน</span>' : u.mustChange ? '<span class="status temp">รอตั้งรหัสใหม่</span>' : u.resetRequested ? '<span class="status reset">ขอรหัสใหม่</span>' : '<span class="status">ใช้งานได้</span>';
     const acts = me ? '<span class="muted" style="font-size:.85em">บัญชีของคุณ</span>' : confirmDel===u.username
       ? `<button class="btn sm danger solid" data-act="del2" data-u="${esc(u.username)}">ยืนยันลบ</button><button class="btn sm" data-act="cancel">ยกเลิก</button>`
-      : `<button class="btn sm" data-act="toggle" data-u="${esc(u.username)}">${u.active?'ปิดใช้งาน':'เปิดใช้งาน'}</button><button class="btn sm danger" data-act="del" data-u="${esc(u.username)}">ลบ</button>`;
+      : `<button class="btn sm" data-act="rename" data-u="${esc(u.username)}">แก้ชื่อ</button><button class="btn sm" data-act="toggle" data-u="${esc(u.username)}">${u.active?'ปิดใช้งาน':'เปิดใช้งาน'}</button><button class="btn sm danger" data-act="del" data-u="${esc(u.username)}">ลบ</button>`;
     return `<tr class="${u.active?'':'off'}">
-      <td class="uname"><b>${esc(u.name)}${me?'<span class="you">คุณ</span>':''}</b><code>${esc(u.username)}</code>${u.note?`<small class="muted" style="display:block;font-size:.84em">${esc(u.note)}</small>`:''}</td>
+      <td class="uname">${RENAMING===u.username
+        ? `<input class="rn" data-rn="${esc(u.username)}" value="${esc(u.name)}" aria-label="ชื่อ-นามสกุลของ ${esc(u.username)}" maxlength="120"><div class="uacts" style="justify-content:flex-start"><button class="btn sm primary" data-act="rnsave" data-u="${esc(u.username)}">บันทึกชื่อ</button><button class="btn sm" data-act="cancel">ยกเลิก</button></div>`
+        : `<b>${esc(u.name)}${me?'<span class="you">คุณ</span>':''}</b>`}<code>${esc(u.username)}</code>${u.note?`<small class="muted" style="display:block;font-size:.84em">${esc(u.note)}</small>`:''}</td>
       <td data-l="สิทธิ์"><select data-role="${esc(u.username)}" aria-label="สิทธิ์ของ ${esc(u.name)}" ${me?'disabled title="เปลี่ยนสิทธิ์ของตัวเองไม่ได้"':''}>${['admin','edit','view'].map(r=>`<option value="${r}" ${u.role===r?'selected':''}>${ROLE_TH[r]}</option>`).join('')}</select></td>
       <td data-l="สถานะ">${st}</td>
       <td data-l="เข้าสู่ระบบล่าสุด" class="muted">${thDate(u.lastLogin)}</td>
@@ -473,7 +537,8 @@ $('uBody').addEventListener('change', async ev => {
 async function onAct(ev){
   const b = ev.target.closest('button[data-act]'); if (!b) return;
   const act=b.dataset.act, u=USERS.find(x=>x.username===b.dataset.u);
-  if (act==='cancel'){ confirmDel=null; renderAll(); return; }
+  if (act==='cancel'){ confirmDel=null; RENAMING=null; renderAll(); return; }
+  if (act==='rename'){ RENAMING=u.username; confirmDel=null; renderAll(); const i=document.querySelector(`input[data-rn="${CSS.escape(u.username)}"]`); if (i){ i.focus(); i.select(); } return; }
   if (act==='del' || act==='reject'){ confirmDel=u.username; renderAll(); return; }
   b.disabled=true; uMsg('กำลังดำเนินการ…');
   try{
@@ -489,6 +554,10 @@ async function onAct(ev){
       const j=await api('users_reset_reject',{username:u.username}); Object.assign(u,j.user); uMsg(`ไม่อนุมัติคำขอรหัสใหม่ของ ${u.name} รหัสเดิมยังใช้ได้`);
     } else if (act==='toggle'){
       const j=await api('users_update',{username:u.username, active:!u.active}); Object.assign(u,j.user); uMsg(`${u.active?'เปิด':'ปิด'}ใช้งานบัญชี ${u.name} แล้ว${u.active?'':' ผู้ใช้นี้จะเข้าสู่ระบบไม่ได้จนกว่าจะเปิดใหม่'}`);
+    } else if (act==='rnsave'){
+      const name=document.querySelector(`input[data-rn="${CSS.escape(u.username)}"]`).value.trim();
+      if (!name) throw {message:'กรุณาใส่ชื่อ-นามสกุล'};
+      const j=await api('users_update',{username:u.username, name}); Object.assign(u,j.user); RENAMING=null; uMsg(`แก้ชื่อเป็น "${u.name}" แล้ว`);
     } else if (act==='del2'){
       await api('users_delete',{username:u.username}); USERS=USERS.filter(x=>x!==u); confirmDel=null; uMsg(`ลบบัญชี ${u.name} แล้ว`);
     }
@@ -496,6 +565,7 @@ async function onAct(ev){
   renderAll();
 }
 $('uBody').addEventListener('click', onAct);
+$('uBody').addEventListener('keydown', ev => { const i=ev.target.closest('input.rn'); if (!i) return; if (ev.key==='Enter'){ ev.preventDefault(); document.querySelector(`button[data-act="rnsave"][data-u="${CSS.escape(i.dataset.rn)}"]`).click(); } else if (ev.key==='Escape'){ RENAMING=null; renderAll(); } });
 $('reqList').addEventListener('click', onAct);
 $('uReload').onclick = () => { uMsg(''); loadUsers(); };
 $('copyReg').onclick = async () => {
@@ -512,7 +582,7 @@ $('gateForm').addEventListener('submit', async ev => {
   try{
     const j = await api('login', {username:u, password:k}, false);
     setKey(j.token); setLoggedOut(false); markActive(true); $('gateKey').value='';
-    $('gate').hidden=true; render(j.user);
+    $('gate').hidden=true; await start();
   }catch(e){
     $('gateMsg').textContent = (ERR_TH[e.code]||errText(e)) + (e.message && ERR_TH[e.code] ? ' '+e.message : '');
     $('gateKey').select();

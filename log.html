@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>ประวัติการใช้งาน · ตารางงานอาจารย์</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#FAFBFC; --surface:#FFFFFF; --surface-2:#F2F5F7; --ink:#1A2227; --muted:#5B676F; --line:#D9DFE3;
+  --accent:#9B1C31; --accent-soft:#F6E4E7; --ok:#2C7A47; --ok-soft:#E3F1E8;
+  --c-create:#2C7A47; --c-create-bg:#E3F1E8; --c-update:#1F5FA8; --c-update-bg:#E3EDF9; --c-delete:#B3261E; --c-delete-bg:#FBE4E2;
+  --c-acct:#7A4FB0; --c-acct-bg:#EFE8F8; --c-login:#5B676F; --c-login-bg:#EEF1F3;
+  --f-display:"Anuphan","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai","Anuphan",system-ui,sans-serif;
+  --shadow:0 1px 2px rgb(20 30 40 / .05), 0 4px 14px rgb(20 30 40 / .05);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+[hidden]{display:none!important}
+body{background:radial-gradient(1200px 380px at 85% -120px, #F8E9EC 0%, transparent 70%), linear-gradient(#FBFCFD, #F4F6F8) fixed;background-color:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:clamp(14px,.3vw + 12px,17px);line-height:1.55;min-height:100vh}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(16px,3vw,36px) 16px 56px;display:flex;flex-direction:column;gap:18px}
+
+.hero{position:relative;overflow:hidden;border-radius:22px;padding:clamp(20px,3vw,32px);color:#fff;display:flex;align-items:center;gap:clamp(14px,2.4vw,28px);
+  background:radial-gradient(600px 260px at 15% 0%, #B8304A 0%, transparent 70%), linear-gradient(120deg,#6E0F21 0%,#931B32 45%,#A8233C 100%);box-shadow:0 10px 30px rgb(110 15 33 / .25)}
+.hero-logo{height:clamp(70px,7vw,104px);width:auto;padding-right:clamp(14px,2.4vw,28px);border-right:1px solid rgb(255 255 255 / .35);filter:drop-shadow(0 2px 6px rgb(40 0 10 / .35))}
+.hero .eyebrow{color:#FFE3E8;font-size:.9em}
+.hero h1{font-size:clamp(26px,2.6vw,40px);line-height:1.2;margin-top:2px;text-shadow:0 2px 12px rgb(60 0 10 / .25)}
+.hero .sub{color:#FFD7DE;margin-top:4px;font-size:.93em}
+.hero-main{flex:1;min-width:0}
+.toplinks{position:absolute;top:12px;right:14px;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid rgb(255 255 255 / .28);background:rgb(255 255 255 / .16);color:#fff;border-radius:999px;padding:5px 12px 5px 9px;font:inherit;font-size:.8em;cursor:pointer;text-decoration:none;backdrop-filter:blur(6px)}
+.pill:hover{background:#fff;color:var(--accent)}
+.pill svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:clamp(16px,2.2vw,22px);min-width:0}
+.btn{font:inherit;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 14px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--ink);white-space:nowrap}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sm{padding:4px 10px;font-size:.85em;border-radius:8px}
+.btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.muted{color:var(--muted)}
+
+/* filters */
+.filters{display:grid;grid-template-columns:minmax(200px,2fr) repeat(2,minmax(150px,1fr)) repeat(2,minmax(130px,.9fr));gap:12px;align-items:end}
+.fld{display:flex;flex-direction:column;gap:5px;min-width:0}
+.fld>span{font-size:.84em;font-weight:600;color:var(--muted)}
+.fld input,.fld select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 11px;width:100%;min-width:0}
+.fld input:focus,.fld select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.fbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 11px;font-size:.84em;font-weight:600;border:1px solid transparent;cursor:pointer;background:var(--surface-2);color:var(--muted)}
+.chip b{font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{border-color:currentColor}
+.k-create{background:var(--c-create-bg);color:var(--c-create)}
+.k-update{background:var(--c-update-bg);color:var(--c-update)}
+.k-delete{background:var(--c-delete-bg);color:var(--c-delete)}
+.k-acct{background:var(--c-acct-bg);color:var(--c-acct)}
+.k-login{background:var(--c-login-bg);color:var(--c-login)}
+.fact{display:flex;gap:8px}
+
+/* timeline */
+.day{display:flex;flex-direction:column;gap:0}
+.dayhead{position:sticky;top:0;z-index:2;background:linear-gradient(#F7F8FA,#F7F8FAee);backdrop-filter:blur(4px);padding:10px 4px 8px;font-family:var(--f-display);font-weight:600;font-size:1.02em;display:flex;align-items:baseline;gap:10px}
+.dayhead small{font-family:var(--f-body);font-weight:400;color:var(--muted);font-size:.82em}
+.items{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.it{display:grid;grid-template-columns:64px 36px minmax(0,1fr);gap:4px 12px;padding:13px 16px;border-top:1px solid #EEF1F3;align-items:start}
+.it:first-child{border-top:0}
+.it .tm{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9em;padding-top:6px}
+.it .av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:.9em;color:#fff;background:var(--accent)}
+.it .main{min-width:0;display:flex;flex-direction:column;gap:3px}
+.it .line1{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.it .nm{font-weight:600}
+.it .un{color:var(--muted);font-size:.85em}
+.tag{display:inline-flex;border-radius:999px;padding:1px 9px;font-size:.78em;font-weight:600;white-space:nowrap}
+.it .sum{color:var(--ink);overflow-wrap:anywhere}
+.it .sum q{quotes:"“" "”";font-weight:600}
+.it .meta{display:flex;gap:10px;flex-wrap:wrap;font-size:.84em;color:var(--muted)}
+.it .meta a{color:var(--accent);font-weight:600;text-decoration:none}
+.it .meta a:hover{text-decoration:underline}
+.diff{margin-top:6px;border:1px solid #E6EAED;border-radius:10px;overflow:hidden;font-size:.88em}
+.diff table{width:100%;border-collapse:collapse}
+.diff th,.diff td{padding:6px 10px;text-align:left;vertical-align:top;border-top:1px solid #EEF1F3}
+.diff tr:first-child th,.diff tr:first-child td{border-top:0}
+.diff thead th{background:var(--surface-2);color:var(--muted);font-weight:600;font-size:.92em}
+.diff td.f{color:var(--muted);white-space:nowrap;width:1%}
+.diff td.old{color:#8A2A22;background:#FFF6F5;text-decoration:line-through;text-decoration-color:#E7A6A0;overflow-wrap:anywhere}
+.diff td.new{color:#1E5A33;background:#F4FBF6;overflow-wrap:anywhere}
+.diff td.empty{color:#A0AAB0;text-decoration:none;background:none;font-style:italic}
+details.more summary{cursor:pointer;color:var(--accent);font-size:.86em;font-weight:600;margin-top:4px;list-style:none}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::before{content:"▸ ";}
+details.more[open] summary::before{content:"▾ ";}
+.empty-state{text-align:center;padding:40px 16px;color:var(--muted)}
+.more-wrap{display:flex;justify-content:center;padding:6px}
+.loading{display:flex;align-items:center;gap:10px;justify-content:center;padding:40px 16px;color:var(--muted)}
+.loading .sp{width:20px;height:20px;border-radius:50%;border:2.5px solid var(--accent-soft);border-top-color:var(--accent);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.notice{border-radius:14px;padding:16px;background:#FFF7E1;border:1px solid #F1D58A;color:#4A3300}
+
+/* gate + idle (same as other pages) */
+.gate{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:24px 16px;overflow:auto;background:radial-gradient(900px 500px at 50% -10%, #C23A55 0%, transparent 60%),radial-gradient(700px 400px at 100% 110%, #5A0B1B 0%, transparent 60%),linear-gradient(135deg,#6E0F21,#A8233C)}
+.gate-inner{display:flex;flex-direction:column;align-items:center;gap:22px;width:min(420px,100%)}
+.gate-logo{width:min(300px,78%);height:auto;filter:drop-shadow(0 4px 14px rgb(40 0 10 / .4))}
+.gate-box{background:var(--surface);border-radius:20px;box-shadow:0 24px 60px rgb(20 10 14 / .35);padding:28px;width:100%;text-align:center;display:flex;flex-direction:column;gap:14px}
+.gate-box h2{font-size:1.3em}
+.gate-box .fld{text-align:center}
+.gate-box .fld>span{color:var(--ink)}
+.gate-box .fld input{text-align:center;font-size:1.05em}
+.gate-box .btn{width:100%;padding:11px;justify-content:center}
+.gate-box p{margin:0;color:var(--muted);font-size:.92em}
+.gmsg{font-size:.9em;color:var(--accent);font-weight:500;min-height:1.2em}
+.idlewarn{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:58;display:flex;gap:16px;align-items:center;background:var(--surface);border-radius:16px;border-left:5px solid var(--accent);box-shadow:0 18px 48px rgb(20 10 14 / .28);padding:14px 16px 14px 18px;width:min(460px,calc(100% - 32px))}
+.idlewarn>div{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.idlewarn span{color:var(--muted);font-size:.92em}
+.idlewarn span b{color:var(--accent);font-variant-numeric:tabular-nums}
+
+@media (max-width:980px){ .filters{grid-template-columns:1fr 1fr} .filters .q{grid-column:1/-1} }
+@media (max-width:720px){
+  .hero{flex-direction:column;align-items:flex-start;padding-top:56px}
+  .hero-logo{border-right:0;padding-right:0;height:64px}
+  .it{grid-template-columns:36px minmax(0,1fr);padding:12px}
+  .it .tm{grid-column:2;grid-row:1;padding:0;font-size:.82em}
+  .it .av{grid-row:1 / span 2}
+  .it .main{grid-column:2}
+  .idlewarn{flex-direction:column;align-items:stretch;gap:10px;bottom:12px}
+}
+@media print{ .toplinks,.filters,.fbar .fact,.more-wrap,.idlewarn{display:none!important} .dayhead{position:static} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="toplinks">
+      <a class="pill" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>กลับไปตารางงาน</a>
+      <a class="pill" href="account.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>บัญชีผู้ใช้</a>
+      <button type="button" class="pill" id="logoutTop" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l-5-5 5-5M5 12h11"/></svg>ออกจากระบบ</button>
+    </div>
+    <img class="hero-logo" src="assets/logo.png" alt="ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล">
+    <div class="hero-main">
+      <div class="eyebrow">ตารางงานอาจารย์แพทย์</div>
+      <h1>ประวัติการใช้งาน</h1>
+      <div class="sub">ใครเพิ่ม แก้ไข หรือลบงานอะไร เมื่อไร รวมถึงการจัดการบัญชีและการเข้าสู่ระบบ</div>
+    </div>
+  </header>
+
+  <section class="card" id="filterCard" hidden aria-label="ตัวกรอง">
+    <div class="filters">
+      <label class="fld q"><span>ค้นหา</span><input id="fQ" type="search" placeholder="ชื่องาน ชื่อคน หรือข้อความ"></label>
+      <label class="fld"><span>ประเภท</span><select id="fType">
+        <option value="">ทั้งหมด</option>
+        <option value="entry">งาน (เพิ่ม/แก้ไข/ลบ)</option>
+        <option value="entry_create">เพิ่มงาน</option>
+        <option value="entry_update">แก้ไขงาน</option>
+        <option value="entry_delete">ลบงาน</option>
+        <option value="acct">บัญชีผู้ใช้</option>
+        <option value="login">เข้าสู่ระบบ</option>
+      </select></label>
+      <label class="fld"><span>ผู้ใช้</span><select id="fUser"><option value="">ทุกคน</option></select></label>
+      <label class="fld"><span>ตั้งแต่วันที่</span><input id="fFrom" type="date"></label>
+      <label class="fld"><span>ถึงวันที่</span><input id="fTo" type="date"></label>
+    </div>
+    <div class="fbar">
+      <div class="chips" id="chips"></div>
+      <div class="fact">
+        <button type="button" class="btn sm" id="fClear">ล้างตัวกรอง</button>
+        <button type="button" class="btn sm" id="reload"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>โหลดใหม่</button>
+        <button type="button" class="btn sm" id="csv"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>ส่งออก CSV</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="loading" id="loadingBox" role="status"><span class="sp" aria-hidden="true"></span>กำลังโหลดประวัติ…</div>
+  <div class="notice" id="noticeBox" hidden></div>
+  <div id="list" aria-live="polite"></div>
+  <div class="more-wrap" id="moreWrap" hidden><button type="button" class="btn" id="moreBtn">แสดงเพิ่ม</button></div>
+</div>
+
+<div class="idlewarn" id="idleWarn" role="alertdialog" aria-live="assertive" hidden>
+  <div><b>ไม่มีการใช้งานมาระยะหนึ่ง</b><span>ระบบจะออกจากระบบอัตโนมัติใน <b id="idleSec">60</b> วินาที</span></div>
+  <button type="button" class="btn primary" id="idleStay">ใช้งานต่อ</button>
+</div>
+
+<div class="gate" id="gate" hidden>
+  <div class="gate-inner">
+  <img class="gate-logo" src="assets/logo.png" alt="ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล มหาวิทยาลัยมหิดล">
+  <form class="gate-box" id="gateForm">
+    <h2>ประวัติการใช้งาน</h2>
+    <p>เข้าสู่ระบบด้วยบัญชีผู้ดูแลระบบ</p>
+    <label class="fld"><span>ชื่อผู้ใช้</span><input type="text" id="gateUser" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+    <label class="fld"><span>รหัสผ่าน</span><input type="password" id="gateKey" autocomplete="current-password" required></label>
+    <button type="submit" class="btn primary" id="gateBtn">เข้าใช้งาน</button>
+    <div class="gmsg" id="gateMsg" role="alert"></div>
+  </form>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const CFG = window.APP_CONFIG || {};
+const ERR_TH = {timeout:'Google Sheet ตอบช้าเกินไป ลองอีกครั้ง', network:'เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ต', bad_response:'Apps Script ตอบกลับไม่ถูกต้อง', unauthorized:'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่', forbidden:'หน้านี้สำหรับผู้ดูแลระบบเท่านั้น', must_change:'ต้องตั้งรหัสผ่านใหม่ก่อน', invalid_login:'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', locked:'บัญชีถูกล็อกชั่วคราว', disabled:'บัญชีนี้ถูกปิดใช้งาน', pending:'บัญชีนี้รอผู้ดูแลระบบอนุมัติ', unknown_action:'Apps Script ยังเป็นเวอร์ชันเก่า กรุณาอัปเดตโค้ดและทำให้ใช้งานได้เวอร์ชันใหม่', server_error:'เกิดข้อผิดพลาดที่ Apps Script'};
+function errText(e){ const c=e&&(e.code||e.error); return (ERR_TH[c]||'เกิดข้อผิดพลาด') + (e&&e.message?' '+e.message:''); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+const TH_M = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const TH_MS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const TH_D = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+const pad = n => String(n).padStart(2,'0');
+
+/* ===== action types ===== */
+const ACT = {
+  entry_create:{label:'เพิ่มงาน', k:'create', grp:'entry'},
+  entry_update:{label:'แก้ไขงาน', k:'update', grp:'entry'},
+  entry_delete:{label:'ลบงาน', k:'delete', grp:'entry'},
+  login:{label:'เข้าสู่ระบบ', k:'login', grp:'login'},
+  register:{label:'สมัครใช้งาน', k:'acct', grp:'acct'},
+  user_approve:{label:'อนุมัติบัญชี', k:'acct', grp:'acct'},
+  user_reject:{label:'ปฏิเสธคำขอ', k:'acct', grp:'acct'},
+  user_role:{label:'เปลี่ยนสิทธิ์', k:'acct', grp:'acct'},
+  user_rename:{label:'แก้ชื่อผู้ใช้', k:'acct', grp:'acct'},
+  user_update:{label:'แก้ไขบัญชี', k:'acct', grp:'acct'},
+  user_enable:{label:'เปิดใช้งานบัญชี', k:'acct', grp:'acct'},
+  user_disable:{label:'ปิดใช้งานบัญชี', k:'acct', grp:'acct'},
+  user_delete:{label:'ลบบัญชี', k:'delete', grp:'acct'},
+  reset_request:{label:'ขอรหัสผ่านใหม่', k:'acct', grp:'acct'},
+  reset_approve:{label:'อนุมัติรหัสใหม่', k:'acct', grp:'acct'},
+  reset_reject:{label:'ไม่อนุมัติรหัสใหม่', k:'acct', grp:'acct'},
+  password_change:{label:'เปลี่ยนรหัสผ่าน', k:'acct', grp:'acct'},
+  profile_name:{label:'แก้ชื่อตัวเอง', k:'acct', grp:'acct'},
+};
+const actOf = a => ACT[a] || {label:a, k:'login', grp:'acct'};
+
+/* ===== session (shared with other pages) ===== */
+const KEY_STORE='tt-gs-key', USER_STORE='tt-user', OUT_KEY='tt-logged-out', ACT_KEY='tt-last-active';
+function getKey(){ try{ return localStorage.getItem(KEY_STORE) || sessionStorage.getItem(KEY_STORE) || ''; }catch(_){ return ''; } }
+function setKey(k){ try{ localStorage.removeItem(KEY_STORE); sessionStorage.removeItem(KEY_STORE); if (k) localStorage.setItem(KEY_STORE,k); }catch(_){} }
+function setLoggedOut(v){ try{ v ? localStorage.setItem(OUT_KEY,'1') : localStorage.removeItem(OUT_KEY); }catch(_){} }
+function storeUser(u){ try{ if (u){ localStorage.setItem(USER_STORE, JSON.stringify({username:u.username,name:u.name,role:u.role})); localStorage.setItem('tt-last-user', u.username); } else localStorage.removeItem(USER_STORE); }catch(_){} }
+function lastUsername(){ try{ return localStorage.getItem('tt-last-user')||''; }catch(_){ return ''; } }
+
+async function api(action, payload, withKey=true){
+  if (!CFG.API_URL || /PASTE|วาง/.test(CFG.API_URL)) throw {code:'bad_response', message:'ยังไม่ได้ใส่ URL ของ Apps Script ในไฟล์ config.js'};
+  const ctl = new AbortController(); const timer = setTimeout(()=>ctl.abort(), 45000);
+  let res;
+  try{ res = await fetch(CFG.API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action, ...(withKey?{key:getKey()}:{}), ...(payload||{})}), redirect:'follow', signal:ctl.signal}); }
+  catch(e){ throw {code: e && e.name==='AbortError' ? 'timeout' : 'network'}; }
+  finally{ clearTimeout(timer); }
+  let j; try{ j = await res.json(); }catch(_){ throw {code:'bad_response'}; }
+  if (!j.ok){
+    if (j.error==='unauthorized' && withKey){ setKey(''); showGate('หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่'); }
+    throw {code:j.error||'server_error', message:j.message||''};
+  }
+  return j;
+}
+
+/* ===== state ===== */
+let LOGS = [], SHOWN = 150, ME = null;
+const PAGE = 150;
+
+function showGate(msg){
+  $('gate').hidden=false; $('loadingBox').hidden=true; $('filterCard').hidden=true; $('list').innerHTML=''; $('moreWrap').hidden=true; $('logoutTop').hidden=true; $('idleWarn').hidden=true; $('noticeBox').hidden=true;
+  $('gateMsg').textContent=msg||''; if (!$('gateUser').value) $('gateUser').value=lastUsername();
+  setTimeout(()=>($('gateUser').value?$('gateKey'):$('gateUser')).focus(),50);
+}
+function notice(html){ const n=$('noticeBox'); n.hidden=false; n.innerHTML=html; }
+
+async function start(){
+  if (!getKey()){ showGate(''); return; }
+  $('loadingBox').hidden=false; $('noticeBox').hidden=true;
+  try{
+    const me = await api('me');
+    ME = me.user; storeUser(ME); $('gate').hidden=true; setLoggedOut(false); $('logoutTop').hidden=false;
+    if (ME.mustChange){ location.href='account.html?first=1'; return; }
+    if (!me.canViewLogs){ $('loadingBox').hidden=true; notice('<b>หน้านี้สำหรับผู้ดูแลระบบเท่านั้น</b><br>บัญชีของคุณยังไม่มีสิทธิ์ดูประวัติการใช้งาน ถ้าต้องการ ติดต่อผู้ดูแลระบบ'); return; }
+    await loadLogs();
+  }catch(e){ if (e.code!=='unauthorized'){ $('loadingBox').hidden=true; notice(esc(errText(e))); } }
+}
+
+async function loadLogs(){
+  $('loadingBox').hidden=false; $('reload').disabled=true;
+  try{
+    const j = await api('logs_list', {limit: 3000});
+    LOGS = (j.logs||[]).map(l => ({...l, _d: String(l.time||'').slice(0,10), _t: String(l.time||'').slice(11,16)}));
+    fillUsers(); $('filterCard').hidden=false; SHOWN=PAGE; render();
+  }catch(e){ if (e.code!=='unauthorized') notice(esc(errText(e))); }
+  finally{ $('loadingBox').hidden=true; $('reload').disabled=false; }
+}
+
+function fillUsers(){
+  const sel=$('fUser'), cur=sel.value, map=new Map();
+  LOGS.forEach(l => { if (l.username && !map.has(l.username)) map.set(l.username, l.name||l.username); });
+  const list=[...map.entries()].sort((a,b)=>a[1].localeCompare(b[1],'th'));
+  sel.innerHTML = '<option value="">ทุกคน</option>' + list.map(([u,n])=>`<option value="${esc(u)}">${esc(n)} (${esc(u)})</option>`).join('');
+  sel.value = map.has(cur) ? cur : '';
+}
+
+function filtered(){
+  const q=$('fQ').value.trim().toLowerCase(), t=$('fType').value, u=$('fUser').value, from=$('fFrom').value, to=$('fTo').value;
+  return LOGS.filter(l => {
+    if (t){ const a=actOf(l.action); if (t==='entry' || t==='acct' || t==='login'){ if (a.grp!==t) return false; } else if (l.action!==t) return false; }
+    if (u && l.username!==u) return false;
+    if (from && l._d < from) return false;
+    if (to && l._d > to) return false;
+    if (q){ const hay=[l.name,l.username,l.target,l.summary,l.entryDate,...(l.changes||[]).flatMap(c=>[c.label,c.from,c.to])].join(' ').toLowerCase(); if (!hay.includes(q)) return false; }
+    return true;
+  });
+}
+
+function dayLabel(d){
+  const dt=new Date(d+'T00:00:00'); if (isNaN(dt)) return esc(d);
+  const today=new Date(); const iso=x=>`${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`;
+  const y=new Date(today); y.setDate(today.getDate()-1);
+  const rel = d===iso(today) ? 'วันนี้ · ' : d===iso(y) ? 'เมื่อวาน · ' : '';
+  return `${rel}วัน${TH_D[dt.getDay()]}ที่ ${dt.getDate()} ${TH_M[dt.getMonth()]} ${dt.getFullYear()+543}`;
+}
+function shortThai(d){ const dt=new Date(d+'T00:00:00'); return isNaN(dt) ? esc(d) : `${dt.getDate()} ${TH_MS[dt.getMonth()]} ${String(dt.getFullYear()+543).slice(-2)}`; }
+function initialOf(name){ const bare=String(name||'').replace(/^([^\s.]{1,8}\.)+/,''); return ((bare.match(/[ก-ฮA-Za-z0-9]/)||['?'])[0]).toUpperCase(); }
+const AV_COLORS=['#9B1C31','#1F5FA8','#2C7A47','#7A4FB0','#A85F0A','#0E7C74','#A3367E','#4A52C4'];
+function avColor(u){ let h=0; for (const c of String(u)) h=(h*31+c.charCodeAt(0))>>>0; return AV_COLORS[h%AV_COLORS.length]; }
+
+function diffTable(l){
+  const ch=l.changes||[]; if (!ch.length) return '';
+  const cell=(v,cls)=> v ? `<td class="${cls}">${esc(v)}</td>` : `<td class="${cls} empty">ว่าง</td>`;
+  if (l.action==='entry_create' || l.action==='entry_delete'){
+    const rows=ch.map(c=>`<tr><td class="f">${esc(c.label)}</td><td>${esc(l.action==='entry_create'?c.to:c.from)}</td></tr>`).join('');
+    return `<details class="more"><summary>${l.action==='entry_create'?'ดูข้อมูลที่บันทึก':'ดูข้อมูลที่ถูกลบ'} (${ch.length} ช่อง)</summary><div class="diff"><table><tbody>${rows}</tbody></table></div></details>`;
+  }
+  const rows=ch.map(c=>`<tr><td class="f">${esc(c.label)}</td>${cell(c.from,'old')}${cell(c.to,'new')}</tr>`).join('');
+  return `<div class="diff"><table><thead><tr><th>ช่อง</th><th>เดิม</th><th>ใหม่</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function sumHtml(l){
+  const a=l.action;
+  if (a==='entry_create' || a==='entry_update' || a==='entry_delete'){
+    const verb={entry_create:'เพิ่มงาน',entry_update:'แก้ไขงาน',entry_delete:'ลบงาน'}[a];
+    const n=(l.changes||[]).length;
+    return `${verb} <q>${esc(l.target||'(ไม่มีชื่อ)')}</q>${l.entryDate?` ของวันที่ ${shortThai(l.entryDate)}`:''}${a==='entry_update'&&n?` · เปลี่ยน ${n} ช่อง`:''}`;
+  }
+  return esc(l.summary||actOf(a).label);
+}
+
+function render(){
+  const list=filtered();
+  // chips
+  const cnt=k=>list.filter(l=>actOf(l.action).k===k && actOf(l.action).grp==='entry').length;
+  const t=$('fType').value;
+  const chip=(val,cls,label,n)=>`<button type="button" class="chip ${cls}" data-type="${val}" aria-pressed="${t===val}">${label} <b>${n}</b></button>`;
+  $('chips').innerHTML = `<span class="muted" style="font-size:.86em;align-self:center">${list.length.toLocaleString('th-TH')} รายการ</span>`
+    + chip('entry_create','k-create','เพิ่ม',cnt('create')) + chip('entry_update','k-update','แก้ไข',cnt('update')) + chip('entry_delete','k-delete','ลบ',cnt('delete'))
+    + chip('acct','k-acct','บัญชี',list.filter(l=>actOf(l.action).grp==='acct').length) + chip('login','k-login','เข้าสู่ระบบ',list.filter(l=>l.action==='login').length);
+  if (!list.length){ $('list').innerHTML = `<div class="empty-state">${LOGS.length?'ไม่พบรายการตามตัวกรอง':'ยังไม่มีประวัติการใช้งาน ประวัติจะเริ่มบันทึกหลังจากอัปเดต Apps Script เวอร์ชันนี้'}</div>`; $('moreWrap').hidden=true; return; }
+  const part=list.slice(0, SHOWN);
+  const days=[]; let cur=null;
+  part.forEach(l=>{ if (!cur || cur.d!==l._d){ cur={d:l._d, items:[]}; days.push(cur); } cur.items.push(l); });
+  $('list').innerHTML = days.map(d=>`<section class="day"><div class="dayhead">${dayLabel(d.d)} <small>${list.filter(x=>x._d===d.d).length} รายการ</small></div><div class="items">${d.items.map(l=>{
+    const a=actOf(l.action);
+    const open = (l.action==='entry_create'||l.action==='entry_update') && l.entryId ? `<a href="record.html#edit-${encodeURIComponent(l.entryId)}">เปิดงานนี้</a>` : '';
+    return `<article class="it"><div class="tm">${esc(l._t)} น.</div><div class="av" style="background:${avColor(l.username)}" aria-hidden="true">${esc(initialOf(l.name||l.username))}</div>
+      <div class="main"><div class="line1"><span class="nm">${esc(l.name||l.username||'ไม่ทราบชื่อ')}</span><span class="tag k-${a.k}">${esc(a.label)}</span>${l.username?`<span class="un">${esc(l.username)}</span>`:''}</div>
+      <div class="sum">${sumHtml(l)}</div>${diffTable(l)}${open?`<div class="meta">${open}</div>`:''}</div></article>`;
+  }).join('')}</div></section>`).join('');
+  $('moreWrap').hidden = list.length <= SHOWN;
+  $('moreBtn').textContent = `แสดงเพิ่ม (เหลืออีก ${(list.length-SHOWN).toLocaleString('th-TH')} รายการ)`;
+}
+
+['fQ','fType','fUser','fFrom','fTo'].forEach(id => $(id).addEventListener(id==='fQ'?'input':'change', ()=>{ SHOWN=PAGE; render(); }));
+$('chips').addEventListener('click', ev => { const b=ev.target.closest('[data-type]'); if (!b) return; $('fType').value = $('fType').value===b.dataset.type ? '' : b.dataset.type; SHOWN=PAGE; render(); });
+$('fClear').onclick = () => { ['fQ','fFrom','fTo'].forEach(id=>$(id).value=''); $('fType').value=''; $('fUser').value=''; SHOWN=PAGE; render(); };
+$('reload').onclick = () => loadLogs();
+$('moreBtn').onclick = () => { SHOWN += PAGE; render(); };
+$('csv').onclick = () => {
+  const list=filtered();
+  const q=v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`;
+  const lines=[['วันที่','เวลา','ชื่อ','ชื่อผู้ใช้','การกระทำ','รายการ/เป้าหมาย','วันที่ของงาน','สรุป','รายละเอียดการเปลี่ยนแปลง'].map(q).join(',')];
+  list.forEach(l => lines.push([l._d, l._t, l.name, l.username, actOf(l.action).label, l.target, l.entryDate, l.summary,
+    (l.changes||[]).map(c=>`${c.label}: ${c.from||'-'} → ${c.to||'-'}`).join(' | ')].map(q).join(',')));
+  const blob=new Blob(['﻿'+lines.join('\r\n')], {type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  const d=new Date(); a.download=`activity-log-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}.csv`;
+  document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+};
+
+/* ===== login / logout ===== */
+$('gateForm').addEventListener('submit', async ev => {
+  ev.preventDefault(); const u=$('gateUser').value.trim(), k=$('gateKey').value; if(!u || !k) return;
+  const btn=$('gateBtn'); btn.disabled=true; btn.textContent='กำลังตรวจสอบ…'; $('gateMsg').textContent='';
+  try{
+    const j = await api('login', {username:u, password:k}, false);
+    setKey(j.token); setLoggedOut(false); markActive(true); $('gateKey').value=''; storeUser(j.user);
+    $('gate').hidden=true; await start();
+  }catch(e){ $('gateMsg').textContent = errText(e); $('gateKey').select(); }
+  finally{ btn.disabled=false; btn.textContent='เข้าใช้งาน'; }
+});
+function doLogout(msg){
+  const tok=getKey(); if (tok && CFG.API_URL){ try{ fetch(CFG.API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'logout',key:tok}),keepalive:true}).catch(()=>{}); }catch(_){} }
+  setKey(''); storeUser(null); setLoggedOut(true); LOGS=[]; ME=null;
+  showGate(msg||'ออกจากระบบแล้ว');
+}
+$('logoutTop').onclick = () => doLogout();
+
+/* ===== ออกจากระบบอัตโนมัติเมื่อไม่มีการใช้งาน ===== */
+const IDLE_MIN = (CFG.IDLE_MINUTES!=null && isFinite(+CFG.IDLE_MINUTES)) ? +CFG.IDLE_MINUTES : 30;
+const IDLE_MS = IDLE_MIN*60000, IDLE_WARN_MS = Math.min(60000, IDLE_MS/2);
+const IDLE_MSG = `ไม่มีการใช้งานเกิน ${IDLE_MIN} นาที ระบบออกจากระบบให้อัตโนมัติ กรุณาเข้าสู่ระบบอีกครั้ง`;
+let memActive = Date.now(), lastActWrite = 0;
+function storedActive(){ try{ const v=localStorage.getItem(ACT_KEY); return v==null ? null : (+v||0); }catch(_){ return null; } }
+function lastActive(){ const s=storedActive(); return s==null ? memActive : Math.max(s, memActive); }
+function isSignedIn(){ return $('gate').hidden && !!getKey(); }
+function markActive(force){
+  const n=Date.now(); const warn=!$('idleWarn').hidden;
+  if (!force && !warn && n-lastActWrite<5000) return;
+  memActive=n; lastActWrite=n; try{ localStorage.setItem(ACT_KEY, String(n)); }catch(_){}
+  if (warn) $('idleWarn').hidden=true;
+}
+function idleCheck(){
+  if (IDLE_MS<=0 || !isSignedIn()){ $('idleWarn').hidden=true; return; }
+  const left = IDLE_MS - (Date.now()-lastActive());
+  if (left<=0){ doLogout(IDLE_MSG); return; }
+  if (left<=IDLE_WARN_MS){ $('idleSec').textContent=Math.ceil(left/1000); $('idleWarn').hidden=false; }
+  else $('idleWarn').hidden=true;
+}
+let idleOnLoad=false;
+if (IDLE_MS>0 && getKey()){ const s=storedActive(); if (s && Date.now()-s>IDLE_MS){ setKey(''); storeUser(null); setLoggedOut(true); idleOnLoad=true; } }
+if (!idleOnLoad) markActive(true);
+['pointerdown','keydown','wheel','touchstart','scroll','mousemove'].forEach(t=>window.addEventListener(t, ()=>{ if (isSignedIn()) markActive(false); }, {passive:true, capture:true}));
+$('idleStay').onclick = () => markActive(true);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) idleCheck(); });
+window.addEventListener('pageshow', idleCheck);
+window.addEventListener('storage', ev => { if (ev.key===OUT_KEY && ev.newValue==='1' && $('gate').hidden){ setKey(''); showGate('ออกจากระบบจากอีกหน้าต่างหนึ่งแล้ว'); } });
+setInterval(idleCheck, 1000);
+
+if (idleOnLoad) showGate(IDLE_MSG); else start();
+</script>
+</body>
+</html>
