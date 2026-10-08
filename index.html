@@ -1382,33 +1382,59 @@ let CUR_USER = (()=>{ try{ return JSON.parse(localStorage.getItem(USER_STORE)||'
 function lastUsername(){ try{ return localStorage.getItem('tt-last-user')||''; }catch(_){ return ''; } }
 function getKey(){ try{ return localStorage.getItem(KEY_STORE) || sessionStorage.getItem(KEY_STORE) || ''; }catch(_){ return ''; } }
 function setKey(k, remember){ try{ localStorage.removeItem(KEY_STORE); sessionStorage.removeItem(KEY_STORE); if (k) (remember?localStorage:sessionStorage).setItem(KEY_STORE,k); }catch(_){} }
+/* ข้อมูลรอบล่าสุดเก็บไว้ในเครื่อง เปิดหน้าครั้งต่อไปแสดงได้ทันที แล้วค่อยโหลดของใหม่เบื้องหลัง (ลบเมื่อออกจากระบบ) */
+const SNAP_KEY = 'tt-snap', SNAP_MAX_AGE = 14*864e5;
+function readSnap(){ try{ const s=JSON.parse(localStorage.getItem(SNAP_KEY)||'null'); return s && s.j && Date.now()-s.t < SNAP_MAX_AGE ? s : null; }catch(_){ return null; } }
+function saveSnap(j){ try{ if (!getKey() || !j || !j.user) return; localStorage.setItem(SNAP_KEY, JSON.stringify({u:j.user.username, t:Date.now(), j:{role:j.role, user:j.user, pending:j.pending, canViewLogs:j.canViewLogs, entries:j.entries, holidays:j.holidays}})); }catch(_){ try{ localStorage.removeItem(SNAP_KEY); }catch(__){} } }
+function clearSnap(){ try{ localStorage.removeItem(SNAP_KEY); }catch(_){} }
+const RETRY_CODES = ['timeout','network','busy'];
+function newRid(){ let s=''; try{ const a=new Uint8Array(12); crypto.getRandomValues(a); a.forEach(b=>s+=b.toString(16).padStart(2,'0')); }catch(_){ s=(Date.now().toString(36)+Math.random().toString(36).slice(2)).replace(/[^a-z0-9]/g,''); } return s.slice(0,24); }
 function makeApiDB(url){
   const subs=[]; let cache=[];
-  async function call(action, payload){
+  async function call1(body, ms){
     let res;
-    const ctl = new AbortController(); const timer = setTimeout(()=>ctl.abort(), 30000);
-    try{ res = await fetch(url, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action, key:getKey(), ...(payload||{})}), redirect:'follow', signal:ctl.signal}); }
+    const ctl = new AbortController(); const timer = setTimeout(()=>ctl.abort(), ms);
+    try{ res = await fetch(url, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(body), redirect:'follow', signal:ctl.signal}); }
     catch(e){ throw {code: e && e.name==='AbortError' ? 'timeout' : 'network'}; }
     finally{ clearTimeout(timer); }
     let j; try{ j = await res.json(); }catch(_){ throw {code:'bad_response'}; }
     if (!j.ok) throw {code:j.error||'server_error', message:j.message||''};
     return j;
   }
+  // หลุด/ช้า/คิวเต็ม → ลองใหม่อัตโนมัติ 1 ครั้ง (การบันทึกส่งรหัสคำขอเดิมไปด้วย Apps Script จะไม่บันทึกซ้ำ)
+  async function call(action, payload){
+    const body = {action, key:getKey(), ...(payload||{})};
+    if (/^(create|create_many|update|delete)$/.test(action)){ body.rid = newRid(); body.withList = true; }
+    try{ return await call1(body, 30000); }
+    catch(e){
+      if (!e || RETRY_CODES.indexOf(e.code)<0) throw e;
+      syncState('การเชื่อมต่อช้า กำลังลองใหม่อัตโนมัติ…');
+      await new Promise(r=>setTimeout(r, 1200));
+      try{ return await call1(body, 45000); }
+      catch(e2){ if (LAST_SYNC) syncState(); throw e2; }
+    }
+  }
   function fire(){ const sn={docs:cache.map(d=>({id:d.id, exists:true, data:()=>d}))}; subs.forEach(f=>f(sn)); }
-  async function refresh(pre){
-    const j = pre || await call('list');
-    ROLE = j.role; PENDING = j.pending||0; CAN_LOGS = !!j.canViewLogs; setUser(j.user); cache = j.entries||[]; LAST_SYNC = new Date();
+  function apply(j){
+    ROLE = j.role; PENDING = j.pending||0; CAN_LOGS = !!j.canViewLogs; setUser(j.user); cache = j.entries||[];
     Object.keys(HOLIDAYS).forEach(k=>delete HOLIDAYS[k]); Object.assign(HOLIDAYS, j.holidays||{});
     document.documentElement.classList.toggle('role-view', ROLE!=='edit');
-    canWrite = ROLE==='edit'; applyWriteState(); fire(); syncState();
+    canWrite = ROLE==='edit'; applyWriteState(); fire();
+  }
+  async function refresh(pre){
+    const j = (pre && pre.entries) ? pre : await call('list');
+    LAST_SYNC = new Date(); apply(j); syncState(); saveSnap(j);
     return j;
   }
+  // แสดงข้อมูลที่เก็บไว้ในเครื่องทันที (ยังไม่นับว่าซิงค์แล้ว)
+  function showSnap(snap){ apply(snap.j); }
+  const withList = j => refresh(j && j.entries ? j : null);
   const col = {
-    add: async d => { await call('create',{data:d}); await refresh(); },
-    doc: id => ({ set: async d => { await call('update',{id, data:d}); await refresh(); }, delete: async () => { await call('delete',{id}); await refresh(); } }),
+    add: async d => withList(await call('create',{data:d})),
+    doc: id => ({ set: async d => withList(await call('update',{id, data:d})), delete: async () => withList(await call('delete',{id})) }),
     onSnapshot: f => { subs.push(f); return ()=>{}; }
   };
-  return { collection: ()=>col, refresh, call };
+  return { collection: ()=>col, refresh, call, showSnap };
 }
 const ALERT_DAYS = 7;
 const ALERT_KEY = 'tt-alert-seen';
@@ -1464,7 +1490,7 @@ function syncState(msg, err){
       : (msg || 'Google Sheet');
   }
 }
-const ERR_TH = {timeout:'Google Sheet ตอบช้าเกินไป ลองอีกครั้ง', network:'เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ต', bad_response:'Apps Script ตอบกลับไม่ถูกต้อง ตรวจสอบ URL ใน config.js', unauthorized:'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่', forbidden:'บัญชีนี้ดูได้อย่างเดียว บันทึกหรือแก้ไขไม่ได้', must_change:'ต้องตั้งรหัสผ่านใหม่ก่อนใช้งาน', invalid_login:'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', locked:'บัญชีถูกล็อกชั่วคราว', disabled:'บัญชีนี้ถูกปิดใช้งาน ติดต่อผู้ดูแลระบบ', pending:'บัญชีนี้รอผู้ดูแลระบบอนุมัติ', server_error:'เกิดข้อผิดพลาดที่ Apps Script'};
+const ERR_TH = {timeout:'Google Sheet ตอบช้าเกินไป ลองอีกครั้ง', network:'เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ต', bad_response:'Apps Script ตอบกลับไม่ถูกต้อง ตรวจสอบ URL ใน config.js', unauthorized:'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่', forbidden:'บัญชีนี้ดูได้อย่างเดียว บันทึกหรือแก้ไขไม่ได้', must_change:'ต้องตั้งรหัสผ่านใหม่ก่อนใช้งาน', invalid_login:'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', locked:'บัญชีถูกล็อกชั่วคราว', disabled:'บัญชีนี้ถูกปิดใช้งาน ติดต่อผู้ดูแลระบบ', pending:'บัญชีนี้รอผู้ดูแลระบบอนุมัติ', server_error:'เกิดข้อผิดพลาดที่ Apps Script', busy:'มีผู้ใช้บันทึกพร้อมกันหลายคน ลองอีกครั้ง'};
 function errText(e){ return (ERR_TH[e&&e.code]||'เกิดข้อผิดพลาด') + (e&&e.message?` (${e.message})`:''); }
 function downloadText(name, text, type){
   const blob=new Blob(['\ufeff'+text],{type}); const a=document.createElement('a');
@@ -1675,16 +1701,31 @@ async function saveForm(ev){
       if (editingId){ const old = FORM_DOCS.find(d=>d.id===editingId); await DB.collection('entries').doc(editingId).set({...data, ...extra, createdAt: old?.createdAt || data.updatedAt}); }
       else { await DB.collection('entries').add({...data, ...extra, createdAt: data.updatedAt}); }
     } else {
-      const total = copies.length + 1; let mainDone = false; const done = [];
+      const total = copies.length + 1; let mainDone = false; const done = []; let j = null;
+      const old = editingId ? FORM_DOCS.find(d=>d.id===editingId) : null;
+      const mainData = {...data, ...extra, createdAt: old?.createdAt || data.updatedAt};
+      const items = copies.map(d => ({...data, date: d, statusBy: data.statusBy, createdAt: data.updatedAt}));
       try{
-        setMsg(`กำลังบันทึก 1/${total}…`);
-        if (editingId){ const old = FORM_DOCS.find(d=>d.id===editingId); await DB.call('update', {id: editingId, data: {...data, ...extra, createdAt: old?.createdAt || data.updatedAt}}); }
-        else { await DB.call('create', {data: {...data, ...extra, createdAt: data.updatedAt}}); }
-        mainDone = true; done.push(data.date);
-        for (const d of copies){
-          setMsg(`กำลังบันทึก ${done.length+1}/${total}…`);
-          await DB.call('create', {data: {...data, date: d, statusBy: data.statusBy, createdAt: data.updatedAt}});
-          done.push(d);
+        if (editingId){
+          setMsg(`กำลังบันทึก 1/${total}…`);
+          await DB.call('update', {id: editingId, data: mainData});
+          mainDone = true; done.push(data.date);
+          setMsg(`กำลังบันทึกอีก ${copies.length} วัน…`);
+        } else setMsg(`กำลังบันทึก ${total} วัน…`);
+        try{
+          // บันทึกทุกวันในคำขอเดียว
+          j = await DB.call('create_many', {items: editingId ? items : [mainData, ...items]});
+          if (!editingId){ mainDone = true; done.push(data.date); }
+          done.push(...copies);
+        }catch(err){
+          if (!err || err.code!=='unknown_action') throw err;
+          // Apps Script รุ่นเก่ายังไม่มี create_many → บันทึกทีละวัน
+          if (!editingId){ setMsg(`กำลังบันทึก 1/${total}…`); j = await DB.call('create', {data: mainData}); mainDone = true; done.push(data.date); }
+          for (const it of items){
+            setMsg(`กำลังบันทึก ${done.length+1}/${total}…`);
+            j = await DB.call('create', {data: it});
+            done.push(it.date);
+          }
         }
       }catch(err){
         if (mainDone){
@@ -1696,7 +1737,7 @@ async function saveForm(ev){
         }
         throw err;
       }
-      await DB.refresh();
+      await DB.refresh(j && j.entries ? j : null);
     }
     const savedAll = [data.date, ...copies].sort(), saved = savedAll[0];
     resetForm(); selected = saved; month = saved.slice(0,7); sheetMonth = month;
@@ -1792,13 +1833,20 @@ async function connect(pre){
   if (!CFG.API_URL || /PASTE|วาง/.test(CFG.API_URL)){ DB=null; applyWriteState(); syncState('ยังไม่ได้ตั้งค่า config.js', true); showGate('ยังไม่ได้ใส่ URL ของ Apps Script ในไฟล์ config.js'); $('gateBtn').disabled=true; return; }
   if (!DB){ DB = makeApiDB(CFG.API_URL); DB.collection('entries').onSnapshot(snap => { FORM_DOCS = snap.docs.map(d => ({...d.data(), id:d.id})); buildEvents(); onData(); renderAll(); checkAlerts(); }); }
   if (isLoggedOut() && !getKey()){ syncState('ออกจากระบบแล้ว', true); showGate(''); return; }
-  syncState('กำลังโหลดข้อมูลจาก Google Sheet…');
+  let snapAt = null;
+  if (!LAST_SYNC && !(pre && pre.entries) && getKey()){
+    const snap = readSnap();
+    if (snap && CUR_USER && snap.u===CUR_USER.username){ try{ DB.showSnap(snap); snapAt = new Date(snap.t); }catch(_){ snapAt = null; } }
+  }
+  const snapTx = snapAt ? `ข้อมูลเมื่อ ${pad(snapAt.getDate())}/${pad(snapAt.getMonth()+1)} ${pad(snapAt.getHours())}.${pad(snapAt.getMinutes())} น.` : '';
+  syncState(snapAt ? `กำลังอัปเดต… (แสดง${snapTx})` : 'กำลังโหลดข้อมูลจาก Google Sheet…');
   try{ await DB.refresh(pre && pre.entries ? pre : null); setLoggedOut(false); $('gate').hidden=true; updateLogout(); }
-  catch(e){ if (e.code==='must_change'){ location.href='account.html?first=1'; return; } if (e.code==='unauthorized'){ const had=!!getKey(); setKey(''); setUser(null); showGate(had?'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่':''); updateLogout(); } else { syncState(errText(e), true); if ($('gate').hidden===false) $('gateMsg').textContent=errText(e); } }
+  catch(e){ if (e.code==='must_change'){ location.href='account.html?first=1'; return; } if (e.code==='unauthorized'){ const had=!!getKey(); setKey(''); setUser(null); if (snapAt || FORM_DOCS.length){ FORM_DOCS=[]; buildEvents(); renderAll(); } showGate(had?'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่':''); updateLogout(); } else { const m = errText(e) + (snapAt && !LAST_SYNC ? ` · กำลังแสดง${snapTx} ที่เก็บไว้ในเครื่อง` : ''); syncState(m, true); if ($('gate').hidden===false) $('gateMsg').textContent=errText(e); } }
 }
 function setUser(u){
   CUR_USER = u ? {username:u.username, name:u.name||u.username, role:u.role} : null;
   try{ CUR_USER ? localStorage.setItem(USER_STORE, JSON.stringify(CUR_USER)) : localStorage.removeItem(USER_STORE); if (CUR_USER) localStorage.setItem('tt-last-user', CUR_USER.username); }catch(_){}
+  if (!CUR_USER) clearSnap();
   if (CUR_USER && PAGE==='form' && !editingId && $('fRec') && !$('fRec').value) $('fRec').value = CUR_USER.name;
   updateLogout();
 }

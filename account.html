@@ -354,7 +354,7 @@ const KEY_STORE='tt-gs-key', USER_STORE='tt-user', OUT_KEY='tt-logged-out', ACT_
 function getKey(){ try{ return localStorage.getItem(KEY_STORE) || sessionStorage.getItem(KEY_STORE) || ''; }catch(_){ return ''; } }
 function setKey(k){ try{ localStorage.removeItem(KEY_STORE); sessionStorage.removeItem(KEY_STORE); if (k) localStorage.setItem(KEY_STORE,k); }catch(_){} }
 function setLoggedOut(v){ try{ v ? localStorage.setItem(OUT_KEY,'1') : localStorage.removeItem(OUT_KEY); }catch(_){} }
-function storeUser(u){ try{ if (u){ localStorage.setItem(USER_STORE, JSON.stringify({username:u.username,name:u.name,role:u.role})); localStorage.setItem('tt-last-user', u.username); } else localStorage.removeItem(USER_STORE); }catch(_){} }
+function storeUser(u){ try{ if (u){ localStorage.setItem(USER_STORE, JSON.stringify({username:u.username,name:u.name,role:u.role})); localStorage.setItem('tt-last-user', u.username); } else { localStorage.removeItem(USER_STORE); localStorage.removeItem('tt-snap'); } }catch(_){} }
 function lastUsername(){ try{ return localStorage.getItem('tt-last-user')||''; }catch(_){ return ''; } }
 
 async function api(action, payload, withKey=true){
