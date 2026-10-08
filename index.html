@@ -266,6 +266,20 @@ table.sheet tr.srow.cf td.tt{color:#B3261E;font-weight:700;box-shadow:inset 3px 
 .seg button[aria-pressed="true"]{border-color:var(--c);background:var(--soft);color:var(--ink);box-shadow:inset 0 0 0 1px var(--c)}
 .sheetbar .ympick{order:3;flex-basis:100%}
 .sheetbar .pdfbtn{margin-left:auto}
+.sheetbar .xlwrap{margin-left:auto;position:relative}
+.sheetbar .xlwrap + .pdfbtn{margin-left:0}
+.xlbtn{white-space:nowrap;display:inline-flex;align-items:center;gap:6px;border-color:#1D6F42;color:#1D6F42}
+.xlbtn:hover{border-color:#1D6F42;background:#EEF7F1}
+.xlbtn .car{font-size:.7em;opacity:.8}
+.xlmenu{position:absolute;right:0;top:calc(100% + 6px);z-index:40;min-width:250px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(20,30,40,.16);padding:6px;display:flex;flex-direction:column;gap:2px}
+.xlmenu[hidden]{display:none}
+.xlmenu button{font:inherit;text-align:left;border:0;background:none;border-radius:8px;padding:9px 12px;cursor:pointer;color:var(--ink);display:flex;flex-direction:column;gap:1px}
+.xlmenu button:hover,.xlmenu button:focus-visible{background:var(--surface-2);outline:none}
+.xlmenu button small{color:var(--muted);font-size:.82em}
+.xlmsg{font-size:.85em;color:var(--muted);flex-basis:100%;text-align:right;order:4}
+.xlmsg.err{color:var(--accent)}
+.xlmsg:empty{display:none}
+@media (max-width:640px){ .xlmenu{right:auto;left:0} }
 .ympwrap{flex-basis:100%;min-width:0}
 .ympick{display:flex;flex-direction:column;gap:10px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;min-width:0}
 .ymrow{display:flex;align-items:center;gap:12px;min-width:0}
@@ -1282,7 +1296,13 @@ function renderSheet(){
     <div class="sheetbar">
       <div class="seg" role="group" aria-label="เลือกอาจารย์">${ORDER.map(c=>`<button class="t-${c}" data-who="${c}" aria-pressed="${c===who}"><span class="sw"></span>${esc(TEACHERS[c].short)}</button>`).join('')}</div>
       ${ymPicker(sheetMonth, monthCounts(EVENTS.filter(e=>e.who===who && activeEv(e))))}
+      <div class="xlwrap"><button type="button" class="btn xlbtn" id="xlBtn" aria-haspopup="menu" aria-expanded="false" title="ดาวน์โหลดเป็นไฟล์ Excel (.xlsx)"><span aria-hidden="true">⤓</span> Export Excel <span class="car" aria-hidden="true">▾</span></button>
+        <div class="xlmenu" id="xlMenu" role="menu" hidden>
+          <button type="button" role="menuitem" data-xl="one"><b>${esc(t.short)}</b><small>${TH_M[m-1]} ${be(y)} · 1 ชีต</small></button>
+          <button type="button" role="menuitem" data-xl="all"><b>อาจารย์ทุกท่าน</b><small>${TH_M[m-1]} ${be(y)} · ${ORDER.length} ชีต (ท่านละ 1 ชีต)</small></button>
+        </div></div>
       <button type="button" class="btn primary pdfbtn" id="pdfBtn" title="บันทึกเป็น PDF ขนาด A4 แนวนอน"><span aria-hidden="true">⤓</span> Export PDF</button>
+      <div class="xlmsg" id="xlMsg" role="status"></div>
     </div>
     <section class="sheetwrap t-${who}">
       <header class="sheethead">
@@ -1302,9 +1322,144 @@ function renderSheet(){
     window.print();
     setTimeout(restore, 1500);
   };
+  const xlBtn = document.getElementById('xlBtn'), xlMenu = document.getElementById('xlMenu');
+  const xlShow = on => { xlMenu.hidden = !on; xlBtn.setAttribute('aria-expanded', on); if (on) xlMenu.querySelector('button').focus(); };
+  xlBtn.onclick = ev => { ev.stopPropagation(); xlShow(xlMenu.hidden); };
+  xlMenu.onkeydown = ev => { if (ev.key==='Escape'){ xlShow(false); xlBtn.focus(); } };
+  xlMenu.querySelectorAll('[data-xl]').forEach(b => b.onclick = async () => {
+    xlShow(false);
+    const msg = document.getElementById('xlMsg'); msg.className = 'xlmsg'; msg.textContent = 'กำลังสร้างไฟล์ Excel…'; xlBtn.disabled = true;
+    try{ const name = await exportSheetXlsx(b.dataset.xl==='all' ? ORDER.slice() : [who], sheetMonth); msg.textContent = 'ดาวน์โหลดแล้ว · ' + name; setTimeout(()=>{ if (msg.isConnected && /^ดาวน์โหลดแล้ว/.test(msg.textContent)) msg.textContent=''; }, 6000); }
+    catch(err){ console.error(err); msg.className = 'xlmsg err'; msg.textContent = 'สร้างไฟล์ Excel ไม่สำเร็จ' + (err && err.code==='load' ? ' (โหลดตัวสร้างไฟล์ไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่)' : ''); }
+    finally{ xlBtn.disabled = false; }
+  });
   el.querySelectorAll('.seg button').forEach(b => b.onclick = () => { sheetWho = b.dataset.who; store.set('sheetWho',sheetWho); renderAll(); });
   bindPicker(el.querySelector('.sheetbar'), monthCounts(EVENTS.filter(e=>e.who===who && activeEv(e))), sheetMonth, k => { sheetMonth = k; renderSheet(); });
   el.querySelectorAll('tr.srow').forEach(r => { const go=(ev)=>{ if(ev && ev.target.closest('a')) return; openEvModal(EVENTS[+r.dataset.k]); }; r.onclick=go; r.onkeydown=ev=>{ if(ev.key==='Enter' && !ev.target.closest('a')){ ev.preventDefault(); go(); } }; });
+}
+
+/* ===== Export Excel (.xlsx) ตารางรายบุคคล — รูปแบบตามแบบบันทึก TM-QM-F-092 ===== */
+document.addEventListener('click', ev => { const mn=document.getElementById('xlMenu'); if (mn && !mn.hidden && !ev.target.closest('.xlwrap')){ mn.hidden=true; const b=document.getElementById('xlBtn'); if (b) b.setAttribute('aria-expanded','false'); } });
+let XLJS = null;
+function loadExcelJS(){
+  if (window.ExcelJS) return Promise.resolve(window.ExcelJS);
+  return XLJS ||= new Promise((res, rej) => {
+    const sc = document.createElement('script'); sc.src = 'assets/exceljs.min.js'; sc.async = true;
+    sc.onload = () => window.ExcelJS ? res(window.ExcelJS) : (XLJS=null, rej({code:'load'}));
+    sc.onerror = () => { XLJS = null; sc.remove(); rej({code:'load'}); };
+    document.head.appendChild(sc);
+  });
+}
+const XL = {
+  font:'Cordia New', org:'ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล มหาวิทยาลัยมหิดล',
+  head:['วัน','วัน/เดือน/ปี','เวลา','ประเภท','รายการ','สถานที่','หมายเหตุ','ชม.','ระดับ','หน่วยงานที่เชิญ','ผู้บันทึก','วันที่บันทึกลงระบบ'],
+  width:[11,19,15,14,52,34,11,7,13,28,24,17],
+  wrap:[false,false,true,true,true,true,true,false,true,true,true,true],
+  st:{ok:'FF1E7B34', pend:'FFC55A11', off:'FF808080', none:'FF333333'}
+};
+function xlRecDate(e){
+  const m = String(e.createdAt||'').match(/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/);
+  if (!m) return e.source==='excel' ? 'นำเข้าจาก Excel' : '';
+  return `${+m[3]} ${TH_MS[+m[2]-1]} ${String(+m[1]+543).slice(2)}${m[4]?` ${m[4]}.${m[5]} น.`:''}`;
+}
+// ประมาณจำนวนบรรทัดของข้อความที่ตัดบรรทัด (Excel ไม่ปรับความสูงแถวให้เอง) — ไม่นับสระ/วรรณยุกต์ที่ไม่กินที่
+function xlLines(text, width){
+  const per = Math.max(4, Math.floor(width * 1.0));
+  return String(text||'').split('\n').reduce((n, ln) => n + Math.max(1, Math.ceil(ln.replace(/[ัิ-ฺ็-๎]/g,'').length / per)), 0);
+}
+function xlAddSheet(wb, who, ym){
+  const t = TEACHERS[who], [y,m] = ym.split('-').map(Number), N = XL.head.length, L = 'L';
+  const evs = EVENTS.filter(e => e.who===who && e.date.startsWith(ym));
+  const hrs = evs.filter(activeEv).reduce((s,e)=>s+e._h.v,0), pend = evs.filter(e=>e._st==='pend').length;
+  const ws = wb.addWorksheet(`${who} ${TH_MS[m-1]}${String(be(y)).slice(2)}`.replace(/[:\\\/?*\[\]]/g,''), {
+    pageSetup:{paperSize:9, orientation:'landscape', fitToPage:true, fitToWidth:1, fitToHeight:0, horizontalCentered:true,
+      margins:{left:0.3, right:0.3, top:0.45, bottom:0.5, header:0.2, footer:0.25}, printTitlesRow:'5:5'},
+    headerFooter:{oddFooter:'&L&"Cordia New"&12TM-QM-F-092-00&R&"Cordia New"&12หน้า &P / &N'},
+    views:[{state:'frozen', ySplit:5, showGridLines:false}]
+  });
+  ws.columns = XL.width.map(w => ({width:w}));
+  const F = (o={}) => ({name:XL.font, size:16, ...o});
+  const thin = {style:'thin', color:{argb:'FF7F7F7F'}};
+  const box = {top:thin, left:thin, bottom:thin, right:thin};
+  const fill = c => ({type:'pattern', pattern:'solid', fgColor:{argb:c}});
+  // หัวกระดาษ
+  ws.mergeCells('A1:'+L+'1'); Object.assign(ws.getCell('A1'), {value:XL.org, font:F({size:14, color:{argb:'FF404040'}})});
+  ws.mergeCells('A2:H2'); Object.assign(ws.getCell('A2'), {value:'แบบบันทึกตารางการปฏิบัติงานของอาจารย์แพทย์', font:F({size:20, bold:true})});
+  ws.mergeCells('I2:'+L+'2'); Object.assign(ws.getCell('I2'), {value:`${TH_M[m-1]} ${be(y)}`, font:F({size:20, bold:true}), alignment:{horizontal:'right', vertical:'middle'}});
+  ws.mergeCells('A3:H3'); Object.assign(ws.getCell('A3'), {value:t.name, font:F({size:18, bold:true, color:{argb:'FF006100'}})});
+  ws.mergeCells('I3:'+L+'3'); Object.assign(ws.getCell('I3'), {value:`${evs.length} ภารกิจ · ${hrs.toFixed(1)} ชม. · รอยืนยัน ${pend}`, font:F({size:14, color:{argb:'FF404040'}}), alignment:{horizontal:'right', vertical:'middle'}});
+  ws.getRow(1).height = 21; ws.getRow(2).height = 30; ws.getRow(3).height = 26; ws.getRow(4).height = 6;
+  const hr = ws.getRow(5); hr.values = XL.head; hr.height = 40;
+  hr.eachCell(c => { c.font = F({bold:true, color:{argb:'FFFFFFFF'}}); c.fill = fill('FF008000'); c.border = box; c.alignment = {horizontal:'center', vertical:'middle', wrapText:true}; });
+  let r = 6, week = 0;
+  const hourCells = [];
+  const days = new Date(y,m,0).getDate();
+  const styleRow = (row, n) => { for (let c=1;c<=n;c++){ const cell=row.getCell(c); cell.border = box; cell.font = cell.font || F(); cell.alignment = {vertical:'top', wrapText:XL.wrap[c-1], horizontal: (c===1||c===8||c===7) ? 'center' : 'left', ...(cell.alignment||{})}; } };
+  for (let d=1; d<=days; d++){
+    const ds = `${y}-${pad(m)}-${pad(d)}`, dow = new Date(y,m-1,d).getDay();
+    const list = evs.filter(e=>e.date===ds).sort((a,b)=>a._s-b._s), hol = HOLIDAYS[ds];
+    const we = dow===0 || dow===6;
+    if (we && !list.length && !hol) continue;
+    if (d===1 || dow===1 || week===0){
+      week++; ws.mergeCells(`A${r}:${L}${r}`);
+      const c = ws.getCell(`A${r}`); c.value = `สัปดาห์ที่ ${week}`; c.font = F({bold:true}); c.fill = fill('FF00FF00'); c.border = box; c.alignment = {vertical:'middle'};
+      ws.getRow(r).height = 22; r++;
+    }
+    const first = r, dayFont = F(we ? {color:{argb:'FFC00000'}} : {});
+    if (!list.length){
+      const row = ws.getRow(r); row.getCell(1).value = TH_D[dow]; row.getCell(2).value = `${d} ${TH_M[m-1]} ${be(y)}`;
+      row.getCell(1).font = dayFont; row.getCell(2).font = dayFont;
+      if (hol){ ws.mergeCells(`C${r}:${L}${r}`); const h = row.getCell(3); h.value = hol; h.font = F({bold:true, color:{argb:'FFC00000'}}); h.fill = fill('FFFCE4D6'); h.alignment = {horizontal:'center', vertical:'top'}; }
+      styleRow(row, N); row.height = 24; r++;
+      continue;
+    }
+    list.forEach(e => {
+      const row = ws.getRow(r), st = e._st, off = st==='off';
+      const vals = ['', '', e.time||'', e.type||'', e.title||'', e.place||'', e.status||'', (e._h.v || e.hours) ? Math.round(e._h.v*100)/100 : '', e.level||'', e.inviter||'', e.rec||'', xlRecDate(e)];
+      vals.forEach((v,i) => { if (i>1) row.getCell(i+1).value = v; });
+      for (let c=3;c<=N;c++) row.getCell(c).font = F(off ? {color:{argb:'FF808080'}} : {});
+      row.getCell(5).font = F(off ? {color:{argb:'FF808080'}, strike:true} : {});
+      row.getCell(7).font = F({bold:true, color:{argb:XL.st[st]||XL.st.none}});
+      if (st==='pend') row.getCell(7).fill = fill('FFFFF2CC');
+      const hc = row.getCell(8); if (typeof hc.value === 'number'){ hc.numFmt = '0.0'; if (e._h.est) hc.note = 'คำนวณจากช่วงเวลา (ไม่ได้กรอกจำนวนชั่วโมง)'; if (!off) hourCells.push('H'+r); }
+      if (e.edoc && /^https?:\/\//i.test(e.edoc)) row.getCell(5).note = 'เอกสาร EDOC: ' + e.edoc;
+      styleRow(row, N);
+      row.height = Math.max(24, 3 + 21 * Math.max(...[2,3,4,5,8,9,10,11].map(i => XL.wrap[i] ? xlLines(vals[i], XL.width[i]) : 1)));
+      r++;
+    });
+    if (hol){ ws.mergeCells(`C${r}:${L}${r}`); const row = ws.getRow(r), h = row.getCell(3); h.value = hol; h.font = F({bold:true, color:{argb:'FFC00000'}}); h.fill = fill('FFFCE4D6'); h.alignment = {horizontal:'center', vertical:'top'}; styleRow(row, N); row.height = 24; r++; }
+    if (r-1 > first){ ws.mergeCells(`A${first}:A${r-1}`); ws.mergeCells(`B${first}:B${r-1}`); }
+    const a = ws.getCell(`A${first}`), b = ws.getCell(`B${first}`);
+    a.value = TH_D[dow]; b.value = `${d} ${TH_M[m-1]} ${be(y)}`; a.font = dayFont; b.font = dayFont;
+    a.alignment = {horizontal:'center', vertical:'top'}; b.alignment = {horizontal:'left', vertical:'top'};
+  }
+  // แถวรวม: สูตรรวมเฉพาะงานที่ไม่เลื่อน/ขัดข้อง (แก้ชั่วโมงในไฟล์แล้วยอดรวมเปลี่ยนตาม)
+  ws.mergeCells(`A${r}:G${r}`);
+  const tr = ws.getRow(r); tr.height = 26;
+  tr.getCell(1).value = 'รวมชั่วโมง (ไม่นับงานที่เลื่อน / ขัดข้อง / ยกเลิก)';
+  tr.getCell(8).value = hourCells.length && hourCells.length <= 250 ? {formula:`SUM(${hourCells.join(',')})`, result:Math.round(hrs*100)/100} : Math.round(hrs*100)/100;
+  tr.getCell(8).numFmt = '0.0';
+  for (let c=1;c<=N;c++){ const cell = tr.getCell(c); cell.font = F({bold:true}); cell.fill = fill('FFE2EFDA'); cell.border = box; cell.alignment = {horizontal: c===1 ? 'right' : 'center', vertical:'middle'}; }
+  r += 2;
+  ws.getCell(`A${r}`).value = 'หมายเหตุ : ยืนยัน = เข้าร่วมแน่นอน · รอยืนยัน = ยังไม่ได้ยืนยัน · เลื่อน / ขัดข้อง = ไม่ได้เข้าร่วม (ไม่นับชั่วโมง)';
+  ws.getCell(`A${r}`).font = F({size:14, color:{argb:'FF595959'}});
+  ws.getCell(`${L}${r}`).value = 'TM-QM-F-092-00'; ws.getCell(`${L}${r}`).font = F({size:14}); ws.getCell(`${L}${r}`).alignment = {horizontal:'right'};
+  ws.getCell(`A${r+1}`).value = `ส่งออกจากระบบตารางงานอาจารย์ เมื่อ ${fullDate(todayIso)}${CUR_USER ? ' โดย ' + CUR_USER.name : ''}`;
+  ws.getCell(`A${r+1}`).font = F({size:12, italic:true, color:{argb:'FF7F7F7F'}});
+  return ws;
+}
+async function exportSheetXlsx(whos, ym){
+  const ExcelJS = await loadExcelJS();
+  const wb = new ExcelJS.Workbook();
+  wb.creator = CUR_USER ? CUR_USER.name : 'ตารางงานอาจารย์'; wb.created = new Date();
+  whos.forEach(w => xlAddSheet(wb, w, ym));
+  const [y,m] = ym.split('-').map(Number);
+  const name = `${whos.length===1 ? 'ตารางงาน '+TEACHERS[whos[0]].short : 'ตารางงานอาจารย์ทุกท่าน'} ${TH_M[m-1]} ${be(y)}.xlsx`;
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  return name;
 }
 
 document.getElementById('tab-cal').onclick = () => setView('cal');
