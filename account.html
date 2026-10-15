@@ -138,6 +138,8 @@ dl.info dd{margin:0}
 .tile small{display:block;color:var(--muted);font-size:.86em;line-height:1.45;margin-top:2px}
 .tile .tn{position:absolute;top:12px;right:12px;background:#FFD54F;color:#5C3D00;border-radius:999px;font-size:.8em;font-weight:700;padding:0 8px;line-height:1.6}
 .tile.logs .ti{background:#E3EDF9}
+.tile.import .ti{background:#E3F1E8}
+.tile.import .ti svg{stroke:#2C7A47}
 .tile.logs .ti svg{stroke:#1F5FA8}
 .tile.users .ti{background:#EFE8F8}
 .tile.users .ti svg{stroke:#7A4FB0}
@@ -247,6 +249,7 @@ dl.info dd{margin:0}
       <a class="tile" href="#reqCard" id="tileReq"><span class="ti"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span><span><b>คำขอรออนุมัติ</b><small id="tileReqTx">คำขอสมัครใช้งานและขอตั้งรหัสผ่านใหม่</small></span><span class="tn" id="tileReqN" hidden></span></a>
       <a class="tile users" href="#adminCard" id="tileUsers"><span class="ti"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6.5 6.5 0 0 1 3.5 6"/></svg></span><span><b>จัดการผู้ใช้</b><small id="tileUsersTx">เปลี่ยนสิทธิ์ แก้ชื่อ ปิดหรือลบบัญชี</small></span></a>
       <a class="tile logs" href="log.html" id="tileLogs"><span class="ti"><svg viewBox="0 0 24 24"><path d="M12 8v4l2.5 2.5"/><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/><path d="M3.5 4v4.5H8"/></svg></span><span><b>ประวัติการใช้งาน</b><small>ดูว่าใครเพิ่ม แก้ไข หรือลบงานอะไร เมื่อไร</small></span></a>
+      <a class="tile import" href="import.html" id="tileImport"><span class="ti"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 18v-6M9 15l3-3 3 3"/></svg></span><span><b>นำเข้าจาก Excel</b><small>อัปโหลดไฟล์ตารางงานที่ผู้ประสานงานกรอก ตรวจก่อนบันทึก</small></span></a>
     </div>
   </section>
 

@@ -342,7 +342,8 @@ function sumHtml(l){
   if (a==='entry_create' || a==='entry_update' || a==='entry_delete'){
     const verb={entry_create:'เพิ่มงาน',entry_update:'แก้ไขงาน',entry_delete:'ลบงาน'}[a];
     const n=(l.changes||[]).length;
-    return `${verb} <q>${esc(l.target||'(ไม่มีชื่อ)')}</q>${l.entryDate?` ของวันที่ ${shortThai(l.entryDate)}`:''}${a==='entry_update'&&n?` · เปลี่ยน ${n} ช่อง`:''}`;
+    const imp=/^นำเข้าจาก Excel/.test(l.summary||'') ? ' <span class="tag k-login">นำเข้าจาก Excel</span>' : '';
+    return `${verb} <q>${esc(l.target||'(ไม่มีชื่อ)')}</q>${l.entryDate?` ของวันที่ ${shortThai(l.entryDate)}`:''}${a==='entry_update'&&n?` · เปลี่ยน ${n} ช่อง`:''}${imp}`;
   }
   return esc(l.summary||actOf(a).label);
 }
