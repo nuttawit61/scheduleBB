@@ -731,6 +731,8 @@ a.logoutpill{text-decoration:none}
 .hero-btn.back .plus{background:#fff;color:var(--accent)}
 .page-main #tab-form{display:none}
 .page-form .teachers,.page-form .toolbar{display:none}
+.teachlink{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--accent);background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:8px 14px;font-weight:600;white-space:nowrap}
+.teachlink:hover{background:var(--accent-soft)}
 @media (max-width:640px){ .hero-side{width:100%} .hero-btn{flex:1;justify-content:center} }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 @media print{ html .hero, html .wrap>.dbbar, .modal{display:none!important} *{outline:none!important} }
@@ -801,6 +803,7 @@ a.logoutpill{text-decoration:none}
       <button role="tab" id="tab-sheet" aria-selected="false">ตารางรายบุคคล</button>
       <button role="tab" id="tab-form" aria-selected="false">＋ บันทึกงาน</button>
     </div>
+    <a class="teachlink" href="teaching.html" title="เปิดปฏิทินที่แสดงเฉพาะงานสอน">ปฏิทินการสอน <span aria-hidden="true">→</span></a>
     <button class="linkbtn" id="showAll">แสดงทุกท่าน</button>
     <div class="legend">
       <span><span class="pill ok">ยืนยัน</span></span>
