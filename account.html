@@ -303,7 +303,7 @@ dl.info dd{margin:0}
       <h2 id="admH"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6.5 6.5 0 0 1 3.5 6"/></svg></span>ผู้ใช้ทั้งหมด <span class="meta" id="uCount"></span></h2>
       <div class="actions"><button type="button" class="btn sm" id="copyReg" title="คัดลอกลิงก์หน้าสมัครใช้งานไปส่งให้ผู้ใช้"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>คัดลอกลิงก์สมัครใช้งาน</button><button type="button" class="btn sm" id="uReload">↻ โหลดใหม่</button></div>
     </div>
-    <p class="lead" style="margin:0">ผู้ใช้สมัครและตั้งรหัสผ่านเองที่หน้าสมัครใช้งาน คำขอจะมาแสดงที่ "คำขอรออนุมัติ" ด้านบน</p>
+    <p class="lead" style="margin:0">ผู้ใช้สมัครและตั้งรหัสผ่านเองที่หน้าสมัครใช้งาน คำขอจะมาแสดงที่ "คำขอรออนุมัติ" ด้านบน · ผู้ใช้ลืมรหัสผ่าน กด <b>ออกรหัสชั่วคราว</b> ที่ชื่อผู้ใช้นั้น แล้วส่งรหัสให้เจ้าของบัญชี</p>
     <div class="fmsg" id="uMsg" role="status"></div>
     <div style="overflow-x:auto">
       <table class="utable">
@@ -312,6 +312,18 @@ dl.info dd{margin:0}
       </table>
     </div>
   </section>
+</div>
+
+<div class="modal" id="tempModal" role="dialog" aria-modal="true" aria-labelledby="tempH" hidden>
+  <div class="modal-bg" data-close></div>
+  <div class="modal-box">
+    <h3 id="tempH">รหัสชั่วคราวของ <span id="tempName"></span></h3>
+    <p>ส่งชื่อผู้ใช้และรหัสนี้ให้เจ้าของบัญชีโดยตรง รหัสแสดงครั้งนี้ครั้งเดียว ปิดหน้าต่างแล้วจะดูอีกไม่ได้ (ถ้าหาย ให้ออกรหัสใหม่)</p>
+    <div class="tempbox"><dl><dt>ชื่อผู้ใช้</dt><dd id="tempUser"></dd><dt>รหัสชั่วคราว</dt><dd class="big" id="tempPw"></dd></dl>
+      <button type="button" class="btn sm" id="tempCopy">คัดลอก</button></div>
+    <p>เมื่อเข้าสู่ระบบด้วยรหัสนี้ ระบบจะให้ตั้งรหัสผ่านของตัวเองทันที รหัสเดิมและคำขอตั้งรหัสใหม่ที่ค้างอยู่ใช้ไม่ได้แล้ว</p>
+    <div class="actions" style="justify-content:flex-end"><button type="button" class="btn primary" id="tempClose">ปิด</button></div>
+  </div>
 </div>
 
 <div class="idlewarn" id="idleWarn" role="alertdialog" aria-live="assertive" hidden>
@@ -376,7 +388,7 @@ async function api(action, payload, withKey=true){
 }
 
 /* ===== state ===== */
-let ME = null, FIRST = false, USERS = [], confirmDel = null, RENAMING = null, CAN_LOGS = false;
+let ME = null, FIRST = false, USERS = [], confirmDel = null, confirmTmp = null, RENAMING = null, CAN_LOGS = false;
 
 function showGate(msg){
   $('gate').hidden=false; $('loadingBox').hidden=true; $('logsTop').hidden=true; $('mainGrid').hidden=true; $('adminCard').hidden=true; $('reqCard').hidden=true; $('adminMenu').hidden=true; $('firstBanner').hidden=true; $('logoutTop').hidden=true; $('idleWarn').hidden=true;
@@ -501,7 +513,7 @@ function renderRequests(){
     <div class="req reset">
       <div><span class="rk">ขอตั้งรหัสผ่านใหม่</span><b>${esc(u.name)}</b>
         <div class="rmeta">ชื่อผู้ใช้ <code>${esc(u.username)}</code> · ส่งเมื่อ ${thDate(u.resetAt)}</div></div>
-      <div class="ra"><button class="btn sm primary" data-act="rapprove" data-u="${esc(u.username)}">อนุมัติรหัสใหม่</button><button class="btn sm" data-act="rreject" data-u="${esc(u.username)}">ไม่อนุมัติ</button></div>
+      <div class="ra">${confirmTmp===u.username ? `<button class="btn sm primary" data-act="temp2" data-u="${esc(u.username)}">ยืนยันออกรหัสชั่วคราว</button><button class="btn sm" data-act="cancel">ยกเลิก</button>` : `<button class="btn sm primary" data-act="rapprove" data-u="${esc(u.username)}">อนุมัติรหัสใหม่</button><button class="btn sm" data-act="rreject" data-u="${esc(u.username)}">ไม่อนุมัติ</button><button class="btn sm" data-act="temp" data-u="${esc(u.username)}" title="ใช้เมื่อผู้ใช้จำรหัสที่ขอไว้ไม่ได้">ออกรหัสชั่วคราวแทน</button>`}</div>
       <p class="warn">ใครก็ส่งคำขอนี้ได้ถ้ารู้ชื่อผู้ใช้ ตรวจสอบกับเจ้าของบัญชีก่อนอนุมัติ</p>
     </div>`).join('');
 }
@@ -517,7 +529,9 @@ function renderUsers(){
     const st = !u.active ? '<span class="status off">ปิดใช้งาน</span>' : u.mustChange ? '<span class="status temp">รอตั้งรหัสใหม่</span>' : u.resetRequested ? '<span class="status reset">ขอรหัสใหม่</span>' : '<span class="status">ใช้งานได้</span>';
     const acts = me ? '<span class="muted" style="font-size:.85em">บัญชีของคุณ</span>' : confirmDel===u.username
       ? `<button class="btn sm danger solid" data-act="del2" data-u="${esc(u.username)}">ยืนยันลบ</button><button class="btn sm" data-act="cancel">ยกเลิก</button>`
-      : `<button class="btn sm" data-act="rename" data-u="${esc(u.username)}">แก้ชื่อ</button><button class="btn sm" data-act="toggle" data-u="${esc(u.username)}">${u.active?'ปิดใช้งาน':'เปิดใช้งาน'}</button><button class="btn sm danger" data-act="del" data-u="${esc(u.username)}">ลบ</button>`;
+      : confirmTmp===u.username
+      ? `<button class="btn sm primary" data-act="temp2" data-u="${esc(u.username)}">ยืนยันออกรหัสชั่วคราว</button><button class="btn sm" data-act="cancel">ยกเลิก</button>`
+      : `${u.active?`<button class="btn sm" data-act="temp" data-u="${esc(u.username)}" title="ผู้ใช้ลืมรหัสผ่าน: ออกรหัสชั่วคราวให้ แล้วผู้ใช้ตั้งรหัสใหม่เอง">ออกรหัสชั่วคราว</button>`:''}<button class="btn sm" data-act="rename" data-u="${esc(u.username)}">แก้ชื่อ</button><button class="btn sm" data-act="toggle" data-u="${esc(u.username)}">${u.active?'ปิดใช้งาน':'เปิดใช้งาน'}</button><button class="btn sm danger" data-act="del" data-u="${esc(u.username)}">ลบ</button>`;
     return `<tr class="${u.active?'':'off'}">
       <td class="uname">${RENAMING===u.username
         ? `<input class="rn" data-rn="${esc(u.username)}" value="${esc(u.name)}" aria-label="ชื่อ-นามสกุลของ ${esc(u.username)}" maxlength="120"><div class="uacts" style="justify-content:flex-start"><button class="btn sm primary" data-act="rnsave" data-u="${esc(u.username)}">บันทึกชื่อ</button><button class="btn sm" data-act="cancel">ยกเลิก</button></div>`
@@ -540,9 +554,10 @@ $('uBody').addEventListener('change', async ev => {
 async function onAct(ev){
   const b = ev.target.closest('button[data-act]'); if (!b) return;
   const act=b.dataset.act, u=USERS.find(x=>x.username===b.dataset.u);
-  if (act==='cancel'){ confirmDel=null; RENAMING=null; renderAll(); return; }
-  if (act==='rename'){ RENAMING=u.username; confirmDel=null; renderAll(); const i=document.querySelector(`input[data-rn="${CSS.escape(u.username)}"]`); if (i){ i.focus(); i.select(); } return; }
-  if (act==='del' || act==='reject'){ confirmDel=u.username; renderAll(); return; }
+  if (act==='cancel'){ confirmDel=null; confirmTmp=null; RENAMING=null; uMsg(''); renderAll(); return; }
+  if (act==='temp'){ confirmTmp=u.username; confirmDel=null; RENAMING=null; renderAll(); uMsg(`ออกรหัสชั่วคราวให้ ${u.name}? รหัสเดิมจะใช้ไม่ได้ทันที และอุปกรณ์ที่เข้าระบบค้างไว้ต้องเข้าสู่ระบบใหม่`); return; }
+  if (act==='rename'){ RENAMING=u.username; confirmDel=null; confirmTmp=null; renderAll(); const i=document.querySelector(`input[data-rn="${CSS.escape(u.username)}"]`); if (i){ i.focus(); i.select(); } return; }
+  if (act==='del' || act==='reject'){ confirmDel=u.username; confirmTmp=null; renderAll(); return; }
   b.disabled=true; uMsg('กำลังดำเนินการ…');
   try{
     if (act==='approve'){
@@ -561,6 +576,10 @@ async function onAct(ev){
       const name=document.querySelector(`input[data-rn="${CSS.escape(u.username)}"]`).value.trim();
       if (!name) throw {message:'กรุณาใส่ชื่อ-นามสกุล'};
       const j=await api('users_update',{username:u.username, name}); Object.assign(u,j.user); RENAMING=null; uMsg(`แก้ชื่อเป็น "${u.name}" แล้ว`);
+    } else if (act==='temp2'){
+      const j=await api('users_temp_password',{username:u.username}); Object.assign(u,j.user); confirmTmp=null;
+      uMsg(`ออกรหัสชั่วคราวให้ ${u.name} แล้ว สถานะจะเป็น "รอตั้งรหัสใหม่" จนกว่าผู้ใช้จะเข้าสู่ระบบและตั้งรหัสของตัวเอง`);
+      showTemp(u, j.temp);
     } else if (act==='del2'){
       await api('users_delete',{username:u.username}); USERS=USERS.filter(x=>x!==u); confirmDel=null; uMsg(`ลบบัญชี ${u.name} แล้ว`);
     }
@@ -576,7 +595,28 @@ $('copyReg').onclick = async () => {
   try{ await navigator.clipboard.writeText(url); uMsg('คัดลอกลิงก์แล้ว: '+url); }
   catch(_){ uMsg('ลิงก์หน้าสมัครใช้งาน: '+url); }
 };
-function closeTemp(){}
+let TEMP_FOCUS = null;
+function showTemp(u, temp){
+  TEMP_FOCUS = document.activeElement;
+  $('tempName').textContent = u.name || u.username; $('tempUser').textContent = u.username; $('tempPw').textContent = temp;
+  $('tempCopy').textContent = 'คัดลอก';
+  $('tempModal').hidden = false; document.body.style.overflow = 'hidden';
+  setTimeout(()=>$('tempCopy').focus(), 30);
+}
+function closeTemp(){
+  const m = $('tempModal'); if (!m || m.hidden) return;
+  m.hidden = true; $('tempPw').textContent = ''; $('tempUser').textContent = ''; document.body.style.overflow = '';
+  try{ if (TEMP_FOCUS && document.body.contains(TEMP_FOCUS)) TEMP_FOCUS.focus(); }catch(_){}
+}
+$('tempClose').onclick = closeTemp;
+$('tempModal').addEventListener('click', ev => { if (ev.target.hasAttribute('data-close')) closeTemp(); });
+document.addEventListener('keydown', ev => { if (ev.key==='Escape' && !$('tempModal').hidden) closeTemp(); });
+$('tempCopy').onclick = async () => {
+  const site = location.href.replace(/account\.html.*$/,'');
+  const t = `ชื่อผู้ใช้: ${$('tempUser').textContent}\nรหัสชั่วคราว: ${$('tempPw').textContent}\nเข้าสู่ระบบที่ ${site} แล้วตั้งรหัสผ่านใหม่ของตัวเอง`;
+  try{ await navigator.clipboard.writeText(t); $('tempCopy').textContent = 'คัดลอกแล้ว ✓'; }
+  catch(_){ $('tempCopy').textContent = 'คัดลอกไม่ได้ ให้จดรหัส'; }
+};
 
 /* ===== login / logout ===== */
 $('gateForm').addEventListener('submit', async ev => {

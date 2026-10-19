@@ -713,7 +713,7 @@ table.tl tr.off td.ti{text-decoration:line-through;color:var(--muted)}
   <header class="hero">
     <div class="topright">
     <div class="conn connecting" id="connPill" role="status" aria-live="polite"><span class="cdot" aria-hidden="true"></span><span id="connTx">กำลังเชื่อมต่อ…</span><button type="button" class="cref" id="connRef" title="รีเฟรชข้อมูลจาก Google Sheet" aria-label="รีเฟรชข้อมูล"><span class="ri">↻</span></button></div>
-    <a class="logoutpill acctpill" id="acctTop" href="account.html" title="บัญชีผู้ใช้ · เปลี่ยนรหัสผ่าน" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="an" id="acctName">บัญชีผู้ใช้</span></a>
+    <a class="logoutpill acctpill" id="acctTop" href="account.html" title="บัญชีผู้ใช้ · เปลี่ยนรหัสผ่าน" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="an" id="acctName">บัญชีผู้ใช้</span><span class="abadge" id="acctBadge" hidden></span></a>
     <button type="button" class="logoutpill" id="logoutTop" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l-5-5 5-5M5 12h11"/></svg>ออกจากระบบ</button>
     </div>
     <svg class="hero-art" viewBox="0 0 860 260" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
@@ -1172,7 +1172,7 @@ $('next').onclick = () => { const i=MONTHS.indexOf(month); if (i>=0 && i<MONTHS.
 
 /* ===== เชื่อมต่อ Apps Script (ใช้ action list เดิม ไม่ต้องแก้ Code.gs) ===== */
 const CFG = window.APP_CONFIG || {};
-let DB = null, ROLE = null, LAST_SYNC = null;
+let DB = null, ROLE = null, LAST_SYNC = null, PENDING = 0;
 const KEY_STORE = 'tt-gs-key', USER_STORE = 'tt-user';
 const ROLE_LABEL = {admin:'ผู้ดูแลระบบ', edit:'บันทึกและแก้ไขงาน', view:'ดูอย่างเดียว'};
 function initialOf(name){ const bare=String(name||'').replace(/^([^\s.]{1,8}\.)+/,''); return ((bare.match(/[ก-ฮA-Za-z0-9]/)||['?'])[0]).toUpperCase(); }
@@ -1213,7 +1213,7 @@ async function apiList(){
   catch(e){ if (!e || RETRY_CODES.indexOf(e.code)<0) throw e; syncState('การเชื่อมต่อช้า กำลังลองใหม่อัตโนมัติ…'); await new Promise(r=>setTimeout(r,1200)); return await call1(body, 45000); }
 }
 function applyData(j){
-  ROLE = j.role; setUser(j.user);
+  ROLE = j.role; PENDING = j.pending||0; setUser(j.user);
   FORM_DOCS = (j.entries||[]).map(d => ({...d}));
   Object.keys(HOLIDAYS).forEach(k=>delete HOLIDAYS[k]); Object.assign(HOLIDAYS, j.holidays||{});
   document.documentElement.classList.toggle('role-view', ROLE!=='edit');
@@ -1287,6 +1287,7 @@ function updateLogout(){
   const show = !!getKey() || (!!ROLE && !isLoggedOut());
   $('logoutBtn').hidden = !show; $('logoutTop').hidden = !show;
   $('acctTop').hidden = !(show && CUR_USER); if (CUR_USER) $('acctName').textContent = CUR_USER.name;
+  const bd=$('acctBadge'); bd.hidden = !(CUR_USER && CUR_USER.role==='admin' && PENDING>0); bd.textContent = PENDING; $('acctTop').title = !bd.hidden ? `มีคำขอรออนุมัติ ${PENDING} รายการ` : 'บัญชีผู้ใช้ · เปลี่ยนรหัสผ่าน';
   $('whoami').hidden = !(show && CUR_USER);
   if (CUR_USER){ $('whoName').textContent = CUR_USER.name; $('whoRole').textContent = '· '+(ROLE_LABEL[CUR_USER.role]||''); $('whoAv').textContent = initialOf(CUR_USER.name); }
 }

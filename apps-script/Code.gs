@@ -10,6 +10,7 @@
  *
  * ผู้ใช้สมัครและตั้งรหัสผ่านเองที่หน้า register.html แล้วรอผู้ดูแลระบบอนุมัติในหน้า account.html
  * ลืมรหัสผ่าน: ผู้ใช้ตั้งรหัสใหม่เองที่หน้าเดียวกัน แล้วรอผู้ดูแลอนุมัติ (รหัสเดิมใช้ได้จนกว่าจะอนุมัติ)
+ *   หรือผู้ดูแลกด "ออกรหัสชั่วคราว" ที่ชื่อผู้ใช้ในหน้า account.html แล้วส่งรหัสให้ผู้ใช้ ผู้ใช้เข้าสู่ระบบแล้วต้องตั้งรหัสใหม่ทันที
  *
  * วิธีติดตั้ง / อัปเดต
  *   1) เปิด Google Sheet > ส่วนขยาย > Apps Script แล้ววางโค้ดนี้ทับทั้งหมด > บันทึก
@@ -37,7 +38,7 @@ const CONFIG = {
   LOG_VIEWERS: ['admin'],// สิทธิ์ที่เปิดดูหน้าประวัติการใช้งานได้ (เพิ่ม 'edit' ถ้าอยากให้ผู้บันทึกงานดูได้ด้วย)
 };
 
-const APP_VERSION = '2026-10-15 import';  // เปิดลิงก์ /exec ในเบราว์เซอร์ จะเห็นเลขเวอร์ชันนี้ ถ้าไม่ตรง แปลว่ายังไม่ได้ทำให้ใช้งานได้เวอร์ชันใหม่
+const APP_VERSION = '2026-10-19 temp-password';  // เปิดลิงก์ /exec ในเบราว์เซอร์ จะเห็นเลขเวอร์ชันนี้ ถ้าไม่ตรง แปลว่ายังไม่ได้ทำให้ใช้งานได้เวอร์ชันใหม่
 
 const SHEET_ENTRIES = 'entries';
 const SHEET_HOLIDAYS = 'holidays';
@@ -633,6 +634,18 @@ function adminAction_(me, action, p) {
     writeUser_(u);
     log_(me, 'reset_reject', { target: who_(u), summary: 'ไม่อนุมัติคำขอรหัสผ่านใหม่ของ ' + who_(u) });
     return { ok: true, user: publicUser_(u) };
+  }
+
+  // ผู้ใช้ลืมรหัส: ผู้ดูแลออกรหัสชั่วคราวให้ ระบบส่งรหัสกลับไปแสดงให้ผู้ดูแลเห็นครั้งเดียว (ในชีตเก็บเฉพาะ hash)
+  // รหัสเดิมและคำขอตั้งรหัสใหม่ที่ค้างอยู่ใช้ไม่ได้ทันที ผู้ใช้เข้าสู่ระบบด้วยรหัสนี้แล้วต้องตั้งรหัสใหม่ก่อนใช้งาน
+  if (action === 'users_temp_password') {
+    if (u.username === me.username) throw fail_('invalid_argument', 'บัญชีของตัวเองให้เปลี่ยนรหัสผ่านที่หน้านี้แทน');
+    if (!u.approved) throw fail_('invalid_argument', 'บัญชีนี้ยังไม่ได้อนุมัติ ให้อนุมัติคำขอสมัครก่อน');
+    if (!u.active) throw fail_('invalid_argument', 'บัญชีนี้ปิดใช้งานอยู่ ให้เปิดใช้งานก่อน');
+    const hadReset = !!u.resetHash;
+    const temp = resetUserPassword_(u.username);
+    log_(me, 'user_temp_password', { target: who_(u), summary: 'ออกรหัสชั่วคราวให้ ' + who_(u) + (hadReset ? ' (แทนคำขอตั้งรหัสใหม่ที่ค้างอยู่)' : '') });
+    return { ok: true, user: publicUser_(findUser_(u.username)), temp: temp };
   }
 
   if (action === 'users_update') {
