@@ -590,6 +590,21 @@ a.logoutpill{text-decoration:none}
 .page-main #tab-form{display:none}
 .page-form .teachers,.page-form .toolbar{display:none}
 @media (max-width:640px){ .hero-side{width:100%} .hero-btn{flex:1;justify-content:center} }
+/* วันลาของอาจารย์ (บันทึกที่หน้าบันทึกงาน) */
+.chip.lvchip{background:repeating-linear-gradient(-45deg,var(--soft) 0 6px,color-mix(in srgb,var(--soft) 55%,var(--surface)) 6px 12px);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 45%,transparent);color:var(--c)}
+.chip.lvchip i{border-radius:2px;background:none;box-shadow:inset 0 0 0 2px var(--c)}
+.chip.lvx{box-shadow:inset 0 0 0 1.5px #B3261E;background:#FDECEA}
+.lvbox{display:flex;flex-direction:column;gap:2px;border-radius:10px;padding:8px 12px;background:repeating-linear-gradient(-45deg,var(--soft) 0 8px,color-mix(in srgb,var(--soft) 50%,var(--surface)) 8px 16px);border:1px solid color-mix(in srgb,var(--c) 40%,transparent);font-size:.92em}
+.lvbox .lvt{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:600;color:var(--c)}
+.lvbox .lvk{background:var(--c);color:#fff;border-radius:6px;padding:0 7px;font-size:.85em}
+.lvbox small{color:var(--muted);font-size:.9em}
+.lvnote{background:#FDECEA;color:#8A1C12;border-radius:8px;padding:6px 10px;font-size:.88em;line-height:1.5}
+.ev.lvx{border-color:#F0A8A1;box-shadow:inset 3px 0 0 #B3261E}
+@media (max-width:640px){
+  .chip.lvchip{padding:0 4px;background:var(--c);color:#fff;border-radius:4px;box-shadow:none}
+  .chip.lvchip i,.chip.lvchip .lvn{display:none}
+  .chip.lvchip .tx{display:block;font-size:10px;line-height:1.5}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 @media print{ html .hero, html .wrap>.dbbar, .modal{display:none!important} *{outline:none!important} }
 /* idle auto-logout warning */
@@ -883,6 +898,23 @@ function evSpan(e){
   return [s,en];
 }
 const spanOverlap = (a,b) => a && b && a[0] < b[1] && b[0] < a[1];
+/* วันลาของอาจารย์ — แสดงอย่างเดียว (บันทึก/แก้ที่หน้าบันทึกงาน record.html) */
+let LEAVES = [], LEAVE_SPLIT = 720;
+const LEAVE_PERIOD = {full:'ทั้งวัน', am:'ครึ่งวันเช้า', pm:'ครึ่งวันบ่าย', time:'บางช่วงเวลา'};
+const hmMin = v => { const m=String(v||'').match(/^(\d{1,2})[.:](\d{2})/); return m ? +m[1]*60 + +m[2] : null; };
+const minTh = n => `${pad(Math.floor(n/60))}.${pad(n%60)}`;
+function setLeaves(list, split){
+  LEAVES = (Array.isArray(list)?list:[]).filter(l => l && l.id && TEACHERS[l.who] && /^\d{4}-\d{2}-\d{2}$/.test(l.date||''))
+    .map(l => { const o={...l, endDate: /^\d{4}-\d{2}-\d{2}$/.test(l.endDate||'') && l.endDate>=l.date ? l.endDate : l.date, period: LEAVE_PERIOD[l.period] ? l.period : 'full'};
+      if (o.period==='time' && !(hmMin(o.start)!=null && hmMin(o.end)!=null && hmMin(o.start)<hmMin(o.end))) o.period='full'; return o; });
+  const s = hmMin(split); if (s) LEAVE_SPLIT = s;
+}
+function lvBlock(l){ return l.period==='am' ? [0,LEAVE_SPLIT] : l.period==='pm' ? [LEAVE_SPLIT,1440] : l.period==='time' ? [hmMin(l.start), hmMin(l.end)] : [0,1440]; }
+function lvWhen(l){ return l.period==='time' ? `${minTh(hmMin(l.start))}–${minTh(hmMin(l.end))} น.` : LEAVE_PERIOD[l.period]; }
+function lvLabel(l){ return `${l.leaveType||'ลา'} ${lvWhen(l)}`; }
+function lvWork(l){ return l.period==='am' ? `ปฏิบัติงานช่วงบ่าย ตั้งแต่ ${minTh(LEAVE_SPLIT)} น.` : l.period==='pm' ? `ปฏิบัติงานช่วงเช้า ถึง ${minTh(LEAVE_SPLIT)} น.` : l.period==='time' ? `ปฏิบัติงานนอกช่วง ${lvWhen(l)}` : ''; }
+function leavesOn(who, ds){ return LEAVES.filter(l => l.who===who && l.date<=ds && ds<=l.endDate); }
+function lvHit(l, sp){ return l.period==='full' || !sp || spanOverlap(sp, lvBlock(l)); }
 const cfText = e => `${e.time||'ไม่ระบุเวลา'} ${e.title||''}`.trim();
 /* ปีงบประมาณ (ต.ค.–ก.ย.) เป็น พ.ศ. */
 const fyOf = ym => { const [y,m]=ym.split('-').map(Number); return be(y) + (m>=10 ? 1 : 0); };
@@ -909,6 +941,7 @@ function buildEvents(){
   const g = {};
   ALL.forEach(e => { if (e._st==='off' || !e._sp) return; (g[e.who+'|'+e.date] ||= []).push(e); });
   Object.values(g).forEach(l => { for (let i=0;i<l.length;i++) for (let j=i+1;j<l.length;j++) if (spanOverlap(l[i]._sp, l[j]._sp)){ l[i]._cf.push(l[j]); l[j]._cf.push(l[i]); } });
+  ALL.forEach(e => { e._lv = e._st==='off' ? null : (leavesOn(e.who, e.date).find(l => lvHit(l, e._sp)) || null); });
   EVENTS = ALL.filter(isTeach);
   EVENTS.forEach((e,k) => e._k = k);
   let lo = todayIso.slice(0,7), hi = lo;
@@ -1006,11 +1039,13 @@ function renderCal(){
     const ds = `${y}-${pad(m)}-${pad(d)}`, dow = new Date(y,m-1,d).getDay();
     const ev = map[ds] || [], hol = HOLIDAYS[ds];
     const cls = ['day', (dow===0||dow===6)?'we':'', ds===todayIso?'today':'', ds===selected?'sel':''].join(' ');
-    const dayCf = ev.some(e => e._cf.length);
-    const chips = ev.slice(0,3).map(e => `<span class="chip t-${e.who} ${e._st}${e._cf.length?' cf':''}" title="${esc(TEACHERS[e.who].short+' · '+(e.time||'ไม่ระบุเวลา')+' · '+e.title+(e._cf.length?' · ⚠ เวลาชนกับ '+e._cf.map(cfText).join(', '):''))}"><i></i><span class="tx"><span class="tm">${esc(startLabel(e.time))}</span> <span class="who">${TEACHERS[e.who].ini}</span> ${esc(e.title)}</span></span>`).join('');
+    const dayCf = ev.some(e => e._cf.length || e._lv);
+    const lvs = ORDER.filter(c => active.has(c)).flatMap(c => leavesOn(c, ds));
+    const lvChips = lvs.map(l => `<span class="chip lvchip t-${l.who}" title="${esc(TEACHERS[l.who].short+' · '+lvLabel(l)+(l.note?' · '+l.note:''))}"><i></i><span class="tx"><b>ลา</b><span class="lvn"> ${TEACHERS[l.who].ini}${l.period!=='full'?' · '+esc(l.period==='time'?lvWhen(l):LEAVE_PERIOD[l.period].replace('ครึ่งวัน','ครึ่ง')):''}</span></span></span>`).join('');
+    const chips = ev.slice(0,3).map(e => `<span class="chip t-${e.who} ${e._st}${e._cf.length?' cf':''}${e._lv?' lvx':''}" title="${esc(TEACHERS[e.who].short+' · '+(e.time||'ไม่ระบุเวลา')+' · '+e.title+(e._cf.length?' · ⚠ เวลาชนกับ '+e._cf.map(cfText).join(', '):'')+(e._lv?' · ⛔ อยู่ในช่วงลา ('+lvLabel(e._lv)+')':''))}"><i></i><span class="tx"><span class="tm">${esc(startLabel(e.time))}</span> <span class="who">${TEACHERS[e.who].ini}</span> ${esc(e.title)}</span></span>`).join('');
     const more = ev.length>3 ? `<span class="more">+${ev.length-3} รายการ</span>` : '';
-    const label = `${d} ${TH_M[m-1]}${hol?' '+hol:''}${ev.length?` มีสอน ${ev.length} รายการ`:''}`;
-    html += `<button class="${cls}${dayCf?' hascf':''}" data-d="${ds}" aria-label="${esc(label+(dayCf?' มีงานเวลาชนกัน':''))}"><span class="dn num">${d}</span>${dayCf?'<span class="cfmark" title="มีงานเวลาชนกัน">⚠</span>':''}${hol?`<span class="hol">${esc(hol)}</span>`:''}<span class="chips">${chips}${more}</span></button>`;
+    const label = `${d} ${TH_M[m-1]}${hol?' '+hol:''}${lvs.length?' '+lvs.map(l=>TEACHERS[l.who].short+' '+lvLabel(l)).join(', '):''}${ev.length?` มีสอน ${ev.length} รายการ`:''}`;
+    html += `<button class="${cls}${dayCf?' hascf':''}" data-d="${ds}" aria-label="${esc(label+(dayCf?' มีงานเวลาชนกัน':''))}"><span class="dn num">${d}</span>${dayCf?'<span class="cfmark" title="มีงานเวลาชนกัน">⚠</span>':''}${hol?`<span class="hol">${esc(hol)}</span>`:''}<span class="chips">${lvChips}${chips}${more}</span></button>`;
   }
   const tail = (7 - (lead+days)%7)%7;
   for (let k=0;k<tail;k++) html += `<div class="day blank" aria-hidden="true"></div>`;
@@ -1032,10 +1067,10 @@ function placeOf(e){
 function evCard(e){
   const rows = [['สถานที่', placeOf(e)], ['ระดับ', e.level], ['หน่วยงานที่เชิญ', e.inviter], ['เพิ่มเติม', e.notes]].filter(r => r[1]);
   const co = e.nWho > 1 ? `<span class="tag" title="งานนี้มีอาจารย์ ${e.nWho} ท่าน">สอนร่วม ${e.nWho} ท่าน</span>` : '';
-  return `<article class="ev t-${e.who} ${e._st}${e._cf.length?' cf':''}" data-k="${e._k}" tabindex="0">
+  return `<article class="ev t-${e.who} ${e._st}${e._cf.length?' cf':''}${e._lv?' lvx':''}" data-k="${e._k}" tabindex="0">
     <div class="r1"><span class="time">${esc(e.time||'ไม่ระบุเวลา')}</span>${e.mode?`<span class="modebadge ${e.mode}">${MODE_TH[e.mode]}</span>`:''}${co}
       <span class="pill ${e._st}" style="margin-left:auto">${esc(e.status||'ไม่ระบุสถานะ')}</span></div>
-    <div class="ttl">${esc(e.title)}</div>${cfNote(e)}
+    <div class="ttl">${esc(e.title)}</div>${cfNote(e)}${e._lv?`<div class="lvnote" role="note"><b>⛔ อยู่ในช่วงที่อาจารย์ลา</b> (${esc(lvLabel(e._lv))})</div>`:''}
     ${rows.length?`<dl class="kv">${rows.map(r=>`<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join('')}</dl>`:''}
     <div class="hrs">${fmtH(e._h)} ชม.${e.type && !TEACH_RX.test(e.type) ? ` · ประเภท ${esc(e.type)}` : ''}</div>
   </article>`;
@@ -1048,9 +1083,10 @@ function renderDetail(){
   if (hol) html += `<div class="holbox">${esc(hol)}</div>`;
   html += '<div class="tgrid">';
   ORDER.filter(c => active.has(c)).forEach(c => {
-    const mine = ev.filter(e => e.who===c);
-    html += `<section class="tblock t-${c}"><h3><span class="sw"></span>${esc(TEACHERS[c].name)}</h3>
-      ${mine.length ? mine.map(evCard).join('') : `<div class="free">ไม่มีสอนในวันนี้</div>`}</section>`;
+    const mine = ev.filter(e => e.who===c), lvs = leavesOn(c, selected);
+    const lvHtml = lvs.map(l => `<div class="lvbox"><div class="lvt"><span class="lvk">ลา</span>${esc(lvLabel(l))}</div>${l.period!=='full'?`<small>${esc(lvWork(l))}</small>`:''}${l.note?`<small>${esc(l.note)}</small>`:''}</div>`).join('');
+    html += `<section class="tblock t-${c}"><h3><span class="sw"></span>${esc(TEACHERS[c].name)}</h3>${lvHtml}
+      ${mine.length ? mine.map(evCard).join('') : (lvs.some(l=>l.period==='full') ? '' : `<div class="free">ไม่มีสอนในวันนี้</div>`)}</section>`;
   });
   html += '</div>';
   $('detail').innerHTML = html;
@@ -1183,7 +1219,7 @@ function setKey(k, remember){ try{ localStorage.removeItem(KEY_STORE); sessionSt
 /* ใช้ข้อมูลรอบล่าสุดที่เก็บไว้ในเครื่องร่วมกับหน้าตารางงาน (tt-snap) */
 const SNAP_KEY = 'tt-snap', SNAP_MAX_AGE = 14*864e5;
 function readSnap(){ try{ const s=JSON.parse(localStorage.getItem(SNAP_KEY)||'null'); return s && s.j && Date.now()-s.t < SNAP_MAX_AGE ? s : null; }catch(_){ return null; } }
-function saveSnap(j){ try{ if (!getKey() || !j || !j.user) return; localStorage.setItem(SNAP_KEY, JSON.stringify({u:j.user.username, t:Date.now(), j:{role:j.role, user:j.user, pending:j.pending, canViewLogs:j.canViewLogs, entries:j.entries, holidays:j.holidays}})); }catch(_){ try{ localStorage.removeItem(SNAP_KEY); }catch(__){} } }
+function saveSnap(j){ try{ if (!getKey() || !j || !j.user) return; localStorage.setItem(SNAP_KEY, JSON.stringify({u:j.user.username, t:Date.now(), j:{role:j.role, user:j.user, pending:j.pending, canViewLogs:j.canViewLogs, entries:j.entries, holidays:j.holidays, leaves:j.leaves, leaveSplit:j.leaveSplit}})); }catch(_){ try{ localStorage.removeItem(SNAP_KEY); }catch(__){} } }
 function clearSnap(){ try{ localStorage.removeItem(SNAP_KEY); }catch(_){} }
 const ERR_TH = {timeout:'Google Sheet ตอบช้าเกินไป ลองอีกครั้ง', network:'เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ต', bad_response:'Apps Script ตอบกลับไม่ถูกต้อง ตรวจสอบ URL ใน config.js', unauthorized:'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่', must_change:'ต้องตั้งรหัสผ่านใหม่ก่อนใช้งาน', invalid_login:'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', locked:'บัญชีถูกล็อกชั่วคราว', disabled:'บัญชีนี้ถูกปิดใช้งาน ติดต่อผู้ดูแลระบบ', pending:'บัญชีนี้รอผู้ดูแลระบบอนุมัติ', server_error:'เกิดข้อผิดพลาดที่ Apps Script', busy:'มีผู้ใช้บันทึกพร้อมกันหลายคน ลองอีกครั้ง'};
 function errText(e){ return (ERR_TH[e&&e.code]||'เกิดข้อผิดพลาด') + (e&&e.message?` (${e.message})`:''); }
@@ -1216,6 +1252,7 @@ function applyData(j){
   ROLE = j.role; PENDING = j.pending||0; setUser(j.user);
   FORM_DOCS = (j.entries||[]).map(d => ({...d}));
   Object.keys(HOLIDAYS).forEach(k=>delete HOLIDAYS[k]); Object.assign(HOLIDAYS, j.holidays||{});
+  setLeaves(j.leaves, j.leaveSplit);
   document.documentElement.classList.toggle('role-view', ROLE!=='edit');
   const keepMonth = month;
   buildEvents();
@@ -1243,7 +1280,7 @@ async function connect(pre){
     setLoggedOut(false); $('gate').hidden = true; updateLogout();
   }catch(e){
     if (e.code==='must_change'){ location.href='account.html?first=1'; return; }
-    if (e.code==='unauthorized'){ const had=!!getKey(); setKey(''); setUser(null); FORM_DOCS=[]; refreshAll(); showGate(had?'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่':''); updateLogout(); syncState('ยังไม่ได้เข้าสู่ระบบ', true); }
+    if (e.code==='unauthorized'){ const had=!!getKey(); setKey(''); setUser(null); FORM_DOCS=[]; setLeaves([]); refreshAll(); showGate(had?'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่':''); updateLogout(); syncState('ยังไม่ได้เข้าสู่ระบบ', true); }
     else { syncState(errText(e) + (snapAt && !LAST_SYNC ? ` · กำลังแสดง${snapTx} ที่เก็บไว้ในเครื่อง` : ''), true); if (!$('gate').hidden) $('gateMsg').textContent = errText(e); }
   }
 }
@@ -1279,7 +1316,7 @@ $('gateForm').addEventListener('submit', async ev => {
 function doLogout(){
   const tok=getKey(); if (tok && CFG.API_URL){ try{ fetch(CFG.API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'logout',key:tok}),keepalive:true}).catch(()=>{}); }catch(_){} }
   setKey(''); setUser(null); setLoggedOut(true); ROLE=null; LAST_SYNC=null;
-  FORM_DOCS=[]; refreshAll(); closeEvModal();
+  FORM_DOCS=[]; setLeaves([]); refreshAll(); closeEvModal();
   $('gateKey').value=''; updateLogout(); syncState('ออกจากระบบแล้ว', true); showGate('ออกจากระบบแล้ว');
 }
 $('logoutBtn').onclick = doLogout; $('logoutTop').onclick = doLogout;

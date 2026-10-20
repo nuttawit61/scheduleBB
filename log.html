@@ -161,6 +161,7 @@ details.more[open] summary::before{content:"▾ ";}
         <option value="entry_create">เพิ่มงาน</option>
         <option value="entry_update">แก้ไขงาน</option>
         <option value="entry_delete">ลบงาน</option>
+        <option value="leave">วันลาของอาจารย์</option>
         <option value="acct">บัญชีผู้ใช้</option>
         <option value="login">เข้าสู่ระบบ</option>
       </select></label>
@@ -220,6 +221,9 @@ const ACT = {
   entry_create:{label:'เพิ่มงาน', k:'create', grp:'entry'},
   entry_update:{label:'แก้ไขงาน', k:'update', grp:'entry'},
   entry_delete:{label:'ลบงาน', k:'delete', grp:'entry'},
+  leave_create:{label:'บันทึกวันลา', k:'create', grp:'leave'},
+  leave_update:{label:'แก้ไขวันลา', k:'update', grp:'leave'},
+  leave_delete:{label:'ลบวันลา', k:'delete', grp:'leave'},
   login:{label:'เข้าสู่ระบบ', k:'login', grp:'login'},
   register:{label:'สมัครใช้งาน', k:'acct', grp:'acct'},
   user_approve:{label:'อนุมัติบัญชี', k:'acct', grp:'acct'},
@@ -306,7 +310,7 @@ function fillUsers(){
 function filtered(){
   const q=$('fQ').value.trim().toLowerCase(), t=$('fType').value, u=$('fUser').value, from=$('fFrom').value, to=$('fTo').value;
   return LOGS.filter(l => {
-    if (t){ const a=actOf(l.action); if (t==='entry' || t==='acct' || t==='login'){ if (a.grp!==t) return false; } else if (l.action!==t) return false; }
+    if (t){ const a=actOf(l.action); if (t==='entry' || t==='acct' || t==='login' || t==='leave'){ if (a.grp!==t) return false; } else if (l.action!==t) return false; }
     if (u && l.username!==u) return false;
     if (from && l._d < from) return false;
     if (to && l._d > to) return false;
@@ -330,9 +334,10 @@ function avColor(u){ let h=0; for (const c of String(u)) h=(h*31+c.charCodeAt(0)
 function diffTable(l){
   const ch=l.changes||[]; if (!ch.length) return '';
   const cell=(v,cls)=> v ? `<td class="${cls}">${esc(v)}</td>` : `<td class="${cls} empty">ว่าง</td>`;
-  if (l.action==='entry_create' || l.action==='entry_delete'){
-    const rows=ch.map(c=>`<tr><td class="f">${esc(c.label)}</td><td>${esc(l.action==='entry_create'?c.to:c.from)}</td></tr>`).join('');
-    return `<details class="more"><summary>${l.action==='entry_create'?'ดูข้อมูลที่บันทึก':'ดูข้อมูลที่ถูกลบ'} (${ch.length} ช่อง)</summary><div class="diff"><table><tbody>${rows}</tbody></table></div></details>`;
+  if (/^(entry|leave)_(create|delete)$/.test(l.action)){
+    const add=/_create$/.test(l.action);
+    const rows=ch.map(c=>`<tr><td class="f">${esc(c.label)}</td><td>${esc(add?c.to:c.from)}</td></tr>`).join('');
+    return `<details class="more"><summary>${add?'ดูข้อมูลที่บันทึก':'ดูข้อมูลที่ถูกลบ'} (${ch.length} ช่อง)</summary><div class="diff"><table><tbody>${rows}</tbody></table></div></details>`;
   }
   const rows=ch.map(c=>`<tr><td class="f">${esc(c.label)}</td>${cell(c.from,'old')}${cell(c.to,'new')}</tr>`).join('');
   return `<div class="diff"><table><thead><tr><th>ช่อง</th><th>เดิม</th><th>ใหม่</th></tr></thead><tbody>${rows}</tbody></table></div>`;
@@ -357,6 +362,7 @@ function render(){
   const chip=(val,cls,label,n)=>`<button type="button" class="chip ${cls}" data-type="${val}" aria-pressed="${t===val}">${label} <b>${n}</b></button>`;
   $('chips').innerHTML = `<span class="muted" style="font-size:.86em;align-self:center">${list.length.toLocaleString('th-TH')} รายการ</span>`
     + chip('entry_create','k-create','เพิ่ม',cnt('create')) + chip('entry_update','k-update','แก้ไข',cnt('update')) + chip('entry_delete','k-delete','ลบ',cnt('delete'))
+    + (list.some(l=>actOf(l.action).grp==='leave') ? chip('leave','k-update','วันลา',list.filter(l=>actOf(l.action).grp==='leave').length) : '')
     + chip('acct','k-acct','บัญชี',list.filter(l=>actOf(l.action).grp==='acct').length) + chip('login','k-login','เข้าสู่ระบบ',list.filter(l=>l.action==='login').length);
   if (!list.length){ $('list').innerHTML = `<div class="empty-state">${LOGS.length?'ไม่พบรายการตามตัวกรอง':'ยังไม่มีประวัติการใช้งาน ประวัติจะเริ่มบันทึกหลังจากอัปเดต Apps Script เวอร์ชันนี้'}</div>`; $('moreWrap').hidden=true; return; }
   const part=list.slice(0, SHOWN);
@@ -364,7 +370,8 @@ function render(){
   part.forEach(l=>{ if (!cur || cur.d!==l._d){ cur={d:l._d, items:[]}; days.push(cur); } cur.items.push(l); });
   $('list').innerHTML = days.map(d=>`<section class="day"><div class="dayhead">${dayLabel(d.d)} <small>${list.filter(x=>x._d===d.d).length} รายการ</small></div><div class="items">${d.items.map(l=>{
     const a=actOf(l.action);
-    const open = (l.action==='entry_create'||l.action==='entry_update') && l.entryId ? `<a href="record.html#edit-${encodeURIComponent(l.entryId)}">เปิดงานนี้</a>` : '';
+    const open = (l.action==='entry_create'||l.action==='entry_update') && l.entryId ? `<a href="record.html#edit-${encodeURIComponent(l.entryId)}">เปิดงานนี้</a>`
+      : (l.action==='leave_create'||l.action==='leave_update') && l.entryId ? `<a href="record.html#leaveedit-${encodeURIComponent(l.entryId)}">เปิดวันลานี้</a>` : '';
     return `<article class="it"><div class="tm">${esc(l._t)} น.</div><div class="av" style="background:${avColor(l.username)}" aria-hidden="true">${esc(initialOf(l.name||l.username))}</div>
       <div class="main"><div class="line1"><span class="nm">${esc(l.name||l.username||'ไม่ทราบชื่อ')}</span><span class="tag k-${a.k}">${esc(a.label)}</span>${l.username?`<span class="un">${esc(l.username)}</span>`:''}</div>
       <div class="sum">${sumHtml(l)}</div>${diffTable(l)}${open?`<div class="meta">${open}</div>`:''}</div></article>`;

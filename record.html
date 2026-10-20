@@ -420,7 +420,7 @@ footer{border-top-style:dashed}
 .fcard{background:var(--surface);border-radius:var(--r,14px);box-shadow:var(--shadow);padding:clamp(16px,2vw,26px);display:flex;flex-direction:column;gap:16px;min-width:0}
 .fhead h2{font-size:1.3em;font-weight:700}
 .fhead p{margin:4px 0 0;color:var(--muted);font-size:.9em}
-#entryForm{display:flex;flex-direction:column;gap:14px}
+#entryForm,#leaveForm{display:flex;flex-direction:column;gap:14px}
 .frow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
 .fld{display:flex;flex-direction:column;gap:5px;min-width:0}
 .fld>span{font-size:.86em;font-weight:600;color:var(--ink)}
@@ -734,6 +734,53 @@ a.logoutpill{text-decoration:none}
 .teachlink{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--accent);background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:8px 14px;font-weight:600;white-space:nowrap}
 .teachlink:hover{background:var(--accent-soft)}
 @media (max-width:640px){ .hero-side{width:100%} .hero-btn{flex:1;justify-content:center} }
+/* ===== วันลาของอาจารย์ ===== */
+.chip.lvchip{background:repeating-linear-gradient(-45deg,var(--soft) 0 6px,color-mix(in srgb,var(--soft) 55%,var(--surface)) 6px 12px);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 45%,transparent);color:var(--c)}
+.chip.lvchip i{border-radius:2px;background:none;box-shadow:inset 0 0 0 2px var(--c)}
+.chip.lvchip b{font-weight:700}
+.chip.lvx{box-shadow:inset 0 0 0 1.5px #B3261E;background:#FDECEA}
+.chip.lvx .tm::before{content:"⛔ ";}
+.lvbox{display:flex;flex-direction:column;gap:2px;border-radius:10px;padding:8px 12px;background:repeating-linear-gradient(-45deg,var(--soft) 0 8px,color-mix(in srgb,var(--soft) 50%,var(--surface)) 8px 16px);border:1px solid color-mix(in srgb,var(--c) 40%,transparent);font-size:.92em}
+.lvbox .lvt{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:600;color:var(--c)}
+.lvbox .lvt .lvk{background:var(--c);color:#fff;border-radius:6px;padding:0 7px;font-size:.85em}
+.lvbox .lvt a{margin-left:auto;font-weight:500;font-size:.88em;color:var(--accent)}
+.lvbox small{color:var(--muted);font-size:.9em}
+.lvbox .lvw{color:var(--ink);font-size:.92em}
+.lvnote{background:#FDECEA;color:#8A1C12;border-radius:8px;padding:6px 10px;font-size:.88em;line-height:1.5}
+.ev.lvx{border-color:#F0A8A1;box-shadow:inset 3px 0 0 #B3261E}
+.lvtoday{font-size:.84em;font-weight:600;color:var(--c);background:var(--soft);border-radius:6px;padding:2px 8px;align-self:flex-start}
+.lvadd{align-self:flex-start;font-size:.9em;font-weight:600;color:var(--accent);text-decoration:none;border:1px dashed color-mix(in srgb,var(--accent) 50%,transparent);border-radius:10px;padding:6px 12px}
+.lvadd:hover{background:var(--accent-soft)}
+.lvwarn{grid-column:1/-1;background:#FDECEA;border:1px solid #E8A39B;border-left:4px solid #B3261E;color:#6E140D;border-radius:10px;padding:10px 14px;font-size:.92em;display:flex;flex-direction:column;gap:6px}
+.lvwarn ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.lvwarn li{display:flex;align-items:flex-start;gap:8px}
+.lvwarn .sw{width:10px;height:10px;border-radius:50%;background:var(--c);flex:none;margin-top:.45em}
+.lvwarn .btn{align-self:flex-start}
+.whopick label.onleave{position:relative}
+.whopick label.onleave::after{content:attr(data-lv);position:absolute;top:-8px;right:8px;font-size:.72em;font-weight:700;background:#B3261E;color:#fff;border-radius:999px;padding:0 7px;line-height:1.6}
+.lvjump{font-size:.86em;font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap}
+.lvjump:hover{text-decoration:underline}
+.fhead .lvjump{display:inline-block;margin-top:4px}
+.lvcard{scroll-margin-top:16px}
+.modepick.lvper{grid-template-columns:repeat(4,minmax(0,1fr))}
+.modepick.lvper label{flex-direction:column;align-items:flex-start;gap:2px}
+@media (max-width:900px){ .modepick.lvper{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.lvtime{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;padding:12px;border-radius:12px;background:var(--surface-2)}
+.lvtime .fld{flex:0 1 auto}
+.lvlisthead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+.lvlisthead h3{font-size:1.02em;font-weight:600;margin-right:auto}
+.lvlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:10px}
+.lvlist .fempty{grid-column:1/-1}
+.lvitem{border-left:4px solid var(--c)}
+.lvitem.past{opacity:.6}
+.lvitem .r1 .lvk{font-size:.82em;font-weight:600;color:var(--c);background:var(--soft);border-radius:6px;padding:0 8px}
+@media (max-width:640px){
+  .chip.lvchip{padding:0 4px;background:var(--c);color:#fff;border-radius:4px;box-shadow:none}
+  .chip.lvchip i,.chip.lvchip .lvn{display:none}
+  .chip.lvchip .tx{display:block;font-size:10px;line-height:1.5}
+  .chip.lvx i{background:#B3261E}
+}
+@media print{ .lvadd,.lvjump{display:none!important} }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 @media print{ html .hero, html .wrap>.dbbar, .modal{display:none!important} *{outline:none!important} }
 /* idle auto-logout warning */
@@ -804,6 +851,7 @@ a.logoutpill{text-decoration:none}
       <button role="tab" id="tab-form" aria-selected="false">＋ บันทึกงาน</button>
     </div>
     <a class="teachlink" href="teaching.html" title="เปิดปฏิทินที่แสดงเฉพาะงานสอน">ปฏิทินการสอน <span aria-hidden="true">→</span></a>
+    <a class="teachlink" href="record.html#leave" title="บันทึกวันลาของอาจารย์ วันที่ลาจะลงงานไม่ได้">วันลา <span aria-hidden="true">→</span></a>
     <button class="linkbtn" id="showAll">แสดงทุกท่าน</button>
     <div class="legend">
       <span><span class="pill ok">ยืนยัน</span></span>
@@ -835,7 +883,7 @@ a.logoutpill{text-decoration:none}
   <div id="view-form" hidden>
     <div class="formwrap">
       <section class="fcard">
-        <header class="fhead"><h2 id="fTitle">บันทึกงานใหม่</h2><p>กรอกตามแบบบันทึก TM-QM-F-092 งานที่บันทึกจะขึ้นในปฏิทินและตารางทันที</p></header>
+        <header class="fhead"><h2 id="fTitle">บันทึกงานใหม่</h2><p>กรอกตามแบบบันทึก TM-QM-F-092 งานที่บันทึกจะขึ้นในปฏิทินและตารางทันที</p><a class="lvjump" href="#leave">อาจารย์ลา? บันทึกวันลาที่นี่ ↓</a></header>
         <div class="fnotice" id="fNotice" hidden></div>
         <form id="entryForm" novalidate>
           <fieldset class="fwho"><legend>อาจารย์ <span class="req">*</span></legend><div id="fWho" class="whopick"></div></fieldset>
@@ -856,6 +904,7 @@ a.logoutpill{text-decoration:none}
             <label class="xdskip"><input type="checkbox" id="fXSkip"> เมื่อเพิ่มทั้งช่วง ไม่รวมวันเสาร์-อาทิตย์และวันหยุดราชการ</label>
             <div class="xdmsg" id="fXMsg" role="status"></div>
           </div>
+          <div class="lvwarn" id="fLeave" role="alert" hidden></div>
           <div class="cfwarn" id="fConflict" role="alert" hidden></div>
           <div class="frow">
             <label class="fld"><span>ประเภท</span><input id="fType" list="typeList" placeholder="เช่น ประชุม สอน วิทยากร"></label>
@@ -902,6 +951,41 @@ a.logoutpill{text-decoration:none}
         <datalist id="typeList"></datalist>
         <datalist id="docChList"><option value="EDOC"><option value="อีเมล"><option value="LINE"><option value="หนังสือตัวจริง"><option value="โทรศัพท์"><option value="แจ้งด้วยวาจา"></datalist>
         <datalist id="levelList"><option value="ภาควิชาฯ"><option value="คณะฯ"><option value="มหาวิทยาลัย"><option value="ชาติ"><option value="นานาชาติ"></datalist>
+      </section>
+      <section class="fcard lvcard" id="leave" aria-labelledby="lvTitle">
+        <header class="fhead"><h2 id="lvTitle">บันทึกวันลาของอาจารย์</h2><p>วันที่อาจารย์ลาทั้งวัน จะลงงานของอาจารย์ท่านนั้นไม่ได้ · ลาครึ่งวัน ลงงานได้เฉพาะช่วงที่อาจารย์ปฏิบัติงาน</p></header>
+        <div class="fnotice" id="lvNotice" hidden></div>
+        <form id="leaveForm" novalidate>
+          <fieldset class="fwho"><legend>อาจารย์ <span class="req">*</span></legend><div id="lvWho" class="whopick"></div></fieldset>
+          <div class="frow">
+            <label class="fld"><span>ประเภทการลา</span><input id="lvType" list="lvTypeList" placeholder="เช่น ลาพักผ่อน ลากิจ ลาป่วย"></label>
+            <label class="fld"><span>วันที่ลา <span class="req">*</span></span><input type="date" id="lvDate" required><small id="lvDateTh"></small></label>
+            <label class="fld"><span>ถึงวันที่ <small style="color:var(--muted)">(ถ้าลาหลายวัน)</small></span><input type="date" id="lvEnd"><small id="lvEndTh"></small></label>
+          </div>
+          <fieldset class="fmode"><legend>ช่วงที่ลา <span class="req">*</span></legend>
+            <div class="modepick lvper" id="lvPeriod">
+              <label><input type="radio" name="lvper" value="full" checked><b>ทั้งวัน</b><small>ลงงานไม่ได้ทั้งวัน</small></label>
+              <label><input type="radio" name="lvper" value="am"><b>ครึ่งวันเช้า</b><small id="lvAmTx">ปฏิบัติงานช่วงบ่าย</small></label>
+              <label><input type="radio" name="lvper" value="pm"><b>ครึ่งวันบ่าย</b><small id="lvPmTx">ปฏิบัติงานช่วงเช้า</small></label>
+              <label><input type="radio" name="lvper" value="time"><b>ระบุเวลา</b><small>ลาเฉพาะบางช่วง</small></label>
+            </div>
+          </fieldset>
+          <div class="lvtime" id="lvTimeBox" hidden>
+            <div class="fld"><span>ลาตั้งแต่</span><div class="tsel" role="group" aria-label="ลาตั้งแต่"><select id="lvStartH" aria-label="ชั่วโมง"></select><b>.</b><select id="lvStartM" aria-label="นาที"></select><em>น.</em></div></div>
+            <div class="fld"><span>ถึง</span><div class="tsel" role="group" aria-label="ลาถึง"><select id="lvEndH" aria-label="ชั่วโมง"></select><b>.</b><select id="lvEndM" aria-label="นาที"></select><em>น.</em></div></div>
+          </div>
+          <label class="fld"><span>หมายเหตุ</span><input id="lvNote" placeholder="เช่น ไปต่างจังหวัด, ติดต่อได้ทางอีเมล"></label>
+          <div class="lvwarn" id="lvBusy" role="alert" hidden></div>
+          <div class="factions">
+            <button type="submit" class="btn primary" id="lvSave">บันทึกวันลา</button>
+            <button type="button" class="btn" id="lvReset">ล้างฟอร์ม</button>
+            <button type="button" class="btn danger fdel" id="lvDelete" hidden>ลบวันลานี้</button>
+            <span class="fmsg" id="lvMsg" role="status"></span>
+          </div>
+        </form>
+        <datalist id="lvTypeList"><option value="ลาพักผ่อน"><option value="ลากิจ"><option value="ลาป่วย"><option value="ลาไปต่างประเทศ"><option value="ลาศึกษา / ฝึกอบรม"><option value="ลาคลอด"></datalist>
+        <div class="lvlisthead"><h3>วันลาที่บันทึกไว้</h3><label class="xdskip"><input type="checkbox" id="lvPast"> แสดงวันลาที่ผ่านมาแล้ว</label></div>
+        <div id="lvList" class="lvlist"></div>
       </section>
       <section class="fcard flist">
         <header class="fhead"><h2>งานที่บันทึกจากหน้าเว็บ</h2><p>ข้อมูลทั้งหมดเก็บใน Google Sheet งานที่นำเข้าจาก Excel แก้ได้จากปุ่ม ✎ แก้ไข ในปฏิทินหรือตารางรายบุคคล</p></header>
@@ -1025,6 +1109,7 @@ function buildEvents(){
   YEARS = []; MONTHS = [];
   for (let yy=y0; yy<=y1; yy++){ YEARS.push(yy); for (let mm=1; mm<=12; mm++) MONTHS.push(`${yy}-${pad(mm)}`); }
   findConflicts();
+  try{ markLeaveClash(); }catch(_){ /* ครั้งแรกตอนโหลดหน้า ยังไม่มีข้อมูลวันลา */ }
 }
 /* ===== ตรวจงานที่เวลาชน/ซ้อนกัน (อาจารย์คนเดียวกัน วันเดียวกัน ช่วงเวลาทับกัน) ===== */
 function evSpan(e){
@@ -1049,6 +1134,32 @@ function cfNote(e){
   if (!e._cf || !e._cf.length) return '';
   return `<div class="cfnote" role="note"><b>⚠ เวลาชนกับ</b> ${e._cf.map(o=>`<span>${esc(cfText(o))}</span>`).join('<span class="sep">·</span>')}</div>`;
 }
+
+/* ===== วันลาของอาจารย์ (ชีต leaves) =====
+   ลาทั้งวัน → ลงงานไม่ได้ · ลาครึ่งวัน/ระบุเวลา → ลงงานได้เฉพาะช่วงที่ปฏิบัติงาน (แบ่งครึ่งวันตาม LEAVE_SPLIT ที่ Apps Script ส่งมา)
+   งานที่สถานะของอาจารย์ท่านนั้นเป็น เลื่อน/ขัดข้อง/ยกเลิก ไม่ถือว่าชน */
+let LEAVES = [], LEAVE_SPLIT = 720, LEAVE_API = null;
+const LEAVE_PERIOD = {full:'ทั้งวัน', am:'ครึ่งวันเช้า', pm:'ครึ่งวันบ่าย', time:'บางช่วงเวลา'};
+const OFF_RE = /เลื่อน|ขัดข้อง|ยกเลิก|ไม่เข้าร่วม/;
+const hmMin = v => { const m=String(v||'').match(/^(\d{1,2})[.:](\d{2})/); return m ? +m[1]*60 + +m[2] : null; };
+const minTh = n => `${pad(Math.floor(n/60))}.${pad(n%60)}`;
+function setLeaves(list, split){
+  LEAVES = (Array.isArray(list)?list:[]).filter(l => l && l.id && TEACHERS[l.who] && /^\d{4}-\d{2}-\d{2}$/.test(l.date||''))
+    .map(l => { const o={...l, endDate: /^\d{4}-\d{2}-\d{2}$/.test(l.endDate||'') && l.endDate>=l.date ? l.endDate : l.date, period: LEAVE_PERIOD[l.period] ? l.period : 'full'};
+      if (o.period==='time' && !(hmMin(o.start)!=null && hmMin(o.end)!=null && hmMin(o.start)<hmMin(o.end))) o.period='full'; return o; })
+    .sort((a,b) => a.date.localeCompare(b.date) || ORDER.indexOf(a.who)-ORDER.indexOf(b.who));
+  const s = hmMin(split); if (s) LEAVE_SPLIT = s;
+}
+function lvBlock(l){ return l.period==='am' ? [0,LEAVE_SPLIT] : l.period==='pm' ? [LEAVE_SPLIT,1440] : l.period==='time' ? [hmMin(l.start), hmMin(l.end)] : [0,1440]; }
+function lvWhen(l){ return l.period==='time' ? `${minTh(hmMin(l.start))}–${minTh(hmMin(l.end))} น.` : LEAVE_PERIOD[l.period]; }
+function lvLabel(l){ return `${l.leaveType||'ลา'} ${lvWhen(l)}`; }
+function lvWork(l){ return l.period==='am' ? `ปฏิบัติงานช่วงบ่าย ลงงานได้ตั้งแต่ ${minTh(LEAVE_SPLIT)} น.` : l.period==='pm' ? `ปฏิบัติงานช่วงเช้า ลงงานได้ก่อน ${minTh(LEAVE_SPLIT)} น.` : l.period==='time' ? `ลงงานได้นอกช่วง ${lvWhen(l)}` : 'ลงงานวันนี้ไม่ได้'; }
+function lvRange(l){ return l.endDate>l.date ? `${shortDate(l.date)} – ${shortDate(l.endDate)}` : shortDate(l.date); }
+function lvDays(l){ return Math.round((parseIso(l.endDate)-parseIso(l.date))/864e5)+1; }
+function leavesOn(who, ds){ return LEAVES.filter(l => l.who===who && l.date<=ds && ds<=l.endDate); }
+// งานช่วงเวลา sp ([เริ่ม,สิ้นสุด] นาที หรือ null = ไม่ระบุเวลา) ชนกับวันลา l ไหม
+function lvHit(l, sp){ return l.period==='full' || !sp || spanOverlap(sp, lvBlock(l)); }
+function markLeaveClash(){ EVENTS.forEach(e => { e._lv = e._st==='off' ? null : (leavesOn(e.who, e.date).find(l => lvHit(l, e._sp)) || null); }); }
 buildEvents();
 
 // state
@@ -1102,8 +1213,9 @@ function renderTeachers(){
     const hrs = ev.filter(activeEv).reduce((s,e)=>s+e._h.v,0);
     const pend = ev.filter(e=>e._st==='pend').length;
     const nx = ev.find(e => e.date >= todayIso && activeEv(e));
+    const lt = leavesOn(code, todayIso)[0];
     return `<button class="tcard t-${code}" data-code="${code}" aria-pressed="${view==='sheet' ? code===sheetWho : active.has(code)}">
-      <div class="top"><span class="av">${t.ini}</span><span class="nm">${esc(t.name)}</span><span class="chk">${view==='sheet' ? (code===sheetWho?'กำลังดู':'') : (active.has(code)?'แสดงอยู่':'ซ่อน')}</span></div>
+      <div class="top"><span class="av">${t.ini}</span><span class="nm">${esc(t.name)}</span><span class="chk">${view==='sheet' ? (code===sheetWho?'กำลังดู':'') : (active.has(code)?'แสดงอยู่':'ซ่อน')}</span></div>${lt?`<span class="lvtoday">วันนี้${esc(lt.leaveType||'ลา')} · ${esc(lvWhen(lt))}${lt.endDate>todayIso?` ถึง ${esc(shortDate(lt.endDate))}`:''}</span>`:''}
       <div class="stats num">
         <span><b>${ev.length}</b>ภารกิจ</span>
         <span><b>${hrs.toFixed(1)}</b>ชั่วโมง</span>
@@ -1141,11 +1253,13 @@ function renderCal(){
     const ds = `${y}-${pad(m)}-${pad(d)}`, dow = new Date(y,m-1,d).getDay();
     const ev = map[ds] || [], hol = HOLIDAYS[ds];
     const cls = ['day', (dow===0||dow===6)?'we':'', ds===todayIso?'today':'', ds===selected?'sel':''].join(' ');
-    const dayCf = ev.some(e => e._cf && e._cf.length);
-    const chips = ev.slice(0,3).map(e => `<span class="chip t-${e.who} ${e._st}${e._cf&&e._cf.length?' cf':''}" title="${esc(TEACHERS[e.who].short+' · '+e.time+' · '+e.title+(e._cf&&e._cf.length?' · ⚠ เวลาชนกับ '+e._cf.map(cfText).join(', '):''))}"><i></i><span class="tx"><span class="tm">${esc(startLabel(e.time))}</span> ${esc(e.type)}</span></span>`).join('');
+    const dayCf = ev.some(e => (e._cf && e._cf.length) || e._lv);
+    const lvs = ORDER.filter(c => active.has(c)).flatMap(c => leavesOn(c, ds));
+    const lvChips = lvs.map(l => `<span class="chip lvchip t-${l.who}" title="${esc(TEACHERS[l.who].short+' · '+lvLabel(l)+(l.note?' · '+l.note:''))}"><i></i><span class="tx"><b>ลา</b><span class="lvn"> ${esc(TEACHERS[l.who].short)}${l.period!=='full'?' · '+esc(l.period==='time'?lvWhen(l):LEAVE_PERIOD[l.period].replace('ครึ่งวัน','ครึ่ง')):''}</span></span></span>`).join('');
+    const chips = ev.slice(0,3).map(e => `<span class="chip t-${e.who} ${e._st}${e._cf&&e._cf.length?' cf':''}${e._lv?' lvx':''}" title="${esc(TEACHERS[e.who].short+' · '+e.time+' · '+e.title+(e._cf&&e._cf.length?' · ⚠ เวลาชนกับ '+e._cf.map(cfText).join(', '):'')+(e._lv?' · ⛔ อยู่ในช่วงลา ('+lvLabel(e._lv)+')':''))}"><i></i><span class="tx"><span class="tm">${esc(startLabel(e.time))}</span> ${esc(e.type)}</span></span>`).join('');
     const more = ev.length>3 ? `<span class="more">+${ev.length-3} รายการ</span>` : '';
-    const label = `${d} ${TH_M[m-1]}${hol?' '+hol:''}${ev.length?` มี ${ev.length} ภารกิจ`:''}`;
-    html += `<button class="${cls}${dayCf?' hascf':''}" data-d="${ds}" aria-label="${esc(label+(dayCf?' มีงานเวลาชนกัน':''))}"><span class="dn num">${d}</span>${dayCf?'<span class="cfmark" title="มีงานเวลาชนกัน">⚠</span>':''}${hol?`<span class="hol">${esc(hol)}</span>`:''}<span class="chips">${chips}${more}</span></button>`;
+    const label = `${d} ${TH_M[m-1]}${hol?' '+hol:''}${lvs.length?' '+lvs.map(l=>TEACHERS[l.who].short+' '+lvLabel(l)).join(', '):''}${ev.length?` มี ${ev.length} ภารกิจ`:''}`;
+    html += `<button class="${cls}${dayCf?' hascf':''}" data-d="${ds}" aria-label="${esc(label+(dayCf?' มีงานเวลาชนกัน':''))}"><span class="dn num">${d}</span>${dayCf?'<span class="cfmark" title="มีงานเวลาชนกันหรืออยู่ในช่วงวันลา">⚠</span>':''}${hol?`<span class="hol">${esc(hol)}</span>`:''}<span class="chips">${lvChips}${chips}${more}</span></button>`;
   }
   const tail = (7 - (lead+days)%7)%7;
   for (let k=0;k<tail;k++) html += `<div class="day blank" aria-hidden="true"></div>`;
@@ -1162,10 +1276,10 @@ function evCard(e){
     ['สถานที่', e.place], ['ชั่วโมง', fmtH(e._h)+' ชม.'], ['ระดับ', e.level],
     ['หน่วยงานที่เชิญ', e.inviter], ['ทุนสนับสนุน', e.fund], ['ลิงก์', e.link], ['ช่องทางรับเอกสาร', e.docChannel], ['EDOC', e.edoc], ['เพิ่มเติม', e.notes], ['ผู้บันทึก', e.rec]
   ].filter(r => r[1]);
-  return `<article class="ev t-${e.who} ${e._st}${e._cf&&e._cf.length?' cf':''}">
+  return `<article class="ev t-${e.who} ${e._st}${e._cf&&e._cf.length?' cf':''}${e._lv?' lvx':''}">
     <div class="r1"><span class="time">${esc(e.time||'ไม่ระบุเวลา')}</span><span class="tag">${esc(e.type)}</span>
       <span class="pill ${e._st}" style="margin-left:auto">${esc(e.status||'ไม่ระบุสถานะ')}</span></div>
-    <div class="ttl">${esc(e.title)}${e.source==='web'?` <span class="srcbadge">เพิ่มจากหน้าเว็บ</span>`:''}</div>${cfNote(e)}
+    <div class="ttl">${esc(e.title)}${e.source==='web'?` <span class="srcbadge">เพิ่มจากหน้าเว็บ</span>`:''}</div>${cfNote(e)}${e._lv?`<div class="lvnote" role="note"><b>⛔ อยู่ในช่วงที่อาจารย์ลา</b> (${esc(lvLabel(e._lv))}) — ย้ายเวลา หรือเปลี่ยนสถานะเป็น ขัดข้อง / เลื่อน</div>`:''}
     <dl class="kv">${rows.map(r=>`<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join('')}</dl>
     <div class="evacts">${e.edoc?`<a class="btn sm edocbtn" href="${esc(e.edoc)}" target="_blank" rel="noopener"><svg class="edoc-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg> EDOC</a>`:''}<a class="btn sm" href="${editHref(e)}">✎ แก้ไข</a></div>
   </article>`;
@@ -1179,11 +1293,14 @@ function renderDetail(){
   if (hol) html += `<div class="holbox">${esc(hol)}</div>`;
   html += '<div class="tgrid">';
   ORDER.filter(c => active.has(c)).forEach(c => {
-    const mine = ev.filter(e => e.who===c);
-    html += `<section class="tblock t-${c}"><h3><span class="sw"></span>${esc(TEACHERS[c].name)}</h3>
-      ${mine.length ? mine.map(evCard).join('') : `<div class="free">ว่าง ไม่มีภารกิจในวันนี้</div>`}</section>`;
+    const mine = ev.filter(e => e.who===c), lvs = leavesOn(c, selected);
+    const lvHtml = lvs.map(l => `<div class="lvbox"><div class="lvt"><span class="lvk">ลา</span>${esc(lvLabel(l))}${l.endDate>l.date?` <small>${esc(lvRange(l))} (${lvDays(l)} วัน)</small>`:''}${canWrite?`<a href="${encodeURI(FORM_FILE)}#leaveedit-${encodeURIComponent(l.id)}">✎ แก้ไข</a>`:''}</div>${l.period!=='full'?`<span class="lvw">${esc(lvWork(l))}</span>`:''}${l.note?`<small>${esc(l.note)}</small>`:''}</div>`).join('');
+    const fullLv = lvs.some(l => l.period==='full');
+    html += `<section class="tblock t-${c}"><h3><span class="sw"></span>${esc(TEACHERS[c].name)}</h3>${lvHtml}
+      ${mine.length ? mine.map(evCard).join('') : (fullLv ? '' : `<div class="free">ว่าง ไม่มีภารกิจในวันนี้</div>`)}</section>`;
   });
   html += '</div>';
+  if (canWrite) html += `<a class="lvadd" href="${encodeURI(FORM_FILE)}#leave-${selected}">＋ บันทึกวันลา ${esc(shortDate(selected))}</a>`;
   document.getElementById('detail').innerHTML = html;
 }
 
@@ -1243,13 +1360,15 @@ function renderCfBar(){
   EVENTS.forEach((a,ia) => (a._cf||[]).forEach(b => { const ib = EVENTS.indexOf(b); const k = ia<ib ? ia+'-'+ib : ib+'-'+ia; if (seen.has(k)) return; seen.add(k);
     if (a.date >= todayIso && active.has(a.who)) pairs.push(ia<ib ? [a,b] : [b,a]); }));
   pairs.sort((p,q) => p[0].date.localeCompare(q[0].date) || p[0]._s - q[0]._s);
-  bar.hidden = PAGE==='form' || !pairs.length;
-  if (!pairs.length) return;
-  $('cfSum').innerHTML = `<span class="cfic">⚠</span> พบงานที่เวลาชนหรือซ้อนกัน <b>${pairs.length}</b> จุด <small>(ตั้งแต่วันนี้เป็นต้นไป · กดเพื่อดูรายการ)</small>`;
-  $('cfList').innerHTML = pairs.map(([a,b]) => `<button type="button" class="cfitem t-${a.who}" data-d="${a.date}"><span class="sw"></span><span class="cfw">${esc(TEACHERS[a.who].short)}</span><span class="cfd">${shortDate(a.date)}</span><span class="cfx">${esc(cfText(a))} <i>ชนกับ</i> ${esc(cfText(b))}</span></button>`).join('');
+  const lvc = EVENTS.filter(e => e._lv && e.date >= todayIso && active.has(e.who));
+  bar.hidden = PAGE==='form' || !(pairs.length || lvc.length);
+  if (bar.hidden) return;
+  $('cfSum').innerHTML = `<span class="cfic">⚠</span> ${[pairs.length?`พบงานที่เวลาชนหรือซ้อนกัน <b>${pairs.length}</b> จุด`:'', lvc.length?`งานที่อยู่ในช่วงวันลา <b>${lvc.length}</b> รายการ`:''].filter(Boolean).join(' · ')} <small>(ตั้งแต่วันนี้เป็นต้นไป · กดเพื่อดูรายการ)</small>`;
+  $('cfList').innerHTML = lvc.map(e => `<button type="button" class="cfitem t-${e.who}" data-d="${e.date}"><span class="sw"></span><span class="cfw">${esc(TEACHERS[e.who].short)}</span><span class="cfd">${shortDate(e.date)}</span><span class="cfx">${esc(cfText(e))} <i>อยู่ในวันลา</i> ${esc(lvLabel(e._lv))}</span></button>`).join('')
+    + pairs.map(([a,b]) => `<button type="button" class="cfitem t-${a.who}" data-d="${a.date}"><span class="sw"></span><span class="cfw">${esc(TEACHERS[a.who].short)}</span><span class="cfd">${shortDate(a.date)}</span><span class="cfx">${esc(cfText(a))} <i>ชนกับ</i> ${esc(cfText(b))}</span></button>`).join('');
   $('cfList').querySelectorAll('.cfitem').forEach(btn => btn.onclick = () => { selected = btn.dataset.d; month = selected.slice(0,7); sheetMonth = month; if (view!=='cal') setView('cal'); else { renderCal(); renderDetail(); } document.getElementById('view-cal').scrollIntoView({behavior:'smooth', block:'start'}); });
 }
-function renderAll(){ renderCfBar(); renderHero(); renderTeachers(); if (view==='cal'){ renderCal(); renderDetail(); } else if (view==='sheet') renderSheet(); else if (view==='form') renderFormList(); else renderList(); }
+function renderAll(){ renderCfBar(); renderHero(); renderTeachers(); if (view==='cal'){ renderCal(); renderDetail(); } else if (view==='sheet') renderSheet(); else if (view==='form'){ renderFormList(); renderLeaveList(); } else renderList(); }
 
 function recDate(e){
   const v = e.createdAt || '';
@@ -1543,7 +1662,7 @@ function setKey(k, remember){ try{ localStorage.removeItem(KEY_STORE); sessionSt
 /* ข้อมูลรอบล่าสุดเก็บไว้ในเครื่อง เปิดหน้าครั้งต่อไปแสดงได้ทันที แล้วค่อยโหลดของใหม่เบื้องหลัง (ลบเมื่อออกจากระบบ) */
 const SNAP_KEY = 'tt-snap', SNAP_MAX_AGE = 14*864e5;
 function readSnap(){ try{ const s=JSON.parse(localStorage.getItem(SNAP_KEY)||'null'); return s && s.j && Date.now()-s.t < SNAP_MAX_AGE ? s : null; }catch(_){ return null; } }
-function saveSnap(j){ try{ if (!getKey() || !j || !j.user) return; localStorage.setItem(SNAP_KEY, JSON.stringify({u:j.user.username, t:Date.now(), j:{role:j.role, user:j.user, pending:j.pending, canViewLogs:j.canViewLogs, entries:j.entries, holidays:j.holidays}})); }catch(_){ try{ localStorage.removeItem(SNAP_KEY); }catch(__){} } }
+function saveSnap(j){ try{ if (!getKey() || !j || !j.user) return; localStorage.setItem(SNAP_KEY, JSON.stringify({u:j.user.username, t:Date.now(), j:{role:j.role, user:j.user, pending:j.pending, canViewLogs:j.canViewLogs, entries:j.entries, holidays:j.holidays, leaves:j.leaves, leaveSplit:j.leaveSplit}})); }catch(_){ try{ localStorage.removeItem(SNAP_KEY); }catch(__){} } }
 function clearSnap(){ try{ localStorage.removeItem(SNAP_KEY); }catch(_){} }
 const RETRY_CODES = ['timeout','network','busy'];
 function newRid(){ let s=''; try{ const a=new Uint8Array(12); crypto.getRandomValues(a); a.forEach(b=>s+=b.toString(16).padStart(2,'0')); }catch(_){ s=(Date.now().toString(36)+Math.random().toString(36).slice(2)).replace(/[^a-z0-9]/g,''); } return s.slice(0,24); }
@@ -1576,6 +1695,7 @@ function makeApiDB(url){
   function apply(j){
     ROLE = j.role; PENDING = j.pending||0; CAN_LOGS = !!j.canViewLogs; setUser(j.user); cache = j.entries||[];
     Object.keys(HOLIDAYS).forEach(k=>delete HOLIDAYS[k]); Object.assign(HOLIDAYS, j.holidays||{});
+    setLeaves(j.leaves, j.leaveSplit); LEAVE_API = Array.isArray(j.leaves) ? true : (j.__snap ? null : false);
     document.documentElement.classList.toggle('role-view', ROLE!=='edit');
     canWrite = ROLE==='edit'; applyWriteState(); fire();
   }
@@ -1585,7 +1705,7 @@ function makeApiDB(url){
     return j;
   }
   // แสดงข้อมูลที่เก็บไว้ในเครื่องทันที (ยังไม่นับว่าซิงค์แล้ว)
-  function showSnap(snap){ apply(snap.j); }
+  function showSnap(snap){ apply({...snap.j, __snap:true}); }
   const withList = j => refresh(j && j.entries ? j : null);
   const col = {
     add: async d => withList(await call('create',{data:d})),
@@ -1648,7 +1768,7 @@ function syncState(msg, err){
       : (msg || 'Google Sheet');
   }
 }
-const ERR_TH = {timeout:'Google Sheet ตอบช้าเกินไป ลองอีกครั้ง', network:'เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ต', bad_response:'Apps Script ตอบกลับไม่ถูกต้อง ตรวจสอบ URL ใน config.js', unauthorized:'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่', forbidden:'บัญชีนี้ดูได้อย่างเดียว บันทึกหรือแก้ไขไม่ได้', must_change:'ต้องตั้งรหัสผ่านใหม่ก่อนใช้งาน', invalid_login:'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', locked:'บัญชีถูกล็อกชั่วคราว', disabled:'บัญชีนี้ถูกปิดใช้งาน ติดต่อผู้ดูแลระบบ', pending:'บัญชีนี้รอผู้ดูแลระบบอนุมัติ', server_error:'เกิดข้อผิดพลาดที่ Apps Script', busy:'มีผู้ใช้บันทึกพร้อมกันหลายคน ลองอีกครั้ง'};
+const ERR_TH = {timeout:'Google Sheet ตอบช้าเกินไป ลองอีกครั้ง', network:'เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ต', bad_response:'Apps Script ตอบกลับไม่ถูกต้อง ตรวจสอบ URL ใน config.js', unauthorized:'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่', forbidden:'บัญชีนี้ดูได้อย่างเดียว บันทึกหรือแก้ไขไม่ได้', must_change:'ต้องตั้งรหัสผ่านใหม่ก่อนใช้งาน', invalid_login:'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', locked:'บัญชีถูกล็อกชั่วคราว', disabled:'บัญชีนี้ถูกปิดใช้งาน ติดต่อผู้ดูแลระบบ', pending:'บัญชีนี้รอผู้ดูแลระบบอนุมัติ', server_error:'เกิดข้อผิดพลาดที่ Apps Script', busy:'มีผู้ใช้บันทึกพร้อมกันหลายคน ลองอีกครั้ง', on_leave:'อาจารย์ลาในช่วงเวลานี้', leave_overlap:'มีวันลาซ้อนกัน', unknown_action:'Apps Script ยังเป็นเวอร์ชันเก่า กรุณาอัปเดต Apps Script', invalid_argument:'ข้อมูลไม่ถูกต้อง', not_found:'ไม่พบรายการ'};
 function errText(e){ return (ERR_TH[e&&e.code]||'เกิดข้อผิดพลาด') + (e&&e.message?` (${e.message})`:''); }
 function downloadText(name, text, type){
   const blob=new Blob(['\ufeff'+text],{type}); const a=document.createElement('a');
@@ -1701,8 +1821,10 @@ function resetForm(){
   $('fTitle').textContent='บันทึกงานใหม่'; $('fSave').textContent='บันทึกงาน'; delete $('fSave').dataset.cf; delArm(false); $('fDelete').hidden=true; showDateTh(); setTimeout(checkFormConflicts,0);
   document.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad')); renderFormList();
   if (CUR_USER && !$('fRec').value) $('fRec').value = CUR_USER.name;
-  xdResetState();
+  xdResetState(); syncLeaveCard();
 }
+// ตอนแก้ไขงาน ซ่อนส่วนบันทึกวันลา (แสดงเฉพาะตอนบันทึกงานใหม่)
+function syncLeaveCard(){ const ed = !!(editingId || editingExcel); const c=$('leave'), j=document.querySelector('.fhead .lvjump'); if (c) c.hidden = ed; if (j) j.hidden = ed; }
 function timeParts(t){ const m=(t||'').match(/(\d{1,2})[.:](\d{2})(?:\s*-\s*(\d{1,2})[.:](\d{2}))?/); if(!m) return ['','']; const f=(h,mm)=>`${pad(+h)}:${mm}`; return [f(m[1],m[2]), m[3]?f(m[3],m[4]):'']; }
 function fillFromExcel(xk){
   const e = EXCEL_EVENTS.find(x=>x.xk===xk); if (!e) { setMsg('ไม่พบรายการนี้ในข้อมูล Excel', true); return; }
@@ -1710,7 +1832,7 @@ function fillFromExcel(xk){
   const [st,en] = timeParts(e.time);
   fillForm({ id:null, who:[e.who], date:e.date, start:st, end:en, hours:e.hours&&!isNaN(parseFloat(e.hours))?e.hours:'', type:e.type, status:e.status||'ยืนยัน',
     level:e.level, title:e.title, place:e.place, inviter:e.inviter, fund:e.fund, recName:'' });
-  editingExcel = xk; editingId = null;
+  editingExcel = xk; editingId = null; syncLeaveCard();
   $('fTitle').textContent='แก้ไขงาน (ข้อมูลจาก Excel)'; setSaveLabel();
   setMsg('แก้แล้วกดบันทึก รายการเดิมจาก Excel จะถูกแทนที่ด้วยข้อมูลใหม่');
   if (e.time && !st) setMsg(`เวลาเดิมในไฟล์: "${e.time}" กรุณาเลือกเวลาใหม่`, true);
@@ -1733,7 +1855,7 @@ function fillForm(d){
   $('fDocCh').value = d.docChannel || ''; $('fEdoc').value = d.edoc || ''; edocHint();
   $('fNotes').value = d.notes || (!d.mode && mode!=='onsite' && d.place ? 'ข้อมูลเดิม: '+d.place : ''); $('fInviter').value=d.inviter||''; $('fFund').value=d.fund||''; $('fRec').value=(d.recName||'');
   $('fTitle').textContent= d.overrides ? 'แก้ไขงาน (ข้อมูลจาก Excel)' : 'แก้ไขงาน'; $('fSave').textContent='บันทึกการแก้ไข'; showDateTh(); setMsg('');
-  xdResetState();
+  xdResetState(); syncLeaveCard();
   renderFormList(); $('entryForm').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function normUrl(v){ v=(v||'').trim(); if(!v) return ''; return /^[a-z][a-z0-9+.-]*:\/\//i.test(v) ? v : 'https://'+v.replace(/^\/+/,''); }
@@ -1834,7 +1956,36 @@ function formConflicts(){
   return EVENTS.filter(e => who.includes(e.who) && !offOwn(e.who) && dates.includes(e.date) && e._st!=='off' && e._sp && spanOverlap(sp, e._sp)
     && !(editingId && e.src==='form' && e.id===editingId) && !(editingExcel && e.xk===editingExcel));
 }
+/* งานในฟอร์มชนกับวันลาไหม: คืนรายการ {w, d, l, needTime} */
+function formLeaveBlocks(){
+  const who=[...document.querySelectorAll('#fWho input:checked')].map(i=>i.value), dates=formDates();
+  if (!who.length || !dates.length || OFF_RE.test($('fStatus').value||'')) return [];
+  const start=$('fStart').value, end=$('fEnd').value;
+  const sp = start ? evSpan({start, end, hours:$('fHours').value}) : null;
+  const out=[];
+  who.forEach(w => { if (SB[w] && OFF_RE.test(SB[w])) return;
+    dates.forEach(d => leavesOn(w, d).forEach(l => { if (lvHit(l, sp)) out.push({w, d, l, needTime: l.period!=='full' && !sp}); })); });
+  return out;
+}
+function checkFormLeave(){
+  const box=$('fLeave'); if (!box) return [];
+  const d0=$('fDate').value;
+  document.querySelectorAll('#fWho label').forEach(lb => { const w=lb.querySelector('input').value, l=d0 ? leavesOn(w, d0)[0] : null;
+    lb.classList.toggle('onleave', !!l); if (l) lb.dataset.lv = l.period==='full' ? 'ลาทั้งวัน' : l.period==='time' ? 'ลาบางช่วง' : 'ลา'+LEAVE_PERIOD[l.period]; else delete lb.dataset.lv; });
+  const list = formLeaveBlocks();
+  box.hidden = !list.length;
+  if (!list.length) return list;
+  const multi = formDates().length>1, nWho = document.querySelectorAll('#fWho input:checked').length;
+  const xd = [...new Set(list.filter(x => x.d!==d0 && x.l.period==='full').map(x=>x.d))];
+  const tip = list.every(x => x.l.period==='full')
+    ? (nWho>1 ? 'เอาชื่ออาจารย์ที่ลาออกจากงานนี้ หรือตั้ง "สถานะรายบุคคล" ของท่านเป็น ขัดข้อง' : 'เปลี่ยนวันที่ หรือถ้าอาจารย์ไม่ได้ไปงานนี้ ให้ตั้งสถานะเป็น ขัดข้อง')
+    : 'เลือกเวลาให้อยู่ในช่วงที่อาจารย์ปฏิบัติงาน' + (nWho>1 ? ' หรือตั้ง "สถานะรายบุคคล" ของท่านที่ลาเป็น ขัดข้อง' : '');
+  box.innerHTML = `<b>⛔ อาจารย์ลาในช่วงนี้ บันทึกงานไม่ได้</b><ul>${list.map(x=>`<li class="t-${x.w}"><span class="sw"></span><span>${esc(TEACHERS[x.w].short)} · ${multi?`<b>${esc(shortDate(x.d))}</b> `:''}${esc(lvLabel(x.l))}${x.l.period!=='full'?` — ${esc(lvWork(x.l))}${x.needTime?' <b>(กรุณาเลือกเวลาเริ่ม)</b>':''}`:''}</span></li>`).join('')}</ul><small>${esc(tip)}</small>${xd.length?`<button type="button" class="btn sm" id="fLvDrop">เอาวันที่อาจารย์ลาออก (${xd.length} วัน)</button>`:''}`;
+  const drop=$('fLvDrop'); if (drop) drop.onclick = () => { XD = XD.filter(d => !xd.includes(d)); xdMsg(`เอาออกแล้ว ${xd.length} วัน`); renderXD(); };
+  return list;
+}
 function checkFormConflicts(){
+  checkFormLeave();
   const box=$('fConflict'); if (!box) return [];
   const list = formConflicts(); cfConfirm = false;
   if ($('fSave').dataset.cf){ $('fSave').textContent = $('fSave').dataset.cf; delete $('fSave').dataset.cf; }
@@ -1844,6 +1995,10 @@ function checkFormConflicts(){
 }
 async function saveForm(ev){
   ev.preventDefault();
+  if (checkFormLeave().length){
+    setMsg('บันทึกไม่ได้ อาจารย์ลาในช่วงเวลานี้ ตรวจสอบกรอบสีแดงด้านบน', true);
+    $('fLeave').scrollIntoView({behavior:'smooth', block:'center'}); return;
+  }
   if (!cfConfirm && checkFormConflicts().length && DB && canWrite){
     cfConfirm = true; $('fSave').dataset.cf = $('fSave').textContent; $('fSave').textContent = 'บันทึกทั้งที่เวลาชน';
     setMsg('งานนี้เวลาชนกับงานอื่น ตรวจสอบด้านบน ถ้าถูกต้องแล้วกด "บันทึกทั้งที่เวลาชน" อีกครั้ง', true);
@@ -1953,6 +2108,7 @@ function applyWriteState(){
   else n.hidden=true;
   document.querySelectorAll('#entryForm input:not([type=hidden]),#entryForm select,#entryForm textarea,#fSave').forEach(x=>x.disabled=!canWrite);
   renderFormList();
+  if (typeof lvApplyWrite==='function') lvApplyWrite();
 }
 initFormStatic(); applyWriteState();
 $('entryForm').addEventListener('submit', saveForm);
@@ -1973,6 +2129,166 @@ function setT(id, v){ const [h,m]=(v||'').split(':'); $(id+'H').value=h||''; $(i
 $('fWho').addEventListener('change', () => { renderStatusBy(); checkFormConflicts(); });
 $('fStatus').addEventListener('change', renderStatusBy);
 $('fHours').addEventListener('input', () => { if ($('fHours').value) $('fHours').dataset.manual='1'; else delete $('fHours').dataset.manual; });
+/* ===== ฟอร์มบันทึกวันลา (หน้า record.html) ===== */
+let lvEditing = null, lvConfirmBusy = false, lvConfirmDel = null;
+function lvInit(){
+  $('lvWho').innerHTML = ORDER.map(c => `<label class="t-${c}"><input type="radio" name="lvwho" value="${c}"><span class="av sm">${TEACHERS[c].ini}</span><span class="nm2" title="${esc(TEACHERS[c].name)}">${esc(TEACHERS[c].short)}</span></label>`).join('');
+  const hOpt = '<option value="">--</option>' + Array.from({length:24},(_,i)=>`<option value="${pad(i)}">${pad(i)}</option>`).join('');
+  const mOpt = '<option value="">--</option>' + ['00','15','30','45'].map(m=>`<option value="${m}">${m}</option>`).join('');
+  ['lvStartH','lvEndH'].forEach(id => $(id).innerHTML = hOpt); ['lvStartM','lvEndM'].forEach(id => $(id).innerHTML = mOpt);
+  $('lvDate').value = todayIso; lvDates();
+}
+function lvGet(id){ const h=$(id+'H').value; return h ? `${h}:${$(id+'M').value||'00'}` : ''; }
+function lvSetT(id, v){ const [h,m]=(v||'').split(':'); $(id+'H').value=h||''; const ms=$(id+'M');
+  if (m && ![...ms.options].some(o=>o.value===m)){ const o=document.createElement('option'); o.value=o.textContent=m; ms.appendChild(o); } ms.value = h ? (m||'00') : ''; }
+function lvPeriod(){ return (document.querySelector('#lvPeriod input:checked')||{}).value || 'full'; }
+function lvDates(){ const a=$('lvDate').value, b=$('lvEnd').value; $('lvDateTh').textContent = a ? fullDate(a) : ''; $('lvEndTh').textContent = b ? (b<a ? 'ต้องไม่ก่อนวันที่ลา' : fullDate(b)+(a?` · รวม ${Math.round((parseIso(b)-parseIso(a))/864e5)+1} วัน`:'')) : ''; if (a) $('lvEnd').min = a; }
+function lvRead(){
+  const who=(document.querySelector('#lvWho input:checked')||{}).value||'';
+  const date=$('lvDate').value, endDate=$('lvEnd').value||date, period=lvPeriod();
+  return {id:lvEditing||'', who, date, endDate, period, start: period==='time'?lvGet('lvStart'):'', end: period==='time'?lvGet('lvEnd'):'', leaveType:$('lvType').value.trim(), note:$('lvNote').value.trim()};
+}
+function lvMsg(t, err){ const m=$('lvMsg'); m.textContent=t||''; m.className='fmsg'+(err?' err':''); }
+function lvValidate(d){
+  if (!d.who) return 'กรุณาเลือกอาจารย์';
+  if (!d.date) return 'กรุณาเลือกวันที่ลา';
+  if (d.endDate < d.date) return '"ถึงวันที่" ต้องไม่ก่อนวันที่ลา';
+  if (lvDays(d) > 120) return 'ลาต่อเนื่องได้ไม่เกิน 120 วันต่อ 1 รายการ';
+  if (d.period==='time'){ if (!d.start || !d.end) return 'กรุณาเลือกเวลาที่ลา (ตั้งแต่–ถึง)'; if (hmMin(d.start) >= hmMin(d.end)) return 'เวลาสิ้นสุดการลาต้องอยู่หลังเวลาเริ่ม'; }
+  const dup = LEAVES.find(l => l.id!==d.id && l.who===d.who && l.date<=d.endDate && d.date<=l.endDate && (l.period==='full' || d.period==='full' || spanOverlap(lvBlock(l), lvBlock(d))));
+  if (dup) return `มีวันลาของ ${TEACHERS[d.who].short} ในช่วงนี้แล้ว (${lvLabel(dup)} ${lvRange(dup)}) — แก้รายการเดิมแทน`;
+  return '';
+}
+// งานเดิมของอาจารย์ที่อยู่ในช่วงลา
+function lvBusyList(d){
+  if (!d.who || !d.date) return [];
+  if (d.period==='time' && !(d.start && d.end && hmMin(d.start)<hmMin(d.end))) return [];
+  const seen=new Set();
+  return EVENTS.filter(e => e.who===d.who && e.date>=d.date && e.date<=(d.endDate||d.date) && e._st!=='off' && lvHit(d, e._sp))
+    .filter(e => { const k=(e.id||e.xk)+'|'+e.date; if (seen.has(k)) return false; seen.add(k); return true; });
+}
+function lvCheck(){
+  const d=lvRead(), box=$('lvBusy');
+  $('lvTimeBox').hidden = d.period!=='time';
+  $('lvAmTx').textContent = `ปฏิบัติงานตั้งแต่ ${minTh(LEAVE_SPLIT)} น.`; $('lvPmTx').textContent = `ปฏิบัติงานถึง ${minTh(LEAVE_SPLIT)} น.`;
+  lvConfirmBusy = false; $('lvSave').textContent = lvEditing ? 'บันทึกการแก้ไข' : 'บันทึกวันลา';
+  const list = lvBusyList(d);
+  box.hidden = !list.length;
+  if (list.length) box.innerHTML = `<b>⚠ มีงานของ${esc(TEACHERS[d.who].short)}ในช่วงที่ลา ${list.length} รายการ</b><ul>${list.map(e=>`<li class="t-${e.who}"><span class="sw"></span><span><b>${esc(shortDate(e.date))}</b> ${esc(cfText(e))}${e.status?` <small>(${esc(e.status)})</small>`:''} ${e.src==='form'&&e.id?`<a href="#edit-${encodeURIComponent(e.id)}" data-lvedit="${esc(e.id)}">แก้งานนี้</a>`:''}</span></li>`).join('')}</ul><small>บันทึกวันลาได้ แต่งานเหล่านี้จะขึ้นเตือน "อยู่ในช่วงวันลา" ควรเปลี่ยนสถานะเป็น ขัดข้อง / เลื่อน หรือย้ายเวลา</small>`;
+  box.querySelectorAll('[data-lvedit]').forEach(a => a.onclick = ev => { ev.preventDefault(); const doc=FORM_DOCS.find(x=>x.id===a.dataset.lvedit); if (doc) fillForm(doc); });
+  return list;
+}
+function lvReset(keep){
+  lvEditing = null; lvConfirmDel = null; $('leaveForm').reset();
+  if (keep && keep.who){ const r=document.querySelector(`#lvWho input[value="${keep.who}"]`); if (r) r.checked=true; }
+  $('lvDate').value = (keep && keep.date) || todayIso; $('lvEnd').value='';
+  $('lvTitle').textContent = 'บันทึกวันลาของอาจารย์'; $('lvDelete').hidden = true; lvDelArm(false);
+  document.querySelectorAll('#lvWho label,#lvPeriod label').forEach(x=>x.classList.remove('bad')); $('lvWho').classList.remove('bad');
+  lvDates(); lvCheck(); renderLeaveList();
+}
+function lvFill(l){
+  lvEditing = l.id; lvConfirmDel = null;
+  document.querySelectorAll('#lvWho input').forEach(i => i.checked = i.value===l.who);
+  $('lvType').value = l.leaveType||''; $('lvDate').value = l.date; $('lvEnd').value = l.endDate>l.date ? l.endDate : '';
+  document.querySelectorAll('#lvPeriod input').forEach(i => i.checked = i.value===l.period);
+  lvSetT('lvStart', l.period==='time'?l.start:''); lvSetT('lvEnd', l.period==='time'?l.end:'');
+  $('lvNote').value = l.note||'';
+  $('lvTitle').textContent = `แก้ไขวันลา · ${TEACHERS[l.who].short}`; $('lvDelete').hidden = !canWrite; lvDelArm(false);
+  lvDates(); lvCheck(); lvMsg(''); renderLeaveList();
+  $('leave').scrollIntoView({behavior:'smooth', block:'start'});
+}
+function lvDelArm(on){ const b=$('lvDelete'); b.classList.toggle('armed', !!on); b.textContent = on ? 'ยืนยันลบวันลานี้' : 'ลบวันลานี้'; }
+function lvPatchSnap(j){ try{ const s=JSON.parse(localStorage.getItem(SNAP_KEY)||'null'); if (s && s.j){ s.j.leaves=j.leaves; s.j.leaveSplit=j.leaveSplit; localStorage.setItem(SNAP_KEY, JSON.stringify(s)); } }catch(_){} }
+function lvApplyResult(j){ setLeaves(j.leaves, j.leaveSplit); LEAVE_API = true; lvPatchSnap(j); buildEvents(); renderAll(); }
+function lvErr(e){
+  if (e && e.code==='unknown_action') return 'Apps Script ยังเป็นเวอร์ชันเก่า ยังไม่รองรับวันลา กรุณาอัปเดต Apps Script เป็นเวอร์ชัน 2026-10-20 leave';
+  if (e && e.code==='unauthorized'){ setKey(''); showGate('หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่ ข้อมูลที่กรอกไว้ยังอยู่'); }
+  return errText(e);
+}
+async function lvSave(ev){
+  ev.preventDefault();
+  if (!DB || !canWrite){ lvMsg('บัญชีนี้บันทึกวันลาไม่ได้', true); return; }
+  const d = lvRead(), bad = lvValidate(d);
+  $('lvWho').classList.toggle('bad', !d.who);
+  if (bad){ lvMsg(bad, true); return; }
+  const busy = lvBusyList(d);
+  if (busy.length && !lvConfirmBusy){
+    lvConfirmBusy = true; $('lvSave').textContent = 'บันทึกวันลาทั้งที่มีงาน';
+    lvMsg(`มีงานในช่วงที่ลา ${busy.length} รายการ ตรวจสอบด้านบน ถ้าถูกต้องแล้วกดอีกครั้ง`, true);
+    $('lvBusy').scrollIntoView({behavior:'smooth', block:'center'}); return;
+  }
+  $('lvSave').disabled = true; lvMsg('กำลังบันทึก…');
+  try{
+    const j = await DB.call('leave_save', {data: d});
+    const wasEdit = !!lvEditing, who = d.who;
+    lvApplyResult(j);
+    lvReset({who, date: d.date});
+    lvMsg(`${wasEdit?'แก้ไขวันลาแล้ว':'บันทึกวันลาแล้ว'} · ${TEACHERS[who].short} ${lvLabel(j.leave||d)} ${lvRange(j.leave||d)}${j.busy&&j.busy.length?` · มีงานในช่วงลา ${j.busy.length} รายการ ควรแก้สถานะ`:''}`);
+  }catch(e){ lvMsg('บันทึกวันลาไม่สำเร็จ: '+lvErr(e), true); }
+  finally{ $('lvSave').disabled = !canWrite; }
+}
+async function lvDelete(id){
+  lvMsg('กำลังลบ…');
+  try{ const j = await DB.call('leave_delete', {id}); lvApplyResult(j); if (lvEditing===id) lvReset(); lvConfirmDel=null; renderLeaveList(); lvMsg('ลบวันลาแล้ว'); }
+  catch(e){ lvMsg('ลบไม่สำเร็จ: '+lvErr(e), true); }
+}
+function renderLeaveList(){
+  const el=$('lvList'); if (!el) return;
+  const past = $('lvPast').checked, from = past ? '' : todayIso;
+  const list = LEAVES.filter(l => l.endDate >= from).sort((a,b) => past ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date));
+  if (!list.length){ el.innerHTML = `<div class="fempty">${LEAVES.length && !past ? 'ไม่มีวันลาที่จะถึง' : 'ยังไม่มีวันลาที่บันทึกไว้'}</div>`; return; }
+  el.innerHTML = list.map(l => `<article class="fitem lvitem t-${l.who}${l.endDate<todayIso?' past':''}${lvEditing===l.id?' editing':''}">
+    <div class="r1"><b>${esc(lvRange(l))}</b>${l.endDate>l.date?`<span>${lvDays(l)} วัน</span>`:''}<span class="lvk">${esc(l.leaveType||'ลา')}</span><span class="pill none" style="margin-left:auto">${esc(lvWhen(l))}</span></div>
+    <div class="meta"><span class="av sm t-${l.who}">${TEACHERS[l.who].ini}</span> ${esc(TEACHERS[l.who].name)}</div>
+    ${l.period!=='full'?`<div class="meta">${esc(lvWork(l))}</div>`:''}${l.note?`<div class="meta">${esc(l.note)}</div>`:''}
+    ${canWrite ? (lvConfirmDel===l.id
+      ? `<div class="confirm">ลบวันลานี้? <button class="btn sm danger" data-lvdel="${esc(l.id)}">ลบ</button><button class="btn sm" data-lvcancel="1">ยกเลิก</button></div>`
+      : `<div class="acts"><button class="btn sm" data-lvfill="${esc(l.id)}">แก้ไข</button><button class="btn sm danger" data-lvask="${esc(l.id)}">ลบ</button></div>`) : ''}
+  </article>`).join('');
+  el.querySelectorAll('[data-lvfill]').forEach(b => b.onclick = () => { const l=LEAVES.find(x=>x.id===b.dataset.lvfill); if (l) lvFill(l); });
+  el.querySelectorAll('[data-lvask]').forEach(b => b.onclick = () => { lvConfirmDel=b.dataset.lvask; renderLeaveList(); });
+  el.querySelectorAll('[data-lvcancel]').forEach(b => b.onclick = () => { lvConfirmDel=null; renderLeaveList(); });
+  el.querySelectorAll('[data-lvdel]').forEach(b => b.onclick = () => lvDelete(b.dataset.lvdel));
+}
+function lvApplyWrite(){
+  const n=$('lvNotice'); if (!n) return;
+  if (LEAVE_API===false){ n.hidden=false; n.className='fnotice'; n.textContent='Apps Script ยังเป็นเวอร์ชันเก่า ยังไม่รองรับวันลา ต้องอัปเดต Apps Script เป็นเวอร์ชัน 2026-10-20 leave ก่อน'; }
+  else if (ROLE && !canWrite){ n.hidden=false; n.className='fnotice'; n.textContent='บัญชีนี้มีสิทธิ์ดูอย่างเดียว บันทึกวันลาไม่ได้'; }
+  else n.hidden=true;
+  document.querySelectorAll('#leaveForm input,#leaveForm select,#lvSave').forEach(x=>x.disabled=!canWrite);
+  renderLeaveList();
+}
+// ลิงก์จากหน้าอื่น: #leave · #leave-2026-10-21 · #leave-AS-2026-10-21 · #leaveedit-<id>
+let lvHashDone = false;
+function lvHash(){
+  const h = decodeURIComponent(location.hash||'');
+  if (lvHashDone || PAGE!=='form' || !/^#leave/.test(h)) return;
+  if (editingId || editingExcel){ resetForm(); setMsg(''); } // มาบันทึกวันลา → ออกจากโหมดแก้ไขงาน
+  if (h.startsWith('#leaveedit-')){
+    if (!LAST_SYNC && !LEAVES.length) return; // รอข้อมูล
+    lvHashDone = true; const l = LEAVES.find(x=>x.id===h.slice(11));
+    if (l) lvFill(l); else { lvMsg('ไม่พบวันลานี้ อาจถูกลบไปแล้ว', true); $('leave').scrollIntoView({block:'start'}); }
+    return;
+  }
+  lvHashDone = true;
+  const m = h.match(/^#leave-(?:([A-Z]+)-)?(\d{4}-\d{2}-\d{2})$/);
+  if (m){ if (m[1] && TEACHERS[m[1]]){ const r=document.querySelector(`#lvWho input[value="${m[1]}"]`); if (r) r.checked=true; } $('lvDate').value=m[2]; lvDates(); lvCheck(); }
+  setTimeout(() => $('leave').scrollIntoView({behavior:'smooth', block:'start'}), 60);
+}
+lvInit();
+$('leaveForm').addEventListener('submit', lvSave);
+$('lvReset').onclick = () => { lvReset(); lvMsg(''); };
+$('lvPast').onchange = renderLeaveList;
+$('lvDelete').onclick = () => {
+  if (!lvEditing || !canWrite) return; const b=$('lvDelete');
+  if (!b.classList.contains('armed')){ lvDelArm(true); lvMsg('กด "ยืนยันลบวันลานี้" อีกครั้งเพื่อลบ', true); clearTimeout(b._t); b._t=setTimeout(()=>{ if (b.classList.contains('armed')){ lvDelArm(false); lvMsg(''); } }, 8000); return; }
+  lvDelArm(false); lvDelete(lvEditing);
+};
+['lvDate','lvEnd'].forEach(id => { $(id).addEventListener('change', () => { lvDates(); lvCheck(); }); $(id).addEventListener('input', lvDates); });
+['lvStartH','lvStartM','lvEndH','lvEndM'].forEach(id => $(id).addEventListener('change', () => { const p=id.slice(0,-1); if ($(p+'H').value && !$(p+'M').value) $(p+'M').value='00'; lvCheck(); }));
+$('lvWho').addEventListener('change', () => { $('lvWho').classList.remove('bad'); lvCheck(); });
+$('lvPeriod').addEventListener('change', lvCheck);
+window.addEventListener('hashchange', () => { if (/^#leave/.test(location.hash)){ lvHashDone=false; lvHash(); } });
 let hashDone=false;
 function onData(){
   if (DATA_LO){ const a=DATA_LO.split('-').map(Number), z=DATA_HI.split('-').map(Number);
@@ -1982,6 +2298,7 @@ function onData(){
     hashDone=true; const doc=FORM_DOCS.find(d=>d.id===location.hash.slice(6));
     if (doc){ fillForm(doc); } else setMsg('ไม่พบรายการนี้ อาจถูกลบไปแล้ว', true);
   }
+  lvHash(); if (PAGE==='form') lvCheck();
 }
 function showGate(msg){ $('gate').hidden=false; $('gateMsg').textContent=msg||''; $('idleWarn').hidden=true; if (!$('gateUser').value) $('gateUser').value=lastUsername(); setTimeout(()=>($('gateUser').value?$('gateKey'):$('gateUser')).focus(),50); }
 const OUT_KEY='tt-logged-out';
@@ -2037,7 +2354,7 @@ function doLogout(){
   setKey(''); CAN_LOGS=false; setUser(null); setLoggedOut(true); ROLE=null;
   try{ localStorage.removeItem(ALERT_KEY); }catch(_){}
   // ล้างข้อมูลบนหน้าและแสดงหน้าใส่รหัสทันที
-  FORM_DOCS=[]; buildEvents(); renderAll(); closeEvModal(); closeAlert(false);
+  FORM_DOCS=[]; setLeaves([]); buildEvents(); renderAll(); closeEvModal(); closeAlert(false);
   $('gateKey').value=''; updateLogout(); syncState('ออกจากระบบแล้ว', true); showGate('ออกจากระบบแล้ว');
 }
 $('logoutBtn').onclick = doLogout; $('logoutTop').onclick = doLogout;

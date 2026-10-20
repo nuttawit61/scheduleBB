@@ -7,6 +7,8 @@
  *   - holidays : วันหยุด (date, name)
  *   - users    : บัญชีผู้ใช้ (รหัสผ่านเก็บแบบเข้ารหัสทางเดียว ไม่มีใครอ่านรหัสจริงได้)
  *   - logs     : ประวัติการใช้งาน ใครเพิ่ม/แก้/ลบงานอะไร เมื่อไร และการจัดการบัญชี (ระบบสร้างชีตให้เอง)
+ *   - leaves   : วันลาของอาจารย์ (ระบบสร้างชีตให้เอง) — วันที่อาจารย์ลาทั้งวันจะลงงานไม่ได้
+ *                ลาครึ่งวัน/บางช่วงเวลา ลงงานได้เฉพาะช่วงที่อาจารย์ปฏิบัติงาน (ตรวจทั้งหน้าเว็บและที่นี่)
  *
  * ผู้ใช้สมัครและตั้งรหัสผ่านเองที่หน้า register.html แล้วรอผู้ดูแลระบบอนุมัติในหน้า account.html
  * ลืมรหัสผ่าน: ผู้ใช้ตั้งรหัสใหม่เองที่หน้าเดียวกัน แล้วรอผู้ดูแลอนุมัติ (รหัสเดิมใช้ได้จนกว่าจะอนุมัติ)
@@ -36,14 +38,22 @@ const CONFIG = {
   MAX_PENDING: 30,       // รับคำขอสมัครที่รออนุมัติได้สูงสุดกี่รายการ (กันการสมัครรัว ๆ)
   LOG_LOGINS: true,      // บันทึกการเข้าสู่ระบบลงประวัติด้วย
   LOG_VIEWERS: ['admin'],// สิทธิ์ที่เปิดดูหน้าประวัติการใช้งานได้ (เพิ่ม 'edit' ถ้าอยากให้ผู้บันทึกงานดูได้ด้วย)
+  LEAVE_HALF_SPLIT: '12:00', // เวลาแบ่งครึ่งวัน: ลาครึ่งวันเช้า = ลงงานได้ตั้งแต่เวลานี้ · ลาครึ่งวันบ่าย = ลงงานได้ถึงเวลานี้
+  LEAVE_MAX_DAYS: 120,       // ลาต่อเนื่องได้สูงสุดกี่วันต่อ 1 รายการ
 };
 
-const APP_VERSION = '2026-10-19 temp-password';  // เปิดลิงก์ /exec ในเบราว์เซอร์ จะเห็นเลขเวอร์ชันนี้ ถ้าไม่ตรง แปลว่ายังไม่ได้ทำให้ใช้งานได้เวอร์ชันใหม่
+const APP_VERSION = '2026-10-20 leave';  // เปิดลิงก์ /exec ในเบราว์เซอร์ จะเห็นเลขเวอร์ชันนี้ ถ้าไม่ตรง แปลว่ายังไม่ได้ทำให้ใช้งานได้เวอร์ชันใหม่
 
 const SHEET_ENTRIES = 'entries';
 const SHEET_HOLIDAYS = 'holidays';
 const SHEET_USERS = 'users';
 const SHEET_LOGS = 'logs';
+const SHEET_LEAVES = 'leaves';
+// ชีต leaves: 1 แถว = การลา 1 ครั้งของอาจารย์ 1 ท่าน (ลาหลายวันติดกันใช้ date ถึง endDate)
+//   period: full = ทั้งวัน, am = ครึ่งวันเช้า, pm = ครึ่งวันบ่าย, time = บางช่วงเวลา (ใช้ start-end)
+const LEAVE_FIELDS = ['id', 'who', 'teacherName', 'date', 'endDate', 'period', 'start', 'end', 'leaveType', 'note',
+  'createdAt', 'updatedAt', 'createdBy', 'updatedBy'];
+const LEAVE_PERIOD_TH = { full: 'ทั้งวัน', am: 'ครึ่งวันเช้า', pm: 'ครึ่งวันบ่าย', time: 'บางช่วงเวลา' };
 const LOG_FIELDS = ['time', 'username', 'name', 'action', 'target', 'entryId', 'entryDate', 'summary', 'changes'];
 
 // ลำดับคอลัมน์ในชีต entries (แถวที่ 1 เป็นหัวตาราง)
@@ -97,6 +107,7 @@ function setup() {
 
   pepper_(); // สร้างค่าลับสำหรับเข้ารหัสรหัสผ่าน (ครั้งแรกเท่านั้น)
   logSheet_(); // ชีตประวัติการใช้งาน
+  leaveSheet_(); // ชีตวันลา
 
   // ลบรหัสกลางแบบเดิม (ถ้ามี) เพราะเปลี่ยนมาใช้บัญชีรายคนแล้ว
   const props = PropertiesService.getScriptProperties();
@@ -194,7 +205,7 @@ function handle_(p) {
       if (r.ok && p.withData && !r.user.mustChange) {
         const u = findUser_(r.user.username);
         r.pending = pendingCount_(u); r.canViewLogs = CONFIG.LOG_VIEWERS.indexOf(u.role) >= 0;
-        r.entries = readEntries_(); r.holidays = readHolidays_(); r.serverTime = now_();
+        r.entries = readEntries_(); r.holidays = readHolidays_(); r.leaves = readLeaves_(); r.leaveSplit = CONFIG.LEAVE_HALF_SPLIT; r.serverTime = now_();
       }
       return out_(r);
     }
@@ -213,7 +224,7 @@ function handle_(p) {
     // บัญชีที่ใช้รหัสชั่วคราวต้องตั้งรหัสใหม่ก่อน
     if (me.mustChange) return out_({ ok: false, error: 'must_change' });
 
-    if (action === 'list') return out_({ ok: true, role: dataRole_(me), user: publicUser_(me), pending: pendingCount_(me), canViewLogs: CONFIG.LOG_VIEWERS.indexOf(me.role) >= 0, entries: readEntries_(), holidays: readHolidays_(), serverTime: now_() });
+    if (action === 'list') return out_({ ok: true, role: dataRole_(me), user: publicUser_(me), pending: pendingCount_(me), canViewLogs: CONFIG.LOG_VIEWERS.indexOf(me.role) >= 0, entries: readEntries_(), holidays: readHolidays_(), leaves: readLeaves_(), leaveSplit: CONFIG.LEAVE_HALF_SPLIT, serverTime: now_() });
 
     if (action === 'logs_list') {
       if (CONFIG.LOG_VIEWERS.indexOf(me.role) < 0) return out_({ ok: false, error: 'forbidden' });
@@ -236,6 +247,9 @@ function handle_(p) {
       if (action === 'create') return out_({ ok: true, entry: createEntry_(p.data || {}, me) });
       if (action === 'update') return out_({ ok: true, entry: updateEntry_(String(p.id || ''), p.data || {}, me) });
       if (action === 'delete') { deleteEntry_(String(p.id || ''), me); return out_({ ok: true }); }
+      // วันลาของอาจารย์ (สิทธิ์เดียวกับการบันทึกงาน)
+      if (action === 'leave_save') { const r = saveLeave_(p.data || {}, me); return out_({ ok: true, leave: r.leave, busy: r.busy, leaves: readLeaves_(), leaveSplit: CONFIG.LEAVE_HALF_SPLIT }); }
+      if (action === 'leave_delete') { deleteLeave_(String(p.id || ''), me); return out_({ ok: true, leaves: readLeaves_(), leaveSplit: CONFIG.LEAVE_HALF_SPLIT }); }
       return out_({ ok: false, error: 'unknown_action' });
     });
   } catch (err) {
@@ -787,6 +801,7 @@ function createEntry_(data, me) {
   const sh = sheet_(SHEET_ENTRIES);
   ensureHeader_(sh, FIELDS); // เพิ่มคอลัมน์ใหม่ (เช่น docChannel) ให้อัตโนมัติ
   const o = clean_(data);
+  checkLeave_(o);
   o.id = Utilities.getUuid();
   o.source = 'web';
   o.createdAt = o.updatedAt = now_();
@@ -809,6 +824,7 @@ function updateEntry_(id, data, me) {
   const hm = headerMap_(sh);
   const current = sh.getRange(r, 1, 1, hm.head.length).getDisplayValues()[0];
   const o = clean_(data);
+  checkLeave_(o);
   o.id = id;
   o.source = current[hm.map.source] || 'web';
   o.createdAt = current[hm.map.createdAt] || now_();
@@ -878,6 +894,7 @@ function importEntries_(p, me) {
   const tag = 'นำเข้าจาก Excel' + (file ? ' (' + file + ')' : '');
   const res = { ok: true, created: [], updated: [], conflicts: [], errors: [] };
   const logs = [];
+  const leaves = readLeaves_();
 
   // แก้งานเดิม
   updates.forEach(u => {
@@ -891,7 +908,7 @@ function importEntries_(p, me) {
       return;
     }
     let o;
-    try { o = clean_(u.data || {}); } catch (e) { res.errors.push({ key: key, id: id, msg: e.message }); return; }
+    try { o = clean_(u.data || {}); checkLeave_(o, leaves); } catch (e) { res.errors.push({ key: key, id: id, msg: e.message }); return; }
     o.id = id;
     o.source = cur('source') || 'excel';
     o.createdAt = cur('createdAt') || now;
@@ -915,7 +932,7 @@ function importEntries_(p, me) {
   creates.forEach(c => {
     const key = String(c.key || '');
     let o;
-    try { o = clean_(c.data || {}); } catch (e) { res.errors.push({ key: key, msg: e.message }); return; }
+    try { o = clean_(c.data || {}); checkLeave_(o, leaves); } catch (e) { res.errors.push({ key: key, msg: e.message }); return; }
     o.id = Utilities.getUuid();
     o.source = 'excel';
     o.createdAt = o.updatedAt = now;
@@ -934,7 +951,223 @@ function importEntries_(p, me) {
   return res;
 }
 
+// ---------------------------------------------------------------------------
+// วันลาของอาจารย์ (ชีต leaves)
+//   ลาทั้งวัน      → วันนั้นลงงานของอาจารย์ท่านนั้นไม่ได้เลย
+//   ลาครึ่งวัน     → ลงงานได้เฉพาะช่วงที่ปฏิบัติงาน (แบ่งที่ CONFIG.LEAVE_HALF_SPLIT) และต้องระบุเวลาเริ่ม
+//   ลาบางช่วงเวลา  → ลงงานที่ทับช่วงที่ลาไม่ได้
+//   งานที่สถานะของอาจารย์ท่านนั้นเป็น เลื่อน/ขัดข้อง/ยกเลิก/ไม่เข้าร่วม ไม่ถือว่าชน (บันทึกได้)
+// ---------------------------------------------------------------------------
+const OFF_STATUS_RE = /เลื่อน|ขัดข้อง|ยกเลิก|ไม่เข้าร่วม/;
+
+function leaveSheet_() {
+  const ss = SpreadsheetApp.getActive();
+  let sh = ss.getSheetByName(SHEET_LEAVES);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_LEAVES);
+    sh.getRange(1, 1, sh.getMaxRows(), Math.max(sh.getMaxColumns(), LEAVE_FIELDS.length)).setNumberFormat('@');
+    sh.getRange(1, 1, 1, LEAVE_FIELDS.length).setValues([LEAVE_FIELDS]).setFontWeight('bold').setBackground('#f3e3e6');
+    sh.setFrozenRows(1);
+  } else {
+    ensureHeader_(sh, LEAVE_FIELDS);
+  }
+  return sh;
+}
+
+function readLeaves_() {
+  const sh = SpreadsheetApp.getActive().getSheetByName(SHEET_LEAVES);
+  if (!sh || sh.getLastRow() < 2) return [];
+  const values = sh.getDataRange().getDisplayValues();
+  const map = headerMap_(sh).map;
+  const out = [];
+  for (let r = 1; r < values.length; r++) {
+    const row = values[r];
+    if (!row.join('')) continue;
+    const o = {};
+    LEAVE_FIELDS.forEach(f => { o[f] = map[f] !== undefined ? String(row[map[f]] || '').trim() : ''; });
+    o.date = normDate_(o.date);
+    o.endDate = normDate_(o.endDate) || o.date;
+    if (o.endDate < o.date) o.endDate = o.date;
+    if (!o.id || !TEACHER_NAMES[o.who] || !/^\d{4}-\d{2}-\d{2}$/.test(o.date)) continue;
+    if (!LEAVE_PERIOD_TH[o.period]) o.period = 'full';
+    o.start = normHm_(o.start); o.end = normHm_(o.end);
+    if (o.period === 'time' && !(o.start && o.end && hmMin_(o.start) < hmMin_(o.end))) o.period = 'full';
+    out.push(o);
+  }
+  out.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+  return out;
+}
+
+// '9.00' / '09:00' → '09:00'
+function normHm_(v) {
+  const m = String(v || '').trim().match(/^(\d{1,2})[.:](\d{2})/);
+  if (!m || +m[1] > 24 || +m[2] > 59) return '';
+  return pad_(m[1]) + ':' + m[2];
+}
+function hmMin_(v) { const m = String(v || '').match(/^(\d{1,2})[.:](\d{2})/); return m ? +m[1] * 60 + +m[2] : null; }
+function hmTh_(min) { return pad_(Math.floor(min / 60)) + '.' + pad_(min % 60) + ' น.'; }
+
+// ช่วงที่ลา (นาทีของวัน) [เริ่ม, สิ้นสุด)
+function leaveBlock_(lv) {
+  const split = hmMin_(CONFIG.LEAVE_HALF_SPLIT) || 720;
+  if (lv.period === 'am') return [0, split];
+  if (lv.period === 'pm') return [split, 1440];
+  if (lv.period === 'time') return [hmMin_(lv.start), hmMin_(lv.end)];
+  return [0, 1440];
+}
+
+// ข้อความ เช่น "ลาพักผ่อน ครึ่งวันเช้า" และช่วงที่ลงงานได้
+function leaveLabel_(lv) {
+  const type = lv.leaveType || 'ลา';
+  if (lv.period === 'time') return type + ' ' + lv.start.replace(':', '.') + '–' + lv.end.replace(':', '.') + ' น.';
+  return type + ' ' + LEAVE_PERIOD_TH[lv.period];
+}
+function leaveWorkText_(lv) {
+  const split = hmMin_(CONFIG.LEAVE_HALF_SPLIT) || 720;
+  if (lv.period === 'am') return 'ลงงานได้ตั้งแต่ ' + hmTh_(split) + ' เป็นต้นไป';
+  if (lv.period === 'pm') return 'ลงงานได้ก่อน ' + hmTh_(split) + ' เท่านั้น';
+  if (lv.period === 'time') return 'ลงงานได้นอกช่วง ' + lv.start.replace(':', '.') + '–' + lv.end.replace(':', '.') + ' น.';
+  return 'ลงงานวันนี้ไม่ได้';
+}
+
+// ช่วงเวลาของงาน (นาที) — กติกาเดียวกับหน้าเว็บ (evSpan)
+function entrySpan_(o) {
+  let s = hmMin_(o.start), en = hmMin_(o.end);
+  const t = String(o.time || '');
+  if (s == null) { const m = t.match(/(\d{1,2})[.:](\d{2})(?:\s*(?:-|–|ถึง)\s*(\d{1,2})[.:](\d{2}))?/); if (m) { s = +m[1] * 60 + +m[2]; if (m[3] != null) en = +m[3] * 60 + +m[4]; } }
+  if (s == null) { if (/ทั้งวัน|เต็มวัน/.test(t)) { s = 480; en = 990; } else if (/เช้า/.test(t)) { s = 480; en = 720; } else if (/บ่าย/.test(t)) { s = 780; en = 990; } }
+  if (s == null) return null;
+  if (en == null || en <= s) { const h = parseFloat(o.hours); en = s + (h > 0 ? Math.round(h * 60) : 60); }
+  return [s, en];
+}
+
+function shortDateTh_(d) {
+  const M = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  const p = String(d).split('-');
+  return p.length === 3 ? (+p[2]) + ' ' + M[+p[1] - 1] + ' ' + String(+p[0] + 543).slice(2) : d;
+}
+
+// งาน o (หลัง clean_) ชนกับวันลาไหม — ชนแล้วโยน error 'on_leave' พร้อมเหตุผล
+function checkLeave_(o, leaves) {
+  leaves = leaves || readLeaves_();
+  if (!leaves.length) return;
+  let sb = {}; try { sb = JSON.parse(o.statusBy || '{}') || {}; } catch (e) { sb = {}; }
+  const sp = entrySpan_(o);
+  const msgs = [];
+  String(o.who || '').split(',').filter(Boolean).forEach(w => {
+    const st = sb[w] || o.status || '';
+    if (OFF_STATUS_RE.test(st)) return;
+    leaves.forEach(lv => {
+      if (lv.who !== w || o.date < lv.date || o.date > lv.endDate) return;
+      const b = leaveBlock_(lv);
+      const hit = lv.period === 'full' || !sp || (sp[0] < b[1] && b[0] < sp[1]);
+      if (!hit) return;
+      msgs.push((TEACHER_NAMES[w] || w) + ' ' + leaveLabel_(lv) + ' วันที่ ' + shortDateTh_(o.date) + ' — ' + leaveWorkText_(lv)
+        + (lv.period !== 'full' && !sp ? ' (กรุณาระบุเวลาเริ่ม)' : ''));
+    });
+  });
+  if (msgs.length) throw fail_('on_leave', msgs.join(' · '));
+}
+
+function cleanLeave_(d) {
+  const o = {};
+  o.who = String(d.who || '').trim();
+  if (!TEACHER_NAMES[o.who]) throw fail_('invalid_argument', 'กรุณาเลือกอาจารย์');
+  o.teacherName = TEACHER_NAMES[o.who];
+  o.date = normDate_(d.date);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(o.date)) throw fail_('invalid_argument', 'วันที่ลาไม่ถูกต้อง');
+  o.endDate = normDate_(d.endDate) || o.date;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(o.endDate)) throw fail_('invalid_argument', 'วันที่สิ้นสุดการลาไม่ถูกต้อง');
+  if (o.endDate < o.date) throw fail_('invalid_argument', 'วันที่สิ้นสุดต้องไม่ก่อนวันเริ่มลา');
+  const days = Math.round((new Date(o.endDate + 'T00:00:00Z') - new Date(o.date + 'T00:00:00Z')) / 864e5) + 1;
+  if (days > CONFIG.LEAVE_MAX_DAYS) throw fail_('invalid_argument', 'ลาต่อเนื่องได้ไม่เกิน ' + CONFIG.LEAVE_MAX_DAYS + ' วันต่อ 1 รายการ');
+  o.period = LEAVE_PERIOD_TH[d.period] ? String(d.period) : 'full';
+  o.start = o.end = '';
+  if (o.period === 'time') {
+    o.start = normHm_(d.start); o.end = normHm_(d.end);
+    if (!o.start || !o.end) throw fail_('invalid_argument', 'กรุณาระบุเวลาที่ลา (เริ่ม–สิ้นสุด)');
+    if (hmMin_(o.start) >= hmMin_(o.end)) throw fail_('invalid_argument', 'เวลาสิ้นสุดการลาต้องอยู่หลังเวลาเริ่ม');
+  }
+  o.leaveType = String(d.leaveType || '').trim().slice(0, 60) || 'ลา';
+  o.note = String(d.note || '').trim().slice(0, 500);
+  return o;
+}
+
+function leaveSummary_(o) {
+  const range = o.endDate && o.endDate !== o.date ? shortDateTh_(o.date) + ' – ' + shortDateTh_(o.endDate) : shortDateTh_(o.date);
+  return (TEACHER_NAMES[o.who] || o.who) + ' ' + leaveLabel_(o) + ' ' + range;
+}
+const LEAVE_TH = { who: 'อาจารย์', date: 'วันที่ลา', endDate: 'ถึงวันที่', period: 'ช่วงที่ลา', start: 'เวลาเริ่ม', end: 'เวลาสิ้นสุด', leaveType: 'ประเภทการลา', note: 'หมายเหตุ' };
+function leaveChanges_(a, b) {
+  const show = (f, v) => f === 'who' ? (TEACHER_NAMES[v] || v || '') : f === 'period' ? (LEAVE_PERIOD_TH[v] || v || '') : String(v || '');
+  const out = [];
+  Object.keys(LEAVE_TH).forEach(f => {
+    const x = String(a[f] || ''), y = String(b[f] || '');
+    if (x !== y) out.push({ f: f, label: LEAVE_TH[f], from: show(f, x), to: show(f, y) });
+  });
+  return out;
+}
+
+// บันทึก / แก้วันลา — คืนงานที่อยู่ในช่วงลา (busy) ให้หน้าเว็บแจ้งเตือน ไม่ลบหรือแก้งานให้อัตโนมัติ
+function saveLeave_(data, me) {
+  const o = cleanLeave_(data);
+  const id = String(data.id || '').trim();
+  const sh = leaveSheet_();
+  const hm = headerMap_(sh);
+  const leaves = readLeaves_();
+  const clash = leaves.filter(l => l.id !== id && l.who === o.who && l.date <= o.endDate && o.date <= l.endDate)
+    .filter(l => { if (l.period === 'full' || o.period === 'full') return true; const a = leaveBlock_(l), b = leaveBlock_(o); return a[0] < b[1] && b[0] < a[1]; });
+  if (clash.length) throw fail_('leave_overlap', 'มีวันลาของ ' + TEACHER_NAMES[o.who] + ' ในช่วงนี้แล้ว: ' + clash.map(leaveSummary_).join(', ') + ' — แก้รายการเดิมแทน');
+  const stamp = me ? me.name + ' (' + me.username + ')' : '';
+  let before = null;
+  if (id) {
+    before = leaves.filter(l => l.id === id)[0];
+    if (!before) throw fail_('not_found', 'ไม่พบวันลานี้ อาจถูกลบไปแล้ว');
+    o.id = id; o.createdAt = before.createdAt; o.createdBy = before.createdBy;
+  } else {
+    o.id = Utilities.getUuid(); o.createdAt = now_(); o.createdBy = stamp;
+  }
+  o.updatedAt = now_(); o.updatedBy = stamp;
+  const row = rowFrom_(sh, o);
+  if (id) {
+    const r = findRow_(sh, id);
+    if (r < 0) throw fail_('not_found', 'ไม่พบวันลานี้ อาจถูกลบไปแล้ว');
+    const current = sh.getRange(r, 1, 1, hm.head.length).getDisplayValues()[0];
+    hm.head.forEach((h, i) => { if (LEAVE_FIELDS.indexOf(h) < 0) row[i] = current[i]; });
+    sh.getRange(r, 1, 1, row.length).setNumberFormat('@').setValues([row]);
+    const changes = leaveChanges_(before, o);
+    if (changes.length) log_(me, 'leave_update', { target: TEACHER_NAMES[o.who], entryId: o.id, entryDate: o.date,
+      summary: 'แก้ไขวันลา: ' + leaveSummary_(o) + ' (' + changes.map(c => c.label).join(', ') + ')', changes: changes });
+  } else {
+    sh.getRange(sh.getLastRow() + 1, 1, 1, row.length).setNumberFormat('@').setValues([row]);
+    log_(me, 'leave_create', { target: TEACHER_NAMES[o.who], entryId: o.id, entryDate: o.date,
+      summary: 'บันทึกวันลา: ' + leaveSummary_(o) + (o.note ? ' (' + o.note + ')' : ''), changes: leaveChanges_({}, o) });
+  }
+  // งานเดิมที่อยู่ในช่วงลา (ยังไม่ได้เลื่อน/ขัดข้อง)
+  const busy = [];
+  readEntries_().forEach(e => {
+    if (e.who.indexOf(o.who) < 0 || e.date < o.date || e.date > o.endDate) return;
+    let sb = {}; try { sb = JSON.parse(e.statusBy || '{}') || {}; } catch (x) { sb = {}; }
+    if (OFF_STATUS_RE.test(sb[o.who] || e.status || '')) return;
+    const sp = entrySpan_(e), b = leaveBlock_(o);
+    if (o.period === 'full' || !sp || (sp[0] < b[1] && b[0] < sp[1])) busy.push({ id: e.id, date: e.date, time: e.time, title: e.title });
+  });
+  return { leave: o, busy: busy };
+}
+
+function deleteLeave_(id, me) {
+  if (!id) throw fail_('invalid_argument', 'ไม่มี id');
+  const sh = SpreadsheetApp.getActive().getSheetByName(SHEET_LEAVES);
+  if (!sh) return;
+  const before = readLeaves_().filter(l => l.id === id)[0];
+  const r = findRow_(sh, id);
+  if (r < 0) return;
+  sh.deleteRow(r);
+  if (before) log_(me, 'leave_delete', { target: TEACHER_NAMES[before.who], entryId: id, entryDate: before.date,
+    summary: 'ลบวันลา: ' + leaveSummary_(before), changes: leaveChanges_(before, {}) });
+}
+
 // ทดสอบใน editor: ดูว่าอ่านข้อมูลได้กี่แถว
 function testList() {
-  Logger.log(readEntries_().length + ' รายการ, ' + Object.keys(readHolidays_()).length + ' วันหยุด');
+  Logger.log(readEntries_().length + ' รายการ, ' + Object.keys(readHolidays_()).length + ' วันหยุด, ' + readLeaves_().length + ' วันลา');
 }
