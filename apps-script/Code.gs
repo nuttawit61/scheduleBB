@@ -7,8 +7,8 @@
  *   - holidays : วันหยุด (date, name)
  *   - users    : บัญชีผู้ใช้ (รหัสผ่านเก็บแบบเข้ารหัสทางเดียว ไม่มีใครอ่านรหัสจริงได้)
  *   - logs     : ประวัติการใช้งาน ใครเพิ่ม/แก้/ลบงานอะไร เมื่อไร และการจัดการบัญชี (ระบบสร้างชีตให้เอง)
- *   - leaves   : วันลาของอาจารย์ (ระบบสร้างชีตให้เอง) — วันที่อาจารย์ลาทั้งวันจะลงงานไม่ได้
- *                ลาครึ่งวัน/บางช่วงเวลา ลงงานได้เฉพาะช่วงที่อาจารย์ปฏิบัติงาน (ตรวจทั้งหน้าเว็บและที่นี่)
+ *   - leaves   : วันลาของอาจารย์ (ระบบสร้างชีตให้เอง) — ลงงานในวันลาได้ (เช่น ลงไว้ก่อนอาจารย์ขอลา)
+ *                หน้าเว็บให้กดยืนยัน และงานนั้นขึ้นเตือน "อยู่ในช่วงวันลา" ในปฏิทิน
  *
  * ผู้ใช้สมัครและตั้งรหัสผ่านเองที่หน้า register.html แล้วรอผู้ดูแลระบบอนุมัติในหน้า account.html
  * ลืมรหัสผ่าน: ผู้ใช้ตั้งรหัสใหม่เองที่หน้าเดียวกัน แล้วรอผู้ดูแลอนุมัติ (รหัสเดิมใช้ได้จนกว่าจะอนุมัติ)
@@ -38,11 +38,11 @@ const CONFIG = {
   MAX_PENDING: 30,       // รับคำขอสมัครที่รออนุมัติได้สูงสุดกี่รายการ (กันการสมัครรัว ๆ)
   LOG_LOGINS: true,      // บันทึกการเข้าสู่ระบบลงประวัติด้วย
   LOG_VIEWERS: ['admin'],// สิทธิ์ที่เปิดดูหน้าประวัติการใช้งานได้ (เพิ่ม 'edit' ถ้าอยากให้ผู้บันทึกงานดูได้ด้วย)
-  LEAVE_HALF_SPLIT: '12:00', // เวลาแบ่งครึ่งวัน: ลาครึ่งวันเช้า = ลงงานได้ตั้งแต่เวลานี้ · ลาครึ่งวันบ่าย = ลงงานได้ถึงเวลานี้
+  LEAVE_HALF_SPLIT: '12:00', // เวลาแบ่งครึ่งวัน: ลาครึ่งวันเช้า = ปฏิบัติงานตั้งแต่เวลานี้ · ลาครึ่งวันบ่าย = ปฏิบัติงานถึงเวลานี้
   LEAVE_MAX_DAYS: 120,       // ลาต่อเนื่องได้สูงสุดกี่วันต่อ 1 รายการ
 };
 
-const APP_VERSION = '2026-10-20 leave';  // เปิดลิงก์ /exec ในเบราว์เซอร์ จะเห็นเลขเวอร์ชันนี้ ถ้าไม่ตรง แปลว่ายังไม่ได้ทำให้ใช้งานได้เวอร์ชันใหม่
+const APP_VERSION = '2026-10-20 leave-warn';  // เปิดลิงก์ /exec ในเบราว์เซอร์ จะเห็นเลขเวอร์ชันนี้ ถ้าไม่ตรง แปลว่ายังไม่ได้ทำให้ใช้งานได้เวอร์ชันใหม่
 
 const SHEET_ENTRIES = 'entries';
 const SHEET_HOLIDAYS = 'holidays';
@@ -801,7 +801,6 @@ function createEntry_(data, me) {
   const sh = sheet_(SHEET_ENTRIES);
   ensureHeader_(sh, FIELDS); // เพิ่มคอลัมน์ใหม่ (เช่น docChannel) ให้อัตโนมัติ
   const o = clean_(data);
-  checkLeave_(o);
   o.id = Utilities.getUuid();
   o.source = 'web';
   o.createdAt = o.updatedAt = now_();
@@ -824,7 +823,6 @@ function updateEntry_(id, data, me) {
   const hm = headerMap_(sh);
   const current = sh.getRange(r, 1, 1, hm.head.length).getDisplayValues()[0];
   const o = clean_(data);
-  checkLeave_(o);
   o.id = id;
   o.source = current[hm.map.source] || 'web';
   o.createdAt = current[hm.map.createdAt] || now_();
@@ -894,7 +892,6 @@ function importEntries_(p, me) {
   const tag = 'นำเข้าจาก Excel' + (file ? ' (' + file + ')' : '');
   const res = { ok: true, created: [], updated: [], conflicts: [], errors: [] };
   const logs = [];
-  const leaves = readLeaves_();
 
   // แก้งานเดิม
   updates.forEach(u => {
@@ -908,7 +905,7 @@ function importEntries_(p, me) {
       return;
     }
     let o;
-    try { o = clean_(u.data || {}); checkLeave_(o, leaves); } catch (e) { res.errors.push({ key: key, id: id, msg: e.message }); return; }
+    try { o = clean_(u.data || {}); } catch (e) { res.errors.push({ key: key, id: id, msg: e.message }); return; }
     o.id = id;
     o.source = cur('source') || 'excel';
     o.createdAt = cur('createdAt') || now;
@@ -932,7 +929,7 @@ function importEntries_(p, me) {
   creates.forEach(c => {
     const key = String(c.key || '');
     let o;
-    try { o = clean_(c.data || {}); checkLeave_(o, leaves); } catch (e) { res.errors.push({ key: key, msg: e.message }); return; }
+    try { o = clean_(c.data || {}); } catch (e) { res.errors.push({ key: key, msg: e.message }); return; }
     o.id = Utilities.getUuid();
     o.source = 'excel';
     o.createdAt = o.updatedAt = now;
@@ -953,10 +950,9 @@ function importEntries_(p, me) {
 
 // ---------------------------------------------------------------------------
 // วันลาของอาจารย์ (ชีต leaves)
-//   ลาทั้งวัน      → วันนั้นลงงานของอาจารย์ท่านนั้นไม่ได้เลย
-//   ลาครึ่งวัน     → ลงงานได้เฉพาะช่วงที่ปฏิบัติงาน (แบ่งที่ CONFIG.LEAVE_HALF_SPLIT) และต้องระบุเวลาเริ่ม
-//   ลาบางช่วงเวลา  → ลงงานที่ทับช่วงที่ลาไม่ได้
-//   งานที่สถานะของอาจารย์ท่านนั้นเป็น เลื่อน/ขัดข้อง/ยกเลิก/ไม่เข้าร่วม ไม่ถือว่าชน (บันทึกได้)
+//   ช่วงที่ลา: ทั้งวัน / ครึ่งวันเช้า / ครึ่งวันบ่าย (แบ่งที่ CONFIG.LEAVE_HALF_SPLIT) / ระบุเวลา
+//   ไม่บล็อกการลงงาน (20 ต.ค. 69 ผู้ใช้ขอ เพราะบางครั้งลงภาระงานก่อนอาจารย์ขอลา) — หน้าเว็บเตือนและให้กดยืนยันเอง
+//   งานที่สถานะของอาจารย์ท่านนั้นเป็น เลื่อน/ขัดข้อง/ยกเลิก/ไม่เข้าร่วม ไม่ถือว่าชน
 // ---------------------------------------------------------------------------
 const OFF_STATUS_RE = /เลื่อน|ขัดข้อง|ยกเลิก|ไม่เข้าร่วม/;
 
@@ -1016,18 +1012,11 @@ function leaveBlock_(lv) {
   return [0, 1440];
 }
 
-// ข้อความ เช่น "ลาพักผ่อน ครึ่งวันเช้า" และช่วงที่ลงงานได้
+// ข้อความ เช่น "ลาพักผ่อน ครึ่งวันเช้า"
 function leaveLabel_(lv) {
   const type = lv.leaveType || 'ลา';
   if (lv.period === 'time') return type + ' ' + lv.start.replace(':', '.') + '–' + lv.end.replace(':', '.') + ' น.';
   return type + ' ' + LEAVE_PERIOD_TH[lv.period];
-}
-function leaveWorkText_(lv) {
-  const split = hmMin_(CONFIG.LEAVE_HALF_SPLIT) || 720;
-  if (lv.period === 'am') return 'ลงงานได้ตั้งแต่ ' + hmTh_(split) + ' เป็นต้นไป';
-  if (lv.period === 'pm') return 'ลงงานได้ก่อน ' + hmTh_(split) + ' เท่านั้น';
-  if (lv.period === 'time') return 'ลงงานได้นอกช่วง ' + lv.start.replace(':', '.') + '–' + lv.end.replace(':', '.') + ' น.';
-  return 'ลงงานวันนี้ไม่ได้';
 }
 
 // ช่วงเวลาของงาน (นาที) — กติกาเดียวกับหน้าเว็บ (evSpan)
@@ -1045,28 +1034,6 @@ function shortDateTh_(d) {
   const M = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
   const p = String(d).split('-');
   return p.length === 3 ? (+p[2]) + ' ' + M[+p[1] - 1] + ' ' + String(+p[0] + 543).slice(2) : d;
-}
-
-// งาน o (หลัง clean_) ชนกับวันลาไหม — ชนแล้วโยน error 'on_leave' พร้อมเหตุผล
-function checkLeave_(o, leaves) {
-  leaves = leaves || readLeaves_();
-  if (!leaves.length) return;
-  let sb = {}; try { sb = JSON.parse(o.statusBy || '{}') || {}; } catch (e) { sb = {}; }
-  const sp = entrySpan_(o);
-  const msgs = [];
-  String(o.who || '').split(',').filter(Boolean).forEach(w => {
-    const st = sb[w] || o.status || '';
-    if (OFF_STATUS_RE.test(st)) return;
-    leaves.forEach(lv => {
-      if (lv.who !== w || o.date < lv.date || o.date > lv.endDate) return;
-      const b = leaveBlock_(lv);
-      const hit = lv.period === 'full' || !sp || (sp[0] < b[1] && b[0] < sp[1]);
-      if (!hit) return;
-      msgs.push((TEACHER_NAMES[w] || w) + ' ' + leaveLabel_(lv) + ' วันที่ ' + shortDateTh_(o.date) + ' — ' + leaveWorkText_(lv)
-        + (lv.period !== 'full' && !sp ? ' (กรุณาระบุเวลาเริ่ม)' : ''));
-    });
-  });
-  if (msgs.length) throw fail_('on_leave', msgs.join(' · '));
 }
 
 function cleanLeave_(d) {

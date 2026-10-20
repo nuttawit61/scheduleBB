@@ -371,7 +371,7 @@ function render(){
   $('list').innerHTML = days.map(d=>`<section class="day"><div class="dayhead">${dayLabel(d.d)} <small>${list.filter(x=>x._d===d.d).length} รายการ</small></div><div class="items">${d.items.map(l=>{
     const a=actOf(l.action);
     const open = (l.action==='entry_create'||l.action==='entry_update') && l.entryId ? `<a href="record.html#edit-${encodeURIComponent(l.entryId)}">เปิดงานนี้</a>`
-      : (l.action==='leave_create'||l.action==='leave_update') && l.entryId ? `<a href="record.html#leaveedit-${encodeURIComponent(l.entryId)}">เปิดวันลานี้</a>` : '';
+      : (l.action==='leave_create'||l.action==='leave_update') && l.entryId ? `<a href="leave.html#leaveedit-${encodeURIComponent(l.entryId)}">เปิดวันลานี้</a>` : '';
     return `<article class="it"><div class="tm">${esc(l._t)} น.</div><div class="av" style="background:${avColor(l.username)}" aria-hidden="true">${esc(initialOf(l.name||l.username))}</div>
       <div class="main"><div class="line1"><span class="nm">${esc(l.name||l.username||'ไม่ทราบชื่อ')}</span><span class="tag k-${a.k}">${esc(a.label)}</span>${l.username?`<span class="un">${esc(l.username)}</span>`:''}</div>
       <div class="sum">${sumHtml(l)}</div>${diffTable(l)}${open?`<div class="meta">${open}</div>`:''}</div></article>`;

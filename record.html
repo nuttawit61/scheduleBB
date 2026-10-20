@@ -734,7 +734,10 @@ a.logoutpill{text-decoration:none}
 .hero-btn.back{background:rgb(255 255 255 / .14);color:#fff;box-shadow:none;border:1px solid rgb(255 255 255 / .4)}
 .hero-btn.back .plus{background:#fff;color:var(--accent)}
 .page-main #tab-form{display:none}
-.page-form .teachers,.page-form .toolbar{display:none}
+.page-form .teachers,.page-form .toolbar,.page-leave .teachers,.page-leave .toolbar{display:none}
+/* หน้าบันทึกงาน (record.html) กับหน้าบันทึกวันลา (leave.html) แยกกัน */
+.page-main #leave,.page-form #leave{display:none!important}
+.page-leave #entryCard,.page-leave .flist{display:none!important}
 .teachlink{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--accent);background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:8px 14px;font-weight:600;white-space:nowrap}
 .teachlink:hover{background:var(--accent-soft)}
 @media (max-width:640px){ .hero-side{width:100%} .hero-btn{flex:1;justify-content:center} }
@@ -855,7 +858,7 @@ a.logoutpill{text-decoration:none}
       <button role="tab" id="tab-form" aria-selected="false">＋ บันทึกงาน</button>
     </div>
     <a class="teachlink" href="teaching.html" title="เปิดปฏิทินที่แสดงเฉพาะงานสอน">ปฏิทินการสอน <span aria-hidden="true">→</span></a>
-    <a class="teachlink" href="record.html#leave" title="บันทึกวันลาของอาจารย์ วันที่ลาจะลงงานไม่ได้">วันลา <span aria-hidden="true">→</span></a>
+    <a class="teachlink" href="leave.html" title="บันทึกวันลาของอาจารย์">วันลา <span aria-hidden="true">→</span></a>
     <button class="linkbtn" id="showAll">แสดงทุกท่าน</button>
     <div class="legend">
       <span><span class="pill ok">ยืนยัน</span></span>
@@ -886,8 +889,8 @@ a.logoutpill{text-decoration:none}
 
   <div id="view-form" hidden>
     <div class="formwrap">
-      <section class="fcard">
-        <header class="fhead"><h2 id="fTitle">บันทึกงานใหม่</h2><p>กรอกตามแบบบันทึก TM-QM-F-092 งานที่บันทึกจะขึ้นในปฏิทินและตารางทันที</p><a class="lvjump" href="#leave">อาจารย์ลา? บันทึกวันลาที่นี่ ↓</a></header>
+      <section class="fcard" id="entryCard">
+        <header class="fhead"><h2 id="fTitle">บันทึกงานใหม่</h2><p>กรอกตามแบบบันทึก TM-QM-F-092 งานที่บันทึกจะขึ้นในปฏิทินและตารางทันที</p></header>
         <div class="fnotice" id="fNotice" hidden></div>
         <form id="entryForm" novalidate>
           <fieldset class="fwho"><legend>อาจารย์ <span class="req">*</span></legend><div id="fWho" class="whopick"></div></fieldset>
@@ -957,7 +960,7 @@ a.logoutpill{text-decoration:none}
         <datalist id="levelList"><option value="ภาควิชาฯ"><option value="คณะฯ"><option value="มหาวิทยาลัย"><option value="ชาติ"><option value="นานาชาติ"></datalist>
       </section>
       <section class="fcard lvcard" id="leave" aria-labelledby="lvTitle">
-        <header class="fhead"><h2 id="lvTitle">บันทึกวันลาของอาจารย์</h2><p>วันที่อาจารย์ลาทั้งวัน จะลงงานของอาจารย์ท่านนั้นไม่ได้ · ลาครึ่งวัน ลงงานได้เฉพาะช่วงที่อาจารย์ปฏิบัติงาน</p></header>
+        <header class="fhead"><h2 id="lvTitle">บันทึกวันลาของอาจารย์</h2><p>งานที่ลงไว้ในวันหรือช่วงเวลาที่อาจารย์ลา จะขึ้นเตือน ⛔ "อยู่ในช่วงวันลา" ในปฏิทินและตารางรายบุคคล</p></header>
         <div class="fnotice" id="lvNotice" hidden></div>
         <form id="leaveForm" novalidate>
           <fieldset class="fwho"><legend>อาจารย์ <span class="req">*</span></legend><div id="lvWho" class="whopick"></div></fieldset>
@@ -968,7 +971,7 @@ a.logoutpill{text-decoration:none}
           </div>
           <fieldset class="fmode"><legend>ช่วงที่ลา <span class="req">*</span></legend>
             <div class="modepick lvper" id="lvPeriod">
-              <label><input type="radio" name="lvper" value="full" checked><b>ทั้งวัน</b><small>ลงงานไม่ได้ทั้งวัน</small></label>
+              <label><input type="radio" name="lvper" value="full" checked><b>ทั้งวัน</b><small>ไม่ได้ปฏิบัติงานทั้งวัน</small></label>
               <label><input type="radio" name="lvper" value="am"><b>ครึ่งวันเช้า</b><small id="lvAmTx">ปฏิบัติงานช่วงบ่าย</small></label>
               <label><input type="radio" name="lvper" value="pm"><b>ครึ่งวันบ่าย</b><small id="lvPmTx">ปฏิบัติงานช่วงเช้า</small></label>
               <label><input type="radio" name="lvper" value="time"><b>ระบุเวลา</b><small>ลาเฉพาะบางช่วง</small></label>
@@ -1140,7 +1143,8 @@ function cfNote(e){
 }
 
 /* ===== วันลาของอาจารย์ (ชีต leaves) =====
-   ลาทั้งวัน → ลงงานไม่ได้ · ลาครึ่งวัน/ระบุเวลา → ลงงานได้เฉพาะช่วงที่ปฏิบัติงาน (แบ่งครึ่งวันตาม LEAVE_SPLIT ที่ Apps Script ส่งมา)
+   ลงงานในวัน/ช่วงที่ลาได้ (เช่น ลงภาระงานไว้ก่อนอาจารย์ขอลา) แต่ต้องกดยืนยัน และงานนั้นจะขึ้นเตือน ⛔ ในปฏิทิน
+   ลาทั้งวัน = ทั้งวัน · ครึ่งวัน = แบ่งตาม LEAVE_SPLIT ที่ Apps Script ส่งมา · ระบุเวลา = ช่วงที่ระบุ
    งานที่สถานะของอาจารย์ท่านนั้นเป็น เลื่อน/ขัดข้อง/ยกเลิก ไม่ถือว่าชน */
 let LEAVES = [], LEAVE_SPLIT = 720, LEAVE_API = null;
 const LEAVE_PERIOD = {full:'ทั้งวัน', am:'ครึ่งวันเช้า', pm:'ครึ่งวันบ่าย', time:'บางช่วงเวลา'};
@@ -1157,7 +1161,7 @@ function setLeaves(list, split){
 function lvBlock(l){ return l.period==='am' ? [0,LEAVE_SPLIT] : l.period==='pm' ? [LEAVE_SPLIT,1440] : l.period==='time' ? [hmMin(l.start), hmMin(l.end)] : [0,1440]; }
 function lvWhen(l){ return l.period==='time' ? `${minTh(hmMin(l.start))}–${minTh(hmMin(l.end))} น.` : LEAVE_PERIOD[l.period]; }
 function lvLabel(l){ return `${l.leaveType||'ลา'} ${lvWhen(l)}`; }
-function lvWork(l){ return l.period==='am' ? `ปฏิบัติงานช่วงบ่าย ลงงานได้ตั้งแต่ ${minTh(LEAVE_SPLIT)} น.` : l.period==='pm' ? `ปฏิบัติงานช่วงเช้า ลงงานได้ก่อน ${minTh(LEAVE_SPLIT)} น.` : l.period==='time' ? `ลงงานได้นอกช่วง ${lvWhen(l)}` : 'ลงงานวันนี้ไม่ได้'; }
+function lvWork(l){ return l.period==='am' ? `ปฏิบัติงานช่วงบ่าย ตั้งแต่ ${minTh(LEAVE_SPLIT)} น.` : l.period==='pm' ? `ปฏิบัติงานช่วงเช้า ถึง ${minTh(LEAVE_SPLIT)} น.` : l.period==='time' ? `ปฏิบัติงานนอกช่วง ${lvWhen(l)}` : 'ไม่ได้ปฏิบัติงานทั้งวัน'; }
 function lvRange(l){ return l.endDate>l.date ? `${shortDate(l.date)} – ${shortDate(l.endDate)}` : shortDate(l.date); }
 function lvDays(l){ return Math.round((parseIso(l.endDate)-parseIso(l.date))/864e5)+1; }
 function leavesOn(who, ds){ return LEAVES.filter(l => l.who===who && l.date<=ds && ds<=l.endDate); }
@@ -1207,9 +1211,10 @@ let active = new Set(store.get('active', ORDER).filter(c => ORDER.includes(c)));
 if (!active.size) active = new Set(ORDER);
 const PAGE = 'form';
 document.documentElement.classList.add('page-'+PAGE);
-const MAIN_FILE = 'index.html', FORM_FILE = 'record.html';
-let view = PAGE==='form' ? 'form' : store.get('view','cal');
-if (PAGE!=='form' && view==='form') view='cal';
+const MAIN_FILE = 'index.html', FORM_FILE = 'record.html', LEAVE_FILE = 'leave.html';
+const IS_FORM = PAGE==='form' || PAGE==='leave'; // หน้าบันทึกงาน และหน้าบันทึกวันลา ใช้มุมมองฟอร์ม
+let view = IS_FORM ? 'form' : store.get('view','cal');
+if (!IS_FORM && view==='form') view='cal';
 let selected = inRange(todayIso) ? todayIso : (EVENTS[0]?.date || todayIso);
 let month = selected.slice(0,7);
 let sheetWho = ORDER.includes(store.get('sheetWho','')) ? store.get('sheetWho','') : ORDER[0];
@@ -1307,13 +1312,13 @@ function renderDetail(){
   html += '<div class="tgrid">';
   ORDER.filter(c => active.has(c)).forEach(c => {
     const mine = ev.filter(e => e.who===c), lvs = leavesOn(c, selected);
-    const lvHtml = lvs.map(l => `<div class="lvbox"><div class="lvt"><span class="lvk">ลา</span>${esc(lvLabel(l))}${l.endDate>l.date?` <small>${esc(lvRange(l))} (${lvDays(l)} วัน)</small>`:''}${canWrite?`<a href="${encodeURI(FORM_FILE)}#leaveedit-${encodeURIComponent(l.id)}">✎ แก้ไข</a>`:''}</div>${l.period!=='full'?`<span class="lvw">${esc(lvWork(l))}</span>`:''}${l.note?`<small>${esc(l.note)}</small>`:''}</div>`).join('');
+    const lvHtml = lvs.map(l => `<div class="lvbox"><div class="lvt"><span class="lvk">ลา</span>${esc(lvLabel(l))}${l.endDate>l.date?` <small>${esc(lvRange(l))} (${lvDays(l)} วัน)</small>`:''}${canWrite?`<a href="${encodeURI(LEAVE_FILE)}#leaveedit-${encodeURIComponent(l.id)}">✎ แก้ไข</a>`:''}</div>${l.period!=='full'?`<span class="lvw">${esc(lvWork(l))}</span>`:''}${l.note?`<small>${esc(l.note)}</small>`:''}</div>`).join('');
     const fullLv = lvs.some(l => l.period==='full');
     html += `<section class="tblock t-${c}"><h3><span class="sw"></span>${esc(TEACHERS[c].name)}</h3>${lvHtml}
       ${mine.length ? mine.map(evCard).join('') : (fullLv ? '' : `<div class="free">ว่าง ไม่มีภารกิจในวันนี้</div>`)}</section>`;
   });
   html += '</div>';
-  if (canWrite) html += `<a class="lvadd" href="${encodeURI(FORM_FILE)}#leave-${selected}">＋ บันทึกวันลา ${esc(shortDate(selected))}</a>`;
+  if (canWrite) html += `<a class="lvadd" href="${encodeURI(LEAVE_FILE)}#leave-${selected}">＋ บันทึกวันลา ${esc(shortDate(selected))}</a>`;
   document.getElementById('detail').innerHTML = html;
 }
 
@@ -1348,8 +1353,8 @@ function renderList(){
 }
 
 function setView(v){
-  if (PAGE==='form') v='form'; else if (v==='form' || v==='list') v='cal';
-  view = v; if (PAGE!=='form') store.set('view',v);
+  if (IS_FORM) v='form'; else if (v==='form' || v==='list') v='cal';
+  view = v; if (!IS_FORM) store.set('view',v);
   document.getElementById('tab-cal').setAttribute('aria-selected', v==='cal');
   document.getElementById('view-cal').hidden = v!=='cal';
   document.getElementById('view-list').hidden = v!=='list';
@@ -1365,7 +1370,7 @@ function renderHero(){
   const td=EVENTS.filter(e=>e.date===todayIso && activeEv(e));
   const d=parseIso(todayIso);
   el.innerHTML = `<div class="ht-date"><span>${TH_D[d.getDay()]}</span><b>${d.getDate()}</b><span>${TH_MS[d.getMonth()]} ${String(be(d.getFullYear())).slice(2)}</span></div><div class="ht-body"><div class="ht-lbl">วันนี้</div><div class="ht-n">${td.length ? td.length+' ภารกิจ' : 'ไม่มีภารกิจ'}</div><div class="ht-who">${ORDER.filter(c=>td.some(e=>e.who===c)).map(c=>`<span class="av sm t-${c}" title="${esc(TEACHERS[c].name)}">${TEACHERS[c].ini}</span>`).join('')}</div></div>`;
-  el.onclick = () => { if (PAGE==='form') { location.href=encodeURI(MAIN_FILE); return; } selected = todayIso; month = todayIso.slice(0,7); setView('cal'); };
+  el.onclick = () => { if (IS_FORM) { location.href=encodeURI(MAIN_FILE); return; } selected = todayIso; month = todayIso.slice(0,7); setView('cal'); };
 }
 function renderCfBar(){
   const bar = $('cfBar'); if (!bar) return;
@@ -1374,7 +1379,7 @@ function renderCfBar(){
     if (a.date >= todayIso && active.has(a.who)) pairs.push(ia<ib ? [a,b] : [b,a]); }));
   pairs.sort((p,q) => p[0].date.localeCompare(q[0].date) || p[0]._s - q[0]._s);
   const lvc = EVENTS.filter(e => e._lv && e.date >= todayIso && active.has(e.who));
-  bar.hidden = PAGE==='form' || !(pairs.length || lvc.length);
+  bar.hidden = IS_FORM || !(pairs.length || lvc.length);
   if (bar.hidden) return;
   $('cfSum').innerHTML = `<span class="cfic">⚠</span> ${[pairs.length?`พบงานที่เวลาชนหรือซ้อนกัน <b>${pairs.length}</b> จุด`:'', lvc.length?`งานที่อยู่ในช่วงวันลา <b>${lvc.length}</b> รายการ`:''].filter(Boolean).join(' · ')} <small>(ตั้งแต่วันนี้เป็นต้นไป · กดเพื่อดูรายการ)</small>`;
   $('cfList').innerHTML = lvc.map(e => `<button type="button" class="cfitem t-${e.who}" data-d="${e.date}"><span class="sw"></span><span class="cfw">${esc(TEACHERS[e.who].short)}</span><span class="cfd">${shortDate(e.date)}</span><span class="cfx">${esc(cfText(e))} <i>อยู่ในวันลา</i> ${esc(lvLabel(e._lv))}</span></button>`).join('')
@@ -1788,7 +1793,7 @@ function syncState(msg, err){
       : (msg || 'Google Sheet');
   }
 }
-const ERR_TH = {timeout:'Google Sheet ตอบช้าเกินไป ลองอีกครั้ง', network:'เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ต', bad_response:'Apps Script ตอบกลับไม่ถูกต้อง ตรวจสอบ URL ใน config.js', unauthorized:'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่', forbidden:'บัญชีนี้ดูได้อย่างเดียว บันทึกหรือแก้ไขไม่ได้', must_change:'ต้องตั้งรหัสผ่านใหม่ก่อนใช้งาน', invalid_login:'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', locked:'บัญชีถูกล็อกชั่วคราว', disabled:'บัญชีนี้ถูกปิดใช้งาน ติดต่อผู้ดูแลระบบ', pending:'บัญชีนี้รอผู้ดูแลระบบอนุมัติ', server_error:'เกิดข้อผิดพลาดที่ Apps Script', busy:'มีผู้ใช้บันทึกพร้อมกันหลายคน ลองอีกครั้ง', on_leave:'อาจารย์ลาในช่วงเวลานี้', leave_overlap:'มีวันลาซ้อนกัน', unknown_action:'Apps Script ยังเป็นเวอร์ชันเก่า กรุณาอัปเดต Apps Script', invalid_argument:'ข้อมูลไม่ถูกต้อง', not_found:'ไม่พบรายการ'};
+const ERR_TH = {timeout:'Google Sheet ตอบช้าเกินไป ลองอีกครั้ง', network:'เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ต', bad_response:'Apps Script ตอบกลับไม่ถูกต้อง ตรวจสอบ URL ใน config.js', unauthorized:'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่', forbidden:'บัญชีนี้ดูได้อย่างเดียว บันทึกหรือแก้ไขไม่ได้', must_change:'ต้องตั้งรหัสผ่านใหม่ก่อนใช้งาน', invalid_login:'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', locked:'บัญชีถูกล็อกชั่วคราว', disabled:'บัญชีนี้ถูกปิดใช้งาน ติดต่อผู้ดูแลระบบ', pending:'บัญชีนี้รอผู้ดูแลระบบอนุมัติ', server_error:'เกิดข้อผิดพลาดที่ Apps Script', busy:'มีผู้ใช้บันทึกพร้อมกันหลายคน ลองอีกครั้ง', on_leave:'Apps Script ยังเป็นเวอร์ชันที่ไม่ให้ลงงานวันลา กรุณาอัปเดต Apps Script เป็นเวอร์ชัน 2026-10-20 leave-warn', leave_overlap:'มีวันลาซ้อนกัน', unknown_action:'Apps Script ยังเป็นเวอร์ชันเก่า กรุณาอัปเดต Apps Script', invalid_argument:'ข้อมูลไม่ถูกต้อง', not_found:'ไม่พบรายการ'};
 function errText(e){ return (ERR_TH[e&&e.code]||'เกิดข้อผิดพลาด') + (e&&e.message?` (${e.message})`:''); }
 function downloadText(name, text, type){
   const blob=new Blob(['\ufeff'+text],{type}); const a=document.createElement('a');
@@ -1841,10 +1846,8 @@ function resetForm(){
   $('fTitle').textContent='บันทึกงานใหม่'; $('fSave').textContent='บันทึกงาน'; delete $('fSave').dataset.cf; delArm(false); $('fDelete').hidden=true; showDateTh(); setTimeout(checkFormConflicts,0);
   document.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad')); renderFormList();
   if (CUR_USER && !$('fRec').value) $('fRec').value = CUR_USER.name;
-  xdResetState(); syncLeaveCard();
+  xdResetState();
 }
-// ตอนแก้ไขงาน ซ่อนส่วนบันทึกวันลา (แสดงเฉพาะตอนบันทึกงานใหม่)
-function syncLeaveCard(){ const ed = !!(editingId || editingExcel); const c=$('leave'), j=document.querySelector('.fhead .lvjump'); if (c) c.hidden = ed; if (j) j.hidden = ed; }
 function timeParts(t){ const m=(t||'').match(/(\d{1,2})[.:](\d{2})(?:\s*-\s*(\d{1,2})[.:](\d{2}))?/); if(!m) return ['','']; const f=(h,mm)=>`${pad(+h)}:${mm}`; return [f(m[1],m[2]), m[3]?f(m[3],m[4]):'']; }
 function fillFromExcel(xk){
   const e = EXCEL_EVENTS.find(x=>x.xk===xk); if (!e) { setMsg('ไม่พบรายการนี้ในข้อมูล Excel', true); return; }
@@ -1852,7 +1855,7 @@ function fillFromExcel(xk){
   const [st,en] = timeParts(e.time);
   fillForm({ id:null, who:[e.who], date:e.date, start:st, end:en, hours:e.hours&&!isNaN(parseFloat(e.hours))?e.hours:'', type:e.type, status:e.status||'ยืนยัน',
     level:e.level, title:e.title, place:e.place, inviter:e.inviter, fund:e.fund, recName:'' });
-  editingExcel = xk; editingId = null; syncLeaveCard();
+  editingExcel = xk; editingId = null;
   $('fTitle').textContent='แก้ไขงาน (ข้อมูลจาก Excel)'; setSaveLabel();
   setMsg('แก้แล้วกดบันทึก รายการเดิมจาก Excel จะถูกแทนที่ด้วยข้อมูลใหม่');
   if (e.time && !st) setMsg(`เวลาเดิมในไฟล์: "${e.time}" กรุณาเลือกเวลาใหม่`, true);
@@ -1875,7 +1878,7 @@ function fillForm(d){
   $('fDocCh').value = d.docChannel || ''; $('fEdoc').value = d.edoc || ''; edocHint();
   $('fNotes').value = d.notes || (!d.mode && mode!=='onsite' && d.place ? 'ข้อมูลเดิม: '+d.place : ''); $('fInviter').value=d.inviter||''; $('fFund').value=d.fund||''; $('fRec').value=(d.recName||'');
   $('fTitle').textContent= d.overrides ? 'แก้ไขงาน (ข้อมูลจาก Excel)' : 'แก้ไขงาน'; $('fSave').textContent='บันทึกการแก้ไข'; showDateTh(); setMsg('');
-  xdResetState(); syncLeaveCard();
+  xdResetState();
   renderFormList(); $('entryForm').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function normUrl(v){ v=(v||'').trim(); if(!v) return ''; return /^[a-z][a-z0-9+.-]*:\/\//i.test(v) ? v : 'https://'+v.replace(/^\/+/,''); }
@@ -1997,10 +2000,9 @@ function checkFormLeave(){
   if (!list.length) return list;
   const multi = formDates().length>1, nWho = document.querySelectorAll('#fWho input:checked').length;
   const xd = [...new Set(list.filter(x => x.d!==d0 && x.l.period==='full').map(x=>x.d))];
-  const tip = list.every(x => x.l.period==='full')
-    ? (nWho>1 ? 'เอาชื่ออาจารย์ที่ลาออกจากงานนี้ หรือตั้ง "สถานะรายบุคคล" ของท่านเป็น ขัดข้อง' : 'เปลี่ยนวันที่ หรือถ้าอาจารย์ไม่ได้ไปงานนี้ ให้ตั้งสถานะเป็น ขัดข้อง')
-    : 'เลือกเวลาให้อยู่ในช่วงที่อาจารย์ปฏิบัติงาน' + (nWho>1 ? ' หรือตั้ง "สถานะรายบุคคล" ของท่านที่ลาเป็น ขัดข้อง' : '');
-  box.innerHTML = `<b>⛔ อาจารย์ลาในช่วงนี้ บันทึกงานไม่ได้</b><ul>${list.map(x=>`<li class="t-${x.w}"><span class="sw"></span><span>${esc(TEACHERS[x.w].short)} · ${multi?`<b>${esc(shortDate(x.d))}</b> `:''}${esc(lvLabel(x.l))}${x.l.period!=='full'?` — ${esc(lvWork(x.l))}${x.needTime?' <b>(กรุณาเลือกเวลาเริ่ม)</b>':''}`:''}</span></li>`).join('')}</ul><small>${esc(tip)}</small>${xd.length?`<button type="button" class="btn sm" id="fLvDrop">เอาวันที่อาจารย์ลาออก (${xd.length} วัน)</button>`:''}`;
+  const tip = 'บันทึกได้ (เช่น ลงภาระงานไว้ก่อนอาจารย์ขอลา) แต่งานนี้จะขึ้นเตือน "อยู่ในช่วงวันลา" ในปฏิทิน · ถ้าอาจารย์ไม่ได้ไป '
+    + (nWho>1 ? 'เอาชื่อออก หรือตั้ง "สถานะรายบุคคล" ของท่านที่ลาเป็น ขัดข้อง' : 'ให้ตั้งสถานะเป็น ขัดข้อง');
+  box.innerHTML = `<b>⚠ อาจารย์ลาในช่วงนี้</b><ul>${list.map(x=>`<li class="t-${x.w}"><span class="sw"></span><span>${esc(TEACHERS[x.w].short)} · ${multi?`<b>${esc(shortDate(x.d))}</b> `:''}${esc(lvLabel(x.l))}${x.l.period!=='full'?` — ${esc(lvWork(x.l))}${x.needTime?' <b>(งานนี้ยังไม่ได้ระบุเวลา)</b>':''}`:''}</span></li>`).join('')}</ul><small>${esc(tip)}</small>${xd.length?`<button type="button" class="btn sm" id="fLvDrop">เอาวันที่อาจารย์ลาออก (${xd.length} วัน)</button>`:''}`;
   const drop=$('fLvDrop'); if (drop) drop.onclick = () => { XD = XD.filter(d => !xd.includes(d)); xdMsg(`เอาออกแล้ว ${xd.length} วัน`); renderXD(); };
   return list;
 }
@@ -2015,14 +2017,15 @@ function checkFormConflicts(){
 }
 async function saveForm(ev){
   ev.preventDefault();
-  if (checkFormLeave().length){
-    setMsg('บันทึกไม่ได้ อาจารย์ลาในช่วงเวลานี้ ตรวจสอบกรอบสีแดงด้านบน', true);
-    $('fLeave').scrollIntoView({behavior:'smooth', block:'center'}); return;
-  }
-  if (!cfConfirm && checkFormConflicts().length && DB && canWrite){
-    cfConfirm = true; $('fSave').dataset.cf = $('fSave').textContent; $('fSave').textContent = 'บันทึกทั้งที่เวลาชน';
-    setMsg('งานนี้เวลาชนกับงานอื่น ตรวจสอบด้านบน ถ้าถูกต้องแล้วกด "บันทึกทั้งที่เวลาชน" อีกครั้ง', true);
-    $('fConflict').scrollIntoView({behavior:'smooth', block:'center'}); return;
+  // เวลาชน หรืออยู่ในช่วงที่อาจารย์ลา → ให้กดยืนยันอีกครั้งก่อนบันทึก
+  if (!cfConfirm && DB && canWrite){
+    const cf = checkFormConflicts(), lv = formLeaveBlocks();
+    if (cf.length || lv.length){
+      const label = lv.length ? 'บันทึกทั้งที่อาจารย์ลา' : 'บันทึกทั้งที่เวลาชน';
+      cfConfirm = true; $('fSave').dataset.cf = $('fSave').textContent; $('fSave').textContent = label;
+      setMsg(`${lv.length ? 'อาจารย์ลาในช่วงเวลานี้' : 'งานนี้เวลาชนกับงานอื่น'}${lv.length && cf.length ? ' และเวลาชนกับงานอื่น' : ''} ตรวจสอบด้านบน ถ้าต้องการบันทึกไว้ กด "${label}" อีกครั้ง`, true);
+      $(lv.length ? 'fLeave' : 'fConflict').scrollIntoView({behavior:'smooth', block:'center'}); return;
+    }
   }
   if (!DB || !canWrite){ setMsg('หน้านี้ยังบันทึกไม่ได้ ดูข้อความด้านบน', true); return; }
   const data = readForm(); if (!data) return;
@@ -2194,8 +2197,7 @@ function lvCheck(){
   lvConfirmBusy = false; $('lvSave').textContent = lvEditing ? 'บันทึกการแก้ไข' : 'บันทึกวันลา';
   const list = lvBusyList(d);
   box.hidden = !list.length;
-  if (list.length) box.innerHTML = `<b>⚠ มีงานของ${esc(TEACHERS[d.who].short)}ในช่วงที่ลา ${list.length} รายการ</b><ul>${list.map(e=>`<li class="t-${e.who}"><span class="sw"></span><span><b>${esc(shortDate(e.date))}</b> ${esc(cfText(e))}${e.status?` <small>(${esc(e.status)})</small>`:''} ${e.src==='form'&&e.id?`<a href="#edit-${encodeURIComponent(e.id)}" data-lvedit="${esc(e.id)}">แก้งานนี้</a>`:''}</span></li>`).join('')}</ul><small>บันทึกวันลาได้ แต่งานเหล่านี้จะขึ้นเตือน "อยู่ในช่วงวันลา" ควรเปลี่ยนสถานะเป็น ขัดข้อง / เลื่อน หรือย้ายเวลา</small>`;
-  box.querySelectorAll('[data-lvedit]').forEach(a => a.onclick = ev => { ev.preventDefault(); const doc=FORM_DOCS.find(x=>x.id===a.dataset.lvedit); if (doc) fillForm(doc); });
+  if (list.length) box.innerHTML = `<b>⚠ มีงานของ${esc(TEACHERS[d.who].short)}ในช่วงที่ลา ${list.length} รายการ</b><ul>${list.map(e=>`<li class="t-${e.who}"><span class="sw"></span><span><b>${esc(shortDate(e.date))}</b> ${esc(cfText(e))}${e.status?` <small>(${esc(e.status)})</small>`:''} ${e.src==='form'&&e.id?`<a href="${encodeURI(FORM_FILE)}#edit-${encodeURIComponent(e.id)}" target="_blank" rel="noopener">แก้งานนี้ ↗</a>`:''}</span></li>`).join('')}</ul><small>บันทึกวันลาได้ แต่งานเหล่านี้จะขึ้นเตือน "อยู่ในช่วงวันลา" ควรเปลี่ยนสถานะเป็น ขัดข้อง / เลื่อน หรือย้ายเวลา</small>`;
   return list;
 }
 function lvReset(keep){
@@ -2282,8 +2284,7 @@ function lvApplyWrite(){
 let lvHashDone = false;
 function lvHash(){
   const h = decodeURIComponent(location.hash||'');
-  if (lvHashDone || PAGE!=='form' || !/^#leave/.test(h)) return;
-  if (editingId || editingExcel){ resetForm(); setMsg(''); } // มาบันทึกวันลา → ออกจากโหมดแก้ไขงาน
+  if (lvHashDone || PAGE!=='leave' || !/^#leave/.test(h)) return;
   if (h.startsWith('#leaveedit-')){
     if (!LAST_SYNC && !LEAVES.length) return; // รอข้อมูล
     lvHashDone = true; const l = LEAVES.find(x=>x.id===h.slice(11));
@@ -2318,7 +2319,7 @@ function onData(){
     hashDone=true; const doc=FORM_DOCS.find(d=>d.id===location.hash.slice(6));
     if (doc){ fillForm(doc); } else setMsg('ไม่พบรายการนี้ อาจถูกลบไปแล้ว', true);
   }
-  lvHash(); if (PAGE==='form') lvCheck();
+  lvHash(); if (PAGE==='leave') lvCheck();
 }
 function showGate(msg){ $('gate').hidden=false; $('gateMsg').textContent=msg||''; $('idleWarn').hidden=true; if (!$('gateUser').value) $('gateUser').value=lastUsername(); setTimeout(()=>($('gateUser').value?$('gateKey'):$('gateUser')).focus(),50); }
 const OUT_KEY='tt-logged-out';
@@ -2433,11 +2434,11 @@ document.getElementById('prev').onclick = () => { const i=MONTHS.indexOf(month);
 document.getElementById('next').onclick = () => { const i=MONTHS.indexOf(month); if(i<MONTHS.length-1){month=MONTHS[i+1]; renderCal();} };
 (function(){
   const btn=document.getElementById('heroBtn');
-  if (PAGE==='form'){
+  if (IS_FORM){
     btn.href=encodeURI(MAIN_FILE); btn.classList.add('back');
     document.getElementById('heroBtnTx').textContent='กลับไปตารางงาน'; btn.querySelector('.plus').textContent='←';
-    document.getElementById('heroH1').textContent='บันทึกงานอาจารย์';
-    document.title='บันทึกงานอาจารย์';
+    document.getElementById('heroH1').textContent = PAGE==='leave' ? 'บันทึกวันลา' : 'บันทึกงานอาจารย์';
+    document.title = PAGE==='leave' ? 'บันทึกวันลาอาจารย์' : 'บันทึกงานอาจารย์';
   } else btn.href=encodeURI(FORM_FILE);
 })();
 setView(view);
