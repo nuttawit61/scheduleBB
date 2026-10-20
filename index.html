@@ -319,6 +319,10 @@ table.sheet td.hc{text-align:center;font-variant-numeric:tabular-nums;white-spac
 table.sheet td.sm{color:var(--muted);font-size:.9em}
 table.sheet td.lv{white-space:nowrap}
 table.sheet td.holc{background:var(--accent-soft);color:var(--accent);font-weight:500;text-align:center}
+table.sheet td.lvc{background:repeating-linear-gradient(-45deg,var(--soft) 0 8px,color-mix(in srgb,var(--soft) 50%,#fff) 8px 16px);color:var(--c);font-weight:600;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+table.sheet td.lvc b{background:var(--c);color:#fff;border-radius:5px;padding:0 7px;margin-right:6px;font-size:.88em}
+table.sheet tr.srow.lvx td{background:#FDECEA}
+table.sheet .lvi{color:#B3261E}
 table.sheet tr.empty td{height:2.3em}
 table.sheet tr.today td.dw,table.sheet tr.today td.dd{background:var(--accent-soft)}
 table.sheet tr.srow{cursor:pointer}
@@ -1159,6 +1163,15 @@ function lvDays(l){ return Math.round((parseIso(l.endDate)-parseIso(l.date))/864
 function leavesOn(who, ds){ return LEAVES.filter(l => l.who===who && l.date<=ds && ds<=l.endDate); }
 // งานช่วงเวลา sp ([เริ่ม,สิ้นสุด] นาที หรือ null = ไม่ระบุเวลา) ชนกับวันลา l ไหม
 function lvHit(l, sp){ return l.period==='full' || !sp || spanOverlap(sp, lvBlock(l)); }
+// ข้อความวันลาในตารางรายบุคคล / Excel
+function lvSheetText(l){ return `${l.leaveType||'ลา'} ${lvWhen(l)}${l.period==='am'?` (ปฏิบัติงานตั้งแต่ ${minTh(LEAVE_SPLIT)} น.)`:l.period==='pm'?` (ปฏิบัติงานถึง ${minTh(LEAVE_SPLIT)} น.)`:''}${l.endDate>l.date?` · ${lvRange(l)}`:''}${l.note?` · ${l.note}`:''}`; }
+// จำนวนวันลาในเดือน (นับเฉพาะวันทำการ: ทั้งวัน = 1, ครึ่งวัน = 0.5, ระบุเวลา = ตามชั่วโมง ÷ 7)
+function lvMonthDays(who, ym){
+  const [y,m] = ym.split('-').map(Number), n = new Date(y,m,0).getDate(); let t = 0;
+  for (let d=1; d<=n; d++){ const ds=`${ym}-${pad(d)}`, w=new Date(y,m-1,d).getDay(); if (w===0||w===6||HOLIDAYS[ds]) continue;
+    leavesOn(who, ds).forEach(l => { const b=lvBlock(l); t += l.period==='full' ? 1 : l.period==='time' ? Math.min(1,(b[1]-b[0])/420) : 0.5; }); }
+  return Math.round(t*10)/10;
+}
 function markLeaveClash(){ EVENTS.forEach(e => { e._lv = e._st==='off' ? null : (leavesOn(e.who, e.date).find(l => lvHit(l, e._sp)) || null); }); }
 buildEvents();
 
@@ -1384,7 +1397,7 @@ function renderSheet(){
   const [y,m] = sheetMonth.split('-').map(Number);
   const evs = EVENTS.filter(e => e.who===who && e.date.startsWith(sheetMonth));
   const hrs = evs.filter(activeEv).reduce((s,e)=>s+e._h.v,0), pend = evs.filter(e=>e._st==='pend').length;
-  const days = new Date(y,m,0).getDate();
+  const days = new Date(y,m,0).getDate(), lvN = lvMonthDays(who, sheetMonth);
   let rows = '', week = 0;
   for (let d=1; d<=days; d++){
     const ds = `${y}-${pad(m)}-${pad(d)}`, dow = new Date(y,m-1,d).getDay();
@@ -1394,14 +1407,17 @@ function renderSheet(){
     if (d===1 || dow===1 || (week===0)) { week++; rows += `<tr class="wk"><td colspan="12">สัปดาห์ที่ ${week}</td></tr>`; }
     const tcls = ds===todayIso ? ' today' : '';
     const dayCells = n => `<td class="dw${we?' we':''}" rowspan="${n}">${TH_D[dow]}</td><td class="dd" rowspan="${n}">${d} ${TH_M[m-1]} ${be(y)}</td>`;
+    const lvs = leavesOn(who, ds), nRow = lvs.length + list.length + (hol?1:0);
+    lvs.forEach((l,i) => { rows += `<tr class="lvrow${tcls}">${i===0?dayCells(nRow):''}<td class="lvc" colspan="10"><b>ลา</b>${esc(lvSheetText(l))}</td></tr>`; });
+    if (!list.length && lvs.length){ if (hol) rows += `<tr><td class="holc" colspan="10">${esc(hol)}</td></tr>`; continue; }
     if (!list.length){
       rows += `<tr class="${hol?'':'empty'}${tcls}">${dayCells(1)}${hol?`<td class="holc" colspan="10">${esc(hol)}</td>`:'<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>'}</tr>`;
       continue;
     }
     list.forEach((e,i) => {
       const cf = e._cf && e._cf.length;
-      rows += `<tr class="srow ${e._st}${tcls}${cf?' cf':''}" data-d="${ds}" data-k="${EVENTS.indexOf(e)}" tabindex="0" title="${cf?esc('⚠ เวลาชนกับ '+e._cf.map(cfText).join(', ')):'ดูรายละเอียด'}">${i===0?dayCells(list.length + (hol?1:0)):''}
-        <td class="tt">${cf?'<span class="cfi" aria-label="เวลาชน">⚠</span> ':''}${esc(e.time||'—')}</td>
+      rows += `<tr class="srow ${e._st}${tcls}${cf?' cf':''}${e._lv?' lvx':''}" data-d="${ds}" data-k="${EVENTS.indexOf(e)}" tabindex="0" title="${cf?esc('⚠ เวลาชนกับ '+e._cf.map(cfText).join(', ')):e._lv?esc('⛔ อยู่ในช่วงวันลา ('+lvLabel(e._lv)+')'):'ดูรายละเอียด'}">${i===0 && !lvs.length?dayCells(nRow):''}
+        <td class="tt">${cf?'<span class="cfi" aria-label="เวลาชน">⚠</span> ':''}${e._lv?'<span class="lvi" aria-label="อยู่ในช่วงวันลา">⛔</span> ':''}${esc(e.time||'—')}</td>
         <td><span class="tag">${esc(e.type)}</span></td>
         <td class="ti">${esc(e.title)}${e.edoc?` <a class="edocchip" href="${esc(e.edoc)}" target="_blank" rel="noopener" title="เปิดเอกสาร EDOC">EDOC</a>`:''}</td>
         <td class="sm">${esc(e.place||'')}</td>
@@ -1429,7 +1445,7 @@ function renderSheet(){
     <section class="sheetwrap t-${who}">
       <header class="sheethead">
         <div><div class="print-only porg">ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล มหาวิทยาลัยมหิดล</div><div class="eyebrow">แบบบันทึกตารางการปฏิบัติงานของอาจารย์แพทย์</div><h2><span class="sw"></span>${esc(t.name)}</h2></div>
-        <div class="sh-meta"><b>${TH_M[m-1]} ${be(y)}</b><span class="num">${evs.length} ภารกิจ · ${hrs.toFixed(1)} ชม. · รอยืนยัน ${pend}</span></div>
+        <div class="sh-meta"><b>${TH_M[m-1]} ${be(y)}</b><span class="num">${evs.length} ภารกิจ · ${hrs.toFixed(1)} ชม. · รอยืนยัน ${pend}${lvN?` · ลา ${lvN} วัน`:''}</span></div>
       </header>
       <div class="tscroll"><table class="sheet"><colgroup><col class="c-dw"><col class="c-dd"><col class="c-tt"><col class="c-ty"><col class="c-ti"><col class="c-pl"><col class="c-st"><col class="c-hr"><col class="c-lv"><col class="c-in"><col class="c-rc"><col class="c-cd"></colgroup>
         <thead><tr><th>วัน</th><th>วัน/เดือน/ปี</th><th>เวลา</th><th>ประเภท</th><th>รายการ</th><th>สถานที่</th><th>หมายเหตุ</th><th>ชม.</th><th>ระดับ</th><th>หน่วยงานที่เชิญ</th><th>ผู้บันทึก</th><th>วันที่บันทึก<br>ลงระบบ</th></tr></thead>
@@ -1509,7 +1525,8 @@ function xlAddSheet(wb, who, ym){
   ws.mergeCells('A2:H2'); Object.assign(ws.getCell('A2'), {value:'แบบบันทึกตารางการปฏิบัติงานของอาจารย์แพทย์', font:F({size:20, bold:true})});
   ws.mergeCells('I2:'+L+'2'); Object.assign(ws.getCell('I2'), {value:`${TH_M[m-1]} ${be(y)}`, font:F({size:20, bold:true}), alignment:{horizontal:'right', vertical:'middle'}});
   ws.mergeCells('A3:H3'); Object.assign(ws.getCell('A3'), {value:t.name, font:F({size:18, bold:true, color:{argb:'FF006100'}})});
-  ws.mergeCells('I3:'+L+'3'); Object.assign(ws.getCell('I3'), {value:`${evs.length} ภารกิจ · ${hrs.toFixed(1)} ชม. · รอยืนยัน ${pend}`, font:F({size:14, color:{argb:'FF404040'}}), alignment:{horizontal:'right', vertical:'middle'}});
+  const lvN = lvMonthDays(who, ym);
+  ws.mergeCells('I3:'+L+'3'); Object.assign(ws.getCell('I3'), {value:`${evs.length} ภารกิจ · ${hrs.toFixed(1)} ชม. · รอยืนยัน ${pend}${lvN?` · ลา ${lvN} วัน`:''}`, font:F({size:14, color:{argb:'FF404040'}}), alignment:{horizontal:'right', vertical:'middle'}});
   ws.getRow(1).height = 21; ws.getRow(2).height = 30; ws.getRow(3).height = 26; ws.getRow(4).height = 6;
   const hr = ws.getRow(5); hr.values = XL.head; hr.height = 40;
   hr.eachCell(c => { c.font = F({bold:true, color:{argb:'FFFFFFFF'}}); c.fill = fill('FF008000'); c.border = box; c.alignment = {horizontal:'center', vertical:'middle', wrapText:true}; });
@@ -1528,7 +1545,9 @@ function xlAddSheet(wb, who, ym){
       ws.getRow(r).height = 22; r++;
     }
     const first = r, dayFont = F(we ? {color:{argb:'FFC00000'}} : {});
-    if (!list.length){
+    const lvs = leavesOn(who, ds);
+    lvs.forEach(l => { ws.mergeCells(`C${r}:${L}${r}`); const row = ws.getRow(r), c = row.getCell(3); c.value = 'ลา: ' + lvSheetText(l); c.font = F({bold:true, color:{argb:'FF1F4E79'}}); c.fill = fill('FFDDEBF7'); c.alignment = {horizontal:'left', vertical:'top', wrapText:true}; styleRow(row, N); row.height = 24; r++; });
+    if (!list.length && !lvs.length){
       const row = ws.getRow(r); row.getCell(1).value = TH_D[dow]; row.getCell(2).value = `${d} ${TH_M[m-1]} ${be(y)}`;
       row.getCell(1).font = dayFont; row.getCell(2).font = dayFont;
       if (hol){ ws.mergeCells(`C${r}:${L}${r}`); const h = row.getCell(3); h.value = hol; h.font = F({bold:true, color:{argb:'FFC00000'}}); h.fill = fill('FFFCE4D6'); h.alignment = {horizontal:'center', vertical:'top'}; }
@@ -1537,6 +1556,7 @@ function xlAddSheet(wb, who, ym){
     }
     list.forEach(e => {
       const row = ws.getRow(r), st = e._st, off = st==='off';
+      if (e._lv) row.getCell(3).note = 'อยู่ในช่วงวันลา (' + lvLabel(e._lv) + ')';
       const vals = ['', '', e.time||'', e.type||'', e.title||'', e.place||'', e.status||'', (e._h.v || e.hours) ? Math.round(e._h.v*100)/100 : '', e.level||'', e.inviter||'', e.rec||'', xlRecDate(e)];
       vals.forEach((v,i) => { if (i>1) row.getCell(i+1).value = v; });
       for (let c=3;c<=N;c++) row.getCell(c).font = F(off ? {color:{argb:'FF808080'}} : {});
@@ -1563,7 +1583,7 @@ function xlAddSheet(wb, who, ym){
   tr.getCell(8).numFmt = '0.0';
   for (let c=1;c<=N;c++){ const cell = tr.getCell(c); cell.font = F({bold:true}); cell.fill = fill('FFE2EFDA'); cell.border = box; cell.alignment = {horizontal: c===1 ? 'right' : 'center', vertical:'middle'}; }
   r += 2;
-  ws.getCell(`A${r}`).value = 'หมายเหตุ : ยืนยัน = เข้าร่วมแน่นอน · รอยืนยัน = ยังไม่ได้ยืนยัน · เลื่อน / ขัดข้อง = ไม่ได้เข้าร่วม (ไม่นับชั่วโมง)';
+  ws.getCell(`A${r}`).value = 'หมายเหตุ : ยืนยัน = เข้าร่วมแน่นอน · รอยืนยัน = ยังไม่ได้ยืนยัน · เลื่อน / ขัดข้อง = ไม่ได้เข้าร่วม (ไม่นับชั่วโมง) · แถวสีฟ้า = วันลา';
   ws.getCell(`A${r}`).font = F({size:14, color:{argb:'FF595959'}});
   ws.getCell(`${L}${r}`).value = 'TM-QM-F-092-00'; ws.getCell(`${L}${r}`).font = F({size:14}); ws.getCell(`${L}${r}`).alignment = {horizontal:'right'};
   ws.getCell(`A${r+1}`).value = `ส่งออกจากระบบตารางงานอาจารย์ เมื่อ ${fullDate(todayIso)}${CUR_USER ? ' โดย ' + CUR_USER.name : ''}`;
