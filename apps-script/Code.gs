@@ -9,6 +9,9 @@
  *   - logs     : ประวัติการใช้งาน ใครเพิ่ม/แก้/ลบงานอะไร เมื่อไร และการจัดการบัญชี (ระบบสร้างชีตให้เอง)
  *   - leaves   : วันลาของอาจารย์ (ระบบสร้างชีตให้เอง) — ลงงานในวันลาได้ (เช่น ลงไว้ก่อนอาจารย์ขอลา)
  *                หน้าเว็บให้กดยืนยัน และงานนั้นขึ้นเตือน "อยู่ในช่วงวันลา" ในปฏิทิน
+ *   - bookings : จองห้องประชุมของภาควิชาฯ ที่ไม่ได้มาจากงานอาจารย์ (ระบบสร้างชีตให้เอง)
+ *                งานอาจารย์ที่จัดในห้องของภาควิชาฯ เก็บรหัสห้องไว้ในคอลัมน์ room ของชีต entries
+ *                ห้องชนกัน = เตือนในหน้าเว็บ (กดยืนยันแล้วจองซ้อนได้) ไม่บล็อก
  *
  * ผู้ใช้สมัครและตั้งรหัสผ่านเองที่หน้า register.html แล้วรอผู้ดูแลระบบอนุมัติในหน้า account.html
  * ลืมรหัสผ่าน: ผู้ใช้ตั้งรหัสใหม่เองที่หน้าเดียวกัน แล้วรอผู้ดูแลอนุมัติ (รหัสเดิมใช้ได้จนกว่าจะอนุมัติ)
@@ -40,15 +43,26 @@ const CONFIG = {
   LOG_VIEWERS: ['admin'],// สิทธิ์ที่เปิดดูหน้าประวัติการใช้งานได้ (เพิ่ม 'edit' ถ้าอยากให้ผู้บันทึกงานดูได้ด้วย)
   LEAVE_HALF_SPLIT: '12:00', // เวลาแบ่งครึ่งวัน: ลาครึ่งวันเช้า = ปฏิบัติงานตั้งแต่เวลานี้ · ลาครึ่งวันบ่าย = ปฏิบัติงานถึงเวลานี้
   LEAVE_MAX_DAYS: 120,       // ลาต่อเนื่องได้สูงสุดกี่วันต่อ 1 รายการ
+  // ห้องประชุมของภาควิชาฯ ที่จองผ่านระบบได้ — id ห้ามเปลี่ยนหลังใช้งานแล้ว (เก็บในชีต) เปลี่ยน name ได้
+  ROOMS: [
+    { id: 'DEPT', name: 'ห้องประชุมภาควิชาฯ' },
+    { id: 'MULTI', name: 'ห้องประชุมอเนกประสงค์' },
+    { id: 'RES', name: 'ห้องแพทย์ประจำบ้าน' },
+  ],
+  BOOKING_MAX_DATES: 60,     // จองหลายวันพร้อมกันได้สูงสุดกี่วันต่อครั้ง
 };
 
-const APP_VERSION = '2026-10-20 leave-warn';  // เปิดลิงก์ /exec ในเบราว์เซอร์ จะเห็นเลขเวอร์ชันนี้ ถ้าไม่ตรง แปลว่ายังไม่ได้ทำให้ใช้งานได้เวอร์ชันใหม่
+const APP_VERSION = '2026-10-23 rooms';  // เปิดลิงก์ /exec ในเบราว์เซอร์ จะเห็นเลขเวอร์ชันนี้ ถ้าไม่ตรง แปลว่ายังไม่ได้ทำให้ใช้งานได้เวอร์ชันใหม่
 
 const SHEET_ENTRIES = 'entries';
 const SHEET_HOLIDAYS = 'holidays';
 const SHEET_USERS = 'users';
 const SHEET_LOGS = 'logs';
 const SHEET_LEAVES = 'leaves';
+const SHEET_BOOKINGS = 'bookings';
+// ชีต bookings: 1 แถว = จองห้อง 1 ห้อง 1 วัน (จองหลายวันพร้อมกัน ระบบแยกเป็นวันละแถว)
+const BOOKING_FIELDS = ['id', 'room', 'roomName', 'date', 'start', 'end', 'title', 'organizer', 'contact', 'attendees', 'note',
+  'createdAt', 'updatedAt', 'createdBy', 'updatedBy'];
 // ชีต leaves: 1 แถว = การลา 1 ครั้งของอาจารย์ 1 ท่าน (ลาหลายวันติดกันใช้ date ถึง endDate)
 //   period: full = ทั้งวัน, am = ครึ่งวันเช้า, pm = ครึ่งวันบ่าย, time = บางช่วงเวลา (ใช้ start-end)
 const LEAVE_FIELDS = ['id', 'who', 'teacherName', 'date', 'endDate', 'period', 'start', 'end', 'leaveType', 'note',
@@ -62,7 +76,8 @@ const FIELDS = [
   'type', 'title', 'mode', 'venue', 'place', 'platform', 'link', 'meetingId', 'passcode',
   'status', 'level', 'inviter', 'fund', 'docChannel', 'edoc', 'notes', 'recName', 'rec',
   'source', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy',
-  'statusBy'  // สถานะรายบุคคล เช่น {"AK":"ขัดข้อง"} ใช้เมื่ออาจารย์บางท่านในงานเดียวกันสถานะต่างจากสถานะหลัก
+  'statusBy', // สถานะรายบุคคล เช่น {"AK":"ขัดข้อง"} ใช้เมื่ออาจารย์บางท่านในงานเดียวกันสถานะต่างจากสถานะหลัก
+  'room'      // รหัสห้องประชุมของภาควิชาฯ ที่จองไว้สำหรับงานนี้ (ว่าง = ไม่ได้ใช้ห้องของภาควิชาฯ) ดู CONFIG.ROOMS
 ];
 // ช่องที่หน้าเว็บส่งมาแก้ไขได้ (ช่องที่เหลือระบบจัดการเอง)
 const SYSTEM_FIELDS = ['id', 'teacherNames', 'source', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy'];
@@ -108,6 +123,7 @@ function setup() {
   pepper_(); // สร้างค่าลับสำหรับเข้ารหัสรหัสผ่าน (ครั้งแรกเท่านั้น)
   logSheet_(); // ชีตประวัติการใช้งาน
   leaveSheet_(); // ชีตวันลา
+  bookingSheet_(); // ชีตจองห้องประชุม
 
   // ลบรหัสกลางแบบเดิม (ถ้ามี) เพราะเปลี่ยนมาใช้บัญชีรายคนแล้ว
   const props = PropertiesService.getScriptProperties();
@@ -206,6 +222,7 @@ function handle_(p) {
         const u = findUser_(r.user.username);
         r.pending = pendingCount_(u); r.canViewLogs = CONFIG.LOG_VIEWERS.indexOf(u.role) >= 0;
         r.entries = readEntries_(); r.holidays = readHolidays_(); r.leaves = readLeaves_(); r.leaveSplit = CONFIG.LEAVE_HALF_SPLIT; r.serverTime = now_();
+        r.rooms = CONFIG.ROOMS; r.bookings = readBookings_();
       }
       return out_(r);
     }
@@ -224,7 +241,7 @@ function handle_(p) {
     // บัญชีที่ใช้รหัสชั่วคราวต้องตั้งรหัสใหม่ก่อน
     if (me.mustChange) return out_({ ok: false, error: 'must_change' });
 
-    if (action === 'list') return out_({ ok: true, role: dataRole_(me), user: publicUser_(me), pending: pendingCount_(me), canViewLogs: CONFIG.LOG_VIEWERS.indexOf(me.role) >= 0, entries: readEntries_(), holidays: readHolidays_(), leaves: readLeaves_(), leaveSplit: CONFIG.LEAVE_HALF_SPLIT, serverTime: now_() });
+    if (action === 'list') return out_({ ok: true, role: dataRole_(me), user: publicUser_(me), pending: pendingCount_(me), canViewLogs: CONFIG.LOG_VIEWERS.indexOf(me.role) >= 0, entries: readEntries_(), holidays: readHolidays_(), leaves: readLeaves_(), leaveSplit: CONFIG.LEAVE_HALF_SPLIT, rooms: CONFIG.ROOMS, bookings: readBookings_(), serverTime: now_() });
 
     if (action === 'logs_list') {
       if (CONFIG.LOG_VIEWERS.indexOf(me.role) < 0) return out_({ ok: false, error: 'forbidden' });
@@ -244,12 +261,23 @@ function handle_(p) {
 
     if (dataRole_(me) !== 'edit') return out_({ ok: false, error: 'forbidden' });
     return withLock_(() => {
-      if (action === 'create') return out_({ ok: true, entry: createEntry_(p.data || {}, me) });
-      if (action === 'update') return out_({ ok: true, entry: updateEntry_(String(p.id || ''), p.data || {}, me) });
+      if (action === 'create') { const o = createEntry_(p.data || {}, me); return out_({ ok: true, entry: o, roomClash: roomClashOf_(o, o.id) }); }
+      if (action === 'update') { const o = updateEntry_(String(p.id || ''), p.data || {}, me); return out_({ ok: true, entry: o, roomClash: roomClashOf_(o, o.id) }); }
       if (action === 'delete') { deleteEntry_(String(p.id || ''), me); return out_({ ok: true }); }
       // วันลาของอาจารย์ (สิทธิ์เดียวกับการบันทึกงาน)
       if (action === 'leave_save') { const r = saveLeave_(p.data || {}, me); return out_({ ok: true, leave: r.leave, busy: r.busy, leaves: readLeaves_(), leaveSplit: CONFIG.LEAVE_HALF_SPLIT }); }
       if (action === 'leave_delete') { deleteLeave_(String(p.id || ''), me); return out_({ ok: true, leaves: readLeaves_(), leaveSplit: CONFIG.LEAVE_HALF_SPLIT }); }
+      // จองห้องประชุม (สิทธิ์เดียวกับการบันทึกงาน)
+      if (action === 'booking_save') {
+        // กันบันทึกซ้ำเมื่อหน้าเว็บส่งซ้ำ (เน็ตหลุดแล้วลองใหม่) ด้วยรหัสคำขอ rid — จำไว้ 15 นาที
+        const cache = CacheService.getScriptCache();
+        const rid = String(p.rid || '').replace(/[^\w-]/g, '').slice(0, 64);
+        let r = null;
+        if (rid) { const done = cache.get('bk_' + rid); if (done) { r = JSON.parse(done); r.repeated = true; } }
+        if (!r) { r = saveBooking_(p.data || {}, me); if (rid) { try { cache.put('bk_' + rid, JSON.stringify(r), 900); } catch (e) { /* ใหญ่เกินแคช */ } } }
+        return out_({ ok: true, saved: r.saved, clash: r.clash, repeated: !!r.repeated, bookings: readBookings_(), rooms: CONFIG.ROOMS });
+      }
+      if (action === 'booking_delete') { deleteBooking_(String(p.id || ''), me); return out_({ ok: true, bookings: readBookings_(), rooms: CONFIG.ROOMS }); }
       return out_({ ok: false, error: 'unknown_action' });
     });
   } catch (err) {
@@ -528,7 +556,7 @@ const FIELD_TH = {
   who: 'อาจารย์', date: 'วันที่', time: 'เวลา', start: 'เวลาเริ่ม', end: 'เวลาสิ้นสุด', hours: 'ชั่วโมง', type: 'ประเภท', title: 'รายการ',
   mode: 'รูปแบบ', venue: 'สถานที่', platform: 'แพลตฟอร์ม', link: 'ลิงก์เข้าร่วม', meetingId: 'Meeting ID', passcode: 'Passcode',
   status: 'สถานะ', level: 'ระดับการประชุม', inviter: 'หน่วยงานที่เชิญ', fund: 'ทุนสนับสนุน', docChannel: 'ช่องทางเอกสาร', edoc: 'URL EDOC',
-  notes: 'รายละเอียดเพิ่มเติม', recName: 'ผู้บันทึก', statusBy: 'สถานะรายบุคคล'
+  notes: 'รายละเอียดเพิ่มเติม', recName: 'ผู้บันทึก', statusBy: 'สถานะรายบุคคล', room: 'จองห้องประชุม'
 };
 const MODE_TH_ = { onsite: 'ในสถานที่', online: 'ออนไลน์', hybrid: 'ไฮบริด' };
 
@@ -538,6 +566,7 @@ function showVal_(f, v) {
   v = String(v == null ? '' : v);
   if (f === 'who') return v.split(/[,\s]+/).filter(Boolean).map(c => TEACHER_NAMES[c] || c).join(', ');
   if (f === 'mode') return MODE_TH_[v] || v;
+  if (f === 'room') return roomName_(v);
   if (f === 'statusBy') { try { const o = JSON.parse(v || '{}'); return Object.keys(o).map(k => (TEACHER_NAMES[k] || k) + ': ' + o[k]).join(', '); } catch (e) { return v; } }
   return v;
 }
@@ -763,7 +792,7 @@ function normDate_(v) {
 }
 function pad_(n) { return ('0' + n).slice(-2); }
 
-function clean_(data) {
+function clean_(data, strictRoom) {
   const o = {};
   EDITABLE.forEach(f => {
     let v = data[f];
@@ -780,6 +809,12 @@ function clean_(data) {
   const who = o.who.split(','), clean = {};
   Object.keys(sb || {}).forEach(k => { const v = String(sb[k] || '').trim().slice(0, 60); if (who.indexOf(k) >= 0 && v && v !== o.status) clean[k] = v; });
   o.statusBy = Object.keys(clean).length ? JSON.stringify(clean) : '';
+  // ห้องประชุมของภาควิชาฯ: เฉพาะรหัสที่มีใน CONFIG.ROOMS และงานที่ไม่ใช่ออนไลน์อย่างเดียว
+  o.room = roomById_(o.room) && o.mode !== 'online' ? String(o.room) : '';
+  if (o.room && strictRoom) {
+    const s = hmMin_(o.start), en = hmMin_(o.end);
+    if (s == null || en == null || en <= s) throw fail_('invalid_argument', 'จองห้องประชุมต้องระบุเวลาเริ่มและเวลาสิ้นสุด');
+  }
   return o;
 }
 
@@ -800,7 +835,7 @@ function findRow_(sh, id) {
 function createEntry_(data, me) {
   const sh = sheet_(SHEET_ENTRIES);
   ensureHeader_(sh, FIELDS); // เพิ่มคอลัมน์ใหม่ (เช่น docChannel) ให้อัตโนมัติ
-  const o = clean_(data);
+  const o = clean_(data, true);
   o.id = Utilities.getUuid();
   o.source = 'web';
   o.createdAt = o.updatedAt = now_();
@@ -822,7 +857,9 @@ function updateEntry_(id, data, me) {
   if (r < 0) throw new Error('ไม่พบรายการนี้ อาจถูกลบไปแล้ว');
   const hm = headerMap_(sh);
   const current = sh.getRange(r, 1, 1, hm.head.length).getDisplayValues()[0];
-  const o = clean_(data);
+  // หน้าเว็บรุ่นเก่า (ยังไม่มีช่องห้อง) ส่งมาโดยไม่มี room → คงห้องเดิมไว้
+  if (data.room === undefined && hm.map.room !== undefined) data = Object.assign({}, data, { room: current[hm.map.room] });
+  const o = clean_(data, true);
   o.id = id;
   o.source = current[hm.map.source] || 'web';
   o.createdAt = current[hm.map.createdAt] || now_();
@@ -905,7 +942,9 @@ function importEntries_(p, me) {
       return;
     }
     let o;
-    try { o = clean_(u.data || {}); } catch (e) { res.errors.push({ key: key, id: id, msg: e.message }); return; }
+    const ud = Object.assign({}, u.data || {});
+    if (ud.room === undefined) ud.room = cur('room'); // ไฟล์ Excel ไม่มีข้อมูลห้อง → คงห้องที่จองไว้
+    try { o = clean_(ud); } catch (e) { res.errors.push({ key: key, id: id, msg: e.message }); return; }
     o.id = id;
     o.source = cur('source') || 'excel';
     o.createdAt = cur('createdAt') || now;
@@ -1134,7 +1173,167 @@ function deleteLeave_(id, me) {
     summary: 'ลบวันลา: ' + leaveSummary_(before), changes: leaveChanges_(before, {}) });
 }
 
+// ---------------------------------------------------------------------------
+// จองห้องประชุมของภาควิชาฯ
+//   ห้องที่ใช้อยู่ = งานอาจารย์ที่มี room (สถานะหลักไม่ใช่ เลื่อน/ขัดข้อง/ยกเลิก) + รายการในชีต bookings
+//   ห้องชนกันไม่บล็อก (ผู้ใช้ขอ 23 ต.ค. 69) — หน้าเว็บเตือนและให้กดยืนยัน, Apps Script ส่งรายการที่ชนกลับไปด้วย
+// ---------------------------------------------------------------------------
+function roomById_(id) { id = String(id || ''); for (let i = 0; i < CONFIG.ROOMS.length; i++) if (CONFIG.ROOMS[i].id === id) return CONFIG.ROOMS[i]; return null; }
+function roomName_(id) { const r = roomById_(id); return r ? r.name : String(id || ''); }
+
+function bookingSheet_() {
+  const ss = SpreadsheetApp.getActive();
+  let sh = ss.getSheetByName(SHEET_BOOKINGS);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_BOOKINGS);
+    sh.getRange(1, 1, sh.getMaxRows(), Math.max(sh.getMaxColumns(), BOOKING_FIELDS.length)).setNumberFormat('@');
+    sh.getRange(1, 1, 1, BOOKING_FIELDS.length).setValues([BOOKING_FIELDS]).setFontWeight('bold').setBackground('#f3e3e6');
+    sh.setFrozenRows(1);
+  } else {
+    ensureHeader_(sh, BOOKING_FIELDS);
+  }
+  return sh;
+}
+
+function readBookings_() {
+  const sh = SpreadsheetApp.getActive().getSheetByName(SHEET_BOOKINGS);
+  if (!sh || sh.getLastRow() < 2) return [];
+  const values = sh.getDataRange().getDisplayValues();
+  const map = headerMap_(sh).map;
+  const out = [];
+  for (let r = 1; r < values.length; r++) {
+    const row = values[r];
+    if (!row.join('')) continue;
+    const o = {};
+    BOOKING_FIELDS.forEach(f => { o[f] = map[f] !== undefined ? String(row[map[f]] || '').trim() : ''; });
+    o.date = normDate_(o.date); o.start = normHm_(o.start); o.end = normHm_(o.end);
+    if (!o.id || !/^\d{4}-\d{2}-\d{2}$/.test(o.date) || !o.start || !o.end) continue;
+    out.push(o);
+  }
+  out.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : (a.start < b.start ? -1 : a.start > b.start ? 1 : 0));
+  return out;
+}
+
+// ห้องที่ถูกใช้ทั้งหมด [{kind, id, room, date, s, e, title, by}]
+function roomUses_() {
+  const out = [];
+  readEntries_().forEach(e => {
+    if (!e.room || !roomById_(e.room) || e.mode === 'online' || OFF_STATUS_RE.test(e.status || '')) return;
+    const sp = entrySpan_(e); if (!sp) return;
+    out.push({ kind: 'entry', id: e.id, room: e.room, date: e.date, s: sp[0], e: sp[1], title: e.title, by: e.teacherNames || '' });
+  });
+  readBookings_().forEach(b => {
+    if (!roomById_(b.room)) return;
+    out.push({ kind: 'booking', id: b.id, room: b.room, date: b.date, s: hmMin_(b.start), e: hmMin_(b.end), title: b.title, by: b.organizer || '' });
+  });
+  return out;
+}
+function clashText_(u) { return hmTh_(u.s).replace(' น.', '') + '–' + hmTh_(u.e) + ' ' + u.title + (u.by ? ' (' + u.by + ')' : ''); }
+// รายการที่ใช้ห้องเดียวกัน วันเดียวกัน เวลาทับกัน (ไม่นับตัวเอง)
+function roomClashWith_(uses, room, date, s, e, selfId) {
+  return uses.filter(u => u.id !== selfId && u.room === room && u.date === date && u.s < e && s < u.e)
+    .map(u => ({ kind: u.kind, id: u.id, room: u.room, date: u.date, text: clashText_(u) }));
+}
+function roomClashOf_(o, selfId) {
+  if (!o || !o.room || OFF_STATUS_RE.test(o.status || '')) return [];
+  const sp = entrySpan_(o); if (!sp) return [];
+  return roomClashWith_(roomUses_(), o.room, o.date, sp[0], sp[1], selfId);
+}
+
+function cleanBooking_(d) {
+  const o = {};
+  o.room = String(d.room || '').trim();
+  if (!roomById_(o.room)) throw fail_('invalid_argument', 'กรุณาเลือกห้องประชุม');
+  o.roomName = roomName_(o.room);
+  o.date = normDate_(d.date);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(o.date)) throw fail_('invalid_argument', 'วันที่ไม่ถูกต้อง');
+  o.start = normHm_(d.start); o.end = normHm_(d.end);
+  if (!o.start || !o.end) throw fail_('invalid_argument', 'กรุณาระบุเวลาเริ่มและเวลาสิ้นสุด');
+  if (hmMin_(o.start) >= hmMin_(o.end)) throw fail_('invalid_argument', 'เวลาสิ้นสุดต้องอยู่หลังเวลาเริ่ม');
+  o.title = String(d.title || '').trim().slice(0, 300);
+  if (!o.title) throw fail_('invalid_argument', 'กรุณาใส่ชื่อกิจกรรม / การประชุม');
+  o.organizer = String(d.organizer || '').trim().slice(0, 200);
+  o.contact = String(d.contact || '').trim().slice(0, 200);
+  const n = String(d.attendees == null ? '' : d.attendees).trim();
+  o.attendees = /^\d{1,4}$/.test(n) ? String(+n) : '';
+  o.note = String(d.note || '').trim().slice(0, 1000);
+  return o;
+}
+
+function bookingSummary_(o) {
+  return roomName_(o.room) + ' ' + shortDateTh_(o.date) + ' ' + o.start.replace(':', '.') + '–' + o.end.replace(':', '.') + ' น. "' + o.title + '"' + (o.organizer ? ' · ' + o.organizer : '');
+}
+const BOOKING_TH = { room: 'ห้อง', date: 'วันที่', start: 'เวลาเริ่ม', end: 'เวลาสิ้นสุด', title: 'กิจกรรม', organizer: 'ผู้ขอใช้ / หน่วยงาน', contact: 'ติดต่อ', attendees: 'จำนวนผู้เข้าร่วม', note: 'หมายเหตุ' };
+function bookingChanges_(a, b) {
+  const out = [];
+  Object.keys(BOOKING_TH).forEach(f => {
+    const x = String(a[f] || ''), y = String(b[f] || '');
+    if (x !== y) out.push({ f: f, label: BOOKING_TH[f], from: f === 'room' ? roomName_(x) : x, to: f === 'room' ? roomName_(y) : y });
+  });
+  return out;
+}
+
+// บันทึก / แก้การจองห้อง
+//   data.id     = แก้รายการเดิม (วันเดียว)
+//   data.dates  = จองใหม่หลายวันพร้อมกัน (รายละเอียดเดียวกัน) — ถ้าไม่มีใช้ data.date
+// คืน { saved: [รายการที่บันทึก], clash: [ห้องชนกับรายการอื่น] }
+function saveBooking_(data, me) {
+  const id = String(data.id || '').trim();
+  const sh = bookingSheet_();
+  const hm = headerMap_(sh);
+  const stamp = me ? me.name + ' (' + me.username + ')' : '';
+  const now = now_();
+  let dates = Array.isArray(data.dates) && !id ? data.dates.map(normDate_) : [normDate_(data.date)];
+  dates = dates.filter((d, i) => dates.indexOf(d) === i).sort();
+  if (!dates.length) throw fail_('invalid_argument', 'กรุณาเลือกวันที่');
+  if (dates.length > CONFIG.BOOKING_MAX_DATES) throw fail_('invalid_argument', 'จองได้ครั้งละไม่เกิน ' + CONFIG.BOOKING_MAX_DATES + ' วัน');
+  const list = dates.map(d => cleanBooking_(Object.assign({}, data, { date: d })));
+  const uses = roomUses_();
+  const clash = [];
+  const saved = [];
+  if (id) {
+    const before = readBookings_().filter(b => b.id === id)[0];
+    const r = findRow_(sh, id);
+    if (!before || r < 0) throw fail_('not_found', 'ไม่พบรายการจองนี้ อาจถูกลบไปแล้ว');
+    const o = list[0];
+    o.id = id; o.createdAt = before.createdAt; o.createdBy = before.createdBy; o.updatedAt = now; o.updatedBy = stamp;
+    const row = rowFrom_(sh, o);
+    const current = sh.getRange(r, 1, 1, hm.head.length).getDisplayValues()[0];
+    hm.head.forEach((h, i) => { if (BOOKING_FIELDS.indexOf(h) < 0) row[i] = current[i]; });
+    sh.getRange(r, 1, 1, row.length).setNumberFormat('@').setValues([row]);
+    const changes = bookingChanges_(before, o);
+    if (changes.length) log_(me, 'booking_update', { target: roomName_(o.room), entryId: id, entryDate: o.date,
+      summary: 'แก้ไขการจองห้อง: ' + bookingSummary_(o) + ' (' + changes.map(c => c.label).join(', ') + ')', changes: changes });
+    saved.push(o);
+  } else {
+    const rows = [], logs = [];
+    list.forEach(o => {
+      o.id = Utilities.getUuid(); o.createdAt = o.updatedAt = now; o.createdBy = o.updatedBy = stamp;
+      rows.push(rowFrom_(sh, o));
+      logs.push(logRow_(me, 'booking_create', { target: roomName_(o.room), entryId: o.id, entryDate: o.date,
+        summary: 'จองห้อง: ' + bookingSummary_(o), changes: bookingChanges_({}, o) }));
+      saved.push(o);
+    });
+    sh.getRange(sh.getLastRow() + 1, 1, rows.length, hm.head.length).setNumberFormat('@').setValues(rows);
+    logMany_(logs);
+  }
+  saved.forEach(o => roomClashWith_(uses, o.room, o.date, hmMin_(o.start), hmMin_(o.end), o.id).forEach(c => clash.push(c)));
+  return { saved: saved, clash: clash };
+}
+
+function deleteBooking_(id, me) {
+  if (!id) throw fail_('invalid_argument', 'ไม่มี id');
+  const sh = SpreadsheetApp.getActive().getSheetByName(SHEET_BOOKINGS);
+  if (!sh) return;
+  const before = readBookings_().filter(b => b.id === id)[0];
+  const r = findRow_(sh, id);
+  if (r < 0) return;
+  sh.deleteRow(r);
+  if (before) log_(me, 'booking_delete', { target: roomName_(before.room), entryId: id, entryDate: before.date,
+    summary: 'ยกเลิกการจองห้อง: ' + bookingSummary_(before), changes: bookingChanges_(before, {}) });
+}
+
 // ทดสอบใน editor: ดูว่าอ่านข้อมูลได้กี่แถว
 function testList() {
-  Logger.log(readEntries_().length + ' รายการ, ' + Object.keys(readHolidays_()).length + ' วันหยุด, ' + readLeaves_().length + ' วันลา');
+  Logger.log(readEntries_().length + ' รายการ, ' + Object.keys(readHolidays_()).length + ' วันหยุด, ' + readLeaves_().length + ' วันลา, ' + readBookings_().length + ' การจองห้อง');
 }

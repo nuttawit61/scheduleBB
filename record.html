@@ -623,7 +623,7 @@ footer{border-top-style:dashed}
 .gate-rem{display:flex;gap:8px;align-items:center;font-size:.9em;color:var(--muted)}
 .sync{display:flex;align-items:center;gap:6px;font-size:.84em;color:var(--muted)}
 .sync.err{color:var(--accent)}
-.role-view .evacts a.btn:not(.edocbtn),.role-view .hero-btn:not(.back),.role-view .mfoot a.btn.primary{display:none}
+.role-view .evacts a.btn:not(.edocbtn),.role-view .hero-btn:not(.back):not(.roombtn),.role-view .mfoot a.btn.primary{display:none}
 /* db status */
 .dbbar{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:var(--r,14px);box-shadow:var(--shadow);padding:12px 16px;margin-bottom:clamp(12px,1.6vw,20px);border-left:5px solid var(--st)}
 .dbbar,.sync{--st:#C98A12}
@@ -726,7 +726,7 @@ a.logoutpill{text-decoration:none}
 @media (max-width:640px){ .conn{top:10px;right:10px} .hero .bellbtn{flex:1;justify-content:center} }
 @media print{ .conn{display:none} }
 /* page split */
-.hero-side{position:relative;z-index:1;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hero-side{position:relative;z-index:1;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .hero-btn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:var(--accent);text-decoration:none;font-family:var(--f-display);font-weight:700;font-size:1.05em;padding:12px 22px 12px 14px;border-radius:999px;box-shadow:0 8px 24px rgb(60 0 10 / .28);transition:transform .15s, box-shadow .15s}
 .hero-btn .plus{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-size:1.05em}
 .hero-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgb(60 0 10 / .35)}
@@ -741,6 +741,15 @@ a.logoutpill{text-decoration:none}
 .teachlink{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--accent);background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:8px 14px;font-weight:600;white-space:nowrap}
 .teachlink:hover{background:var(--accent-soft)}
 @media (max-width:640px){ .hero-side{width:100%} .hero-btn{flex:1;justify-content:center} }
+/* ปุ่มวันลา / จองห้องประชุม ข้างปุ่มบันทึกงาน (เฉพาะหน้าตารางงาน) */
+.hero-btn .plus svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.page-form .hero-xtra,.page-leave .hero-xtra{display:none}
+@media (min-width:1701px){ .hero-side{justify-content:flex-end} }
+@media (min-width:1101px) and (max-width:1700px){ .page-main .hero{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"logo main" "side side"} .page-main .hero-side{justify-self:start} }
+.hero-xtra{white-space:nowrap}
+.hero-side .hero-btn{padding:10px 18px 10px 11px;font-size:1em}
+.hero-side .hero-btn .plus{width:28px;height:28px}
+@media (max-width:640px){ .hero-xtra{flex:1 1 calc(50% - 7px);padding:10px 10px 10px 8px!important;font-size:.92em!important;gap:7px} .hero-xtra .plus{width:24px!important;height:24px!important} #heroBtn{flex:1 1 100%} }
 /* ===== วันลาของอาจารย์ ===== */
 .chip.lvchip{background:repeating-linear-gradient(-45deg,var(--soft) 0 6px,color-mix(in srgb,var(--soft) 55%,var(--surface)) 6px 12px);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 45%,transparent);color:var(--c)}
 .chip.lvchip i{border-radius:2px;background:none;box-shadow:inset 0 0 0 2px var(--c)}
@@ -788,6 +797,30 @@ a.logoutpill{text-decoration:none}
   .chip.lvx i{background:#B3261E}
 }
 @media print{ .lvadd,.lvjump{display:none!important} }
+/* ===== จองห้องประชุมของภาควิชาฯ (ในฟอร์มบันทึกงาน) ===== */
+.roompick{display:flex;flex-direction:column;gap:8px;border-top:1px dashed var(--line);padding-top:12px}
+.roompick .rphead{display:flex;flex-direction:column;gap:1px}
+.roompick .rphead b{font-size:.9em}
+.roompick .rphead small{color:var(--muted);font-size:.82em}
+.roompick .rphead a{color:var(--accent);font-weight:600}
+.rpopts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;border-radius:12px}
+.rpopts label{position:relative;display:flex;flex-direction:column;gap:1px;border:1px solid var(--line);border-radius:12px;padding:9px 12px 9px 14px;cursor:pointer;background:var(--surface);transition:background .12s,border-color .12s;min-width:0;overflow:hidden}
+.rpopts label::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--rc,var(--line))}
+.rpopts input{position:absolute;opacity:0;pointer-events:none}
+.rpopts b{font-size:.92em;line-height:1.35}
+.rpopts small{font-size:.78em;line-height:1.35;color:var(--muted);overflow-wrap:anywhere}
+.rpopts label.free small{color:var(--ok);font-weight:600}
+.rpopts label.busy small{color:#B3261E;font-weight:600}
+.rpopts label:has(input:checked){border-color:var(--rc,var(--accent));background:color-mix(in srgb,var(--rc,var(--accent)) 9%,var(--surface));box-shadow:inset 0 0 0 1px var(--rc,var(--accent))}
+.rpopts label:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.rpopts label.rpnone b{color:var(--muted)}
+.rpopts.bad{box-shadow:0 0 0 3px var(--accent-soft)}
+.rmwarn{background:#FDECEA;border:1px solid #E8A39B;border-left:4px solid #B3261E;color:#6E140D;border-radius:10px;padding:10px 14px;font-size:.9em;display:flex;flex-direction:column;gap:4px}
+.rmwarn.info{background:#FFF6DD;border-color:#EBCB78;border-left-color:#C98A12;color:#5C3D00}
+.rmwarn ul{margin:0;padding-left:18px}
+.roomtag{display:inline-flex;align-items:center;gap:5px;font-size:.78em;font-weight:600;border-radius:999px;padding:0 9px;background:color-mix(in srgb,var(--rc) 12%,var(--surface));color:var(--rc);border:1px solid color-mix(in srgb,var(--rc) 35%,transparent);white-space:nowrap}
+.roomtag::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--rc)}
+@media (max-width:900px){ .rpopts{grid-template-columns:repeat(2,minmax(0,1fr))} }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 @media print{ html .hero, html .wrap>.dbbar, .modal{display:none!important} *{outline:none!important} }
 /* idle auto-logout warning */
@@ -845,6 +878,8 @@ a.logoutpill{text-decoration:none}
     <div class="hero-side">
       <button type="button" class="bellbtn" id="bellBtn" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span id="bellTx">รอยืนยัน</span><span class="bellnum" id="bellNum">0</span></button>
       <a class="hero-btn" id="heroBtn" href="#"><span class="plus" aria-hidden="true">＋</span><span id="heroBtnTx">บันทึกงาน</span></a>
+      <a class="hero-btn hero-xtra lvbtn" href="leave.html" title="บันทึกวันลาของอาจารย์"><span class="plus" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3 10h18M9.5 13.5l5 5M14.5 13.5l-5 5"/></svg></span><span>วันลา</span></a>
+      <a class="hero-btn hero-xtra roombtn" href="room.html" title="ตารางและจองห้องประชุมของภาควิชาฯ"><span class="plus" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16"/><path d="M2 21h20M9 21v-4h6v4M8 7h2M14 7h2M8 11h2M14 11h2"/></svg></span><span>จองห้องประชุม</span></a>
       <div class="hero-today" id="heroToday"></div>
     </div>
   </header>
@@ -858,7 +893,6 @@ a.logoutpill{text-decoration:none}
       <button role="tab" id="tab-form" aria-selected="false">＋ บันทึกงาน</button>
     </div>
     <a class="teachlink" href="teaching.html" title="เปิดปฏิทินที่แสดงเฉพาะงานสอน">ปฏิทินการสอน <span aria-hidden="true">→</span></a>
-    <a class="teachlink" href="leave.html" title="บันทึกวันลาของอาจารย์">วันลา <span aria-hidden="true">→</span></a>
     <button class="linkbtn" id="showAll">แสดงทุกท่าน</button>
     <div class="legend">
       <span><span class="pill ok">ยืนยัน</span></span>
@@ -929,6 +963,11 @@ a.logoutpill{text-decoration:none}
           </fieldset>
           <div class="modebox" id="boxSite">
             <label class="fld"><span>สถานที่ <span class="req">*</span></span><input id="fPlace" placeholder="เช่น ห้องประชุมภาควิชาฯ ตึก 72 ปี ชั้น 3"></label>
+            <div class="roompick" id="fRoomBox">
+              <div class="rphead"><b>จองห้องประชุมของภาควิชาฯ</b><small>งานที่จัดในภาควิชาฯ เลือกห้องเพื่อจองไปพร้อมกัน (ต้องระบุเวลาเริ่ม–สิ้นสุด) · ดูตารางห้องทั้งหมดที่ <a href="room.html" target="_blank" rel="noopener">หน้าจองห้องประชุม ↗</a></small></div>
+              <div class="rpopts" id="fRoom" role="radiogroup" aria-label="ห้องประชุมของภาควิชาฯ"></div>
+              <div class="rmwarn" id="fRoomWarn" role="alert" hidden></div>
+            </div>
           </div>
           <div class="modebox" id="boxOnline" hidden>
             <div class="frow">
@@ -1177,6 +1216,31 @@ function lvMonthDays(who, ym){
   return Math.round(t*10)/10;
 }
 function markLeaveClash(){ EVENTS.forEach(e => { e._lv = e._st==='off' ? null : (leavesOn(e.who, e.date).find(l => lvHit(l, e._sp)) || null); }); }
+
+/* ===== ห้องประชุมของภาควิชาฯ =====
+   งานอาจารย์ที่จัดในห้องของภาควิชาฯ เก็บรหัสห้องใน room · จองแยก (ไม่ใช่งานอาจารย์) ทำที่หน้า room.html
+   ห้องชนกัน = เตือนและให้กดยืนยัน ไม่บล็อก · งานที่เลื่อน/ขัดข้อง/ยกเลิก ไม่นับว่าใช้ห้อง */
+const DEFAULT_ROOMS = [{id:'DEPT', name:'ห้องประชุมภาควิชาฯ'}, {id:'MULTI', name:'ห้องประชุมอเนกประสงค์'}, {id:'RES', name:'ห้องแพทย์ประจำบ้าน'}];
+const ROOM_COLORS = ['#9B1C31','#1F6FB2','#2C7A47','#7A4FB5','#B4690E','#0E7C74'];
+let ROOMS = DEFAULT_ROOMS.slice(), BOOKINGS = [], ROOM_API = null;
+const roomById = id => ROOMS.find(r => r.id===id) || null;
+const roomName = id => (roomById(id)||{}).name || id || '';
+const roomColor = id => { const i = ROOMS.findIndex(r => r.id===id); return ROOM_COLORS[(i<0?0:i) % ROOM_COLORS.length]; };
+function setRooms(rooms, bookings){
+  if (Array.isArray(rooms) && rooms.length) ROOMS = rooms.filter(r => r && r.id && r.name);
+  BOOKINGS = (Array.isArray(bookings) ? bookings : []).filter(b => b && b.id && roomById(b.room) && /^\d{4}-\d{2}-\d{2}$/.test(b.date||''));
+}
+// การใช้ห้องทั้งหมด: งานอาจารย์ที่จองห้อง + จองแยกจากหน้า room.html
+function roomUses(){
+  const out = [];
+  FORM_DOCS.forEach(d => { if (!d.room || !roomById(d.room) || d.mode==='online' || OFF_RE.test(d.status||'')) return; const sp = evSpan(d); if (!sp) return;
+    out.push({kind:'entry', id:d.id, room:d.room, date:d.date, s:sp[0], e:sp[1], title:d.title||'', by:(Array.isArray(d.who)?d.who:[d.who]).filter(w=>TEACHERS[w]).map(w=>TEACHERS[w].short).join(', ')}); });
+  BOOKINGS.forEach(b => { const s = hmMin(b.start), e = hmMin(b.end); if (s==null || e==null || e<=s) return; out.push({kind:'booking', id:b.id, room:b.room, date:b.date, s, e, title:b.title||'', by:b.organizer||''}); });
+  return out;
+}
+const useText = u => `${minTh(u.s)}–${minTh(u.e)} น. ${u.title}${u.by?` (${u.by})`:''}`;
+function roomClashes(room, dates, sp, selfId){ if (!room || !sp) return []; return roomUses().filter(u => u.room===room && dates.includes(u.date) && u.id!==selfId && u.s<sp[1] && sp[0]<u.e).sort((a,b)=>a.date.localeCompare(b.date)||a.s-b.s); }
+const roomTag = id => id && roomById(id) ? `<span class="roomtag" style="--rc:${roomColor(id)}">${esc(roomName(id))}</span>` : '';
 buildEvents();
 
 // state
@@ -1297,7 +1361,7 @@ function evCard(e){
   return `<article class="ev t-${e.who} ${e._st}${e._cf&&e._cf.length?' cf':''}${e._lv?' lvx':''}">
     <div class="r1"><span class="time">${esc(e.time||'ไม่ระบุเวลา')}</span><span class="tag">${esc(e.type)}</span>
       <span class="pill ${e._st}" style="margin-left:auto">${esc(e.status||'ไม่ระบุสถานะ')}</span></div>
-    <div class="ttl">${esc(e.title)}${e.source==='web'?` <span class="srcbadge">เพิ่มจากหน้าเว็บ</span>`:''}</div>${cfNote(e)}${e._lv?`<div class="lvnote" role="note"><b>⛔ อยู่ในช่วงที่อาจารย์ลา</b> (${esc(lvLabel(e._lv))}) — ย้ายเวลา หรือเปลี่ยนสถานะเป็น ขัดข้อง / เลื่อน</div>`:''}
+    <div class="ttl">${esc(e.title)}${e.source==='web'?` <span class="srcbadge">เพิ่มจากหน้าเว็บ</span>`:''}${e.room&&e.mode!=='online'?' '+roomTag(e.room):''}</div>${cfNote(e)}${e._lv?`<div class="lvnote" role="note"><b>⛔ อยู่ในช่วงที่อาจารย์ลา</b> (${esc(lvLabel(e._lv))}) — ย้ายเวลา หรือเปลี่ยนสถานะเป็น ขัดข้อง / เลื่อน</div>`:''}
     <dl class="kv">${rows.map(r=>`<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join('')}</dl>
     <div class="evacts">${e.edoc?`<a class="btn sm edocbtn" href="${esc(e.edoc)}" target="_blank" rel="noopener"><svg class="edoc-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg> EDOC</a>`:''}<a class="btn sm" href="${editHref(e)}">✎ แก้ไข</a></div>
   </article>`;
@@ -1624,6 +1688,7 @@ function openEvModal(e){
   const linkHtml = e.link && /^https?:\/\//i.test(e.link) ? `<a href="${esc(e.link)}" target="_blank" rel="noopener">${esc(e.link)}</a>` : esc(e.link||'');
   const rows=[['วัน/เดือน/ปี',`${fullDate(e.date)}`],['เวลา',e.time?`${e.time} น.`:''],['ประเภท',e.type],['รายการ',e.title],['รูปแบบ',modeTx],
     ...(e.mode ? [['สถานที่', e.mode==='online' ? '' : e.venue], ['แพลตฟอร์ม', e.platform], ['Meeting ID', e.meetingId], ['Passcode', e.passcode], ['ลิงก์เข้าร่วม', {html:linkHtml}]].filter(r=>r[0]==='สถานที่'?e.mode!=='online':e.mode!=='onsite') : [['สถานที่',e.place]]),
+    ...(e.room && e.mode!=='online' && roomById(e.room) ? [['จองห้องประชุม', {html: roomTag(e.room)+' <a href="room.html#day-'+e.date+'">ดูตารางห้อง ↗</a>'}]] : []),
     ['หมายเหตุ (สถานะ)',e.status],
     ['ชั่วโมง', (e.hours||e._h.v) ? fmtH(e._h)+' ชม.' : ''],['ระดับของการประชุม',e.level],['หน่วยงานที่เชิญ',e.inviter],['ทุนสนับสนุน',e.fund],['ช่องทางรับเอกสาร',e.docChannel],['เอกสาร EDOC', e.edoc ? {html:`<a href="${esc(e.edoc)}" target="_blank" rel="noopener">${esc(e.edoc)}</a>`} : ''],['รายละเอียดเพิ่มเติม',e.notes],['ผู้บันทึก',e.rec],['วันที่บันทึกลงระบบ',{html:recDate(e).replace(/<small[^>]*>/g,' · ').replace(/<\/small>/g,'')}]];
   const box=document.getElementById('evBox');
@@ -1632,6 +1697,7 @@ function openEvModal(e){
     <div class="mquick"><span class="when">${shortDate(e.date)} · ${esc(e.time||'ไม่ระบุเวลา')}</span>${e.mode?`<span class="modebadge ${e.mode}">${MODE_TH[e.mode]}</span>`:''}<span class="tag">${esc(e.type)}</span><span class="pill ${e._st}">${esc(e.status||'ไม่ระบุสถานะ')}</span></div>
     ${quickStatusHtml(e)}
     ${e._cf && e._cf.length ? `<div class="mcf"><b>⚠ งานนี้เวลาชนกับงานอื่นของ ${esc(t.short)} ในวันเดียวกัน</b><ul>${e._cf.map(o=>`<li>${esc(cfText(o))}${o.status?` <small>(${esc(o.status)})</small>`:''}</li>`).join('')}</ul></div>` : ''}
+    ${(() => { if (!e.room || e.mode==='online' || e._st==='off') return ''; const rc = roomClashes(e.room, [e.date], evSpan(e), e.id); return rc.length ? `<div class="mcf"><b>⚠ ${esc(roomName(e.room))} มีรายการอื่นจองซ้อนในช่วงเวลานี้</b><ul>${rc.map(u=>`<li>${esc(useText(u))}</li>`).join('')}</ul></div>` : ''; })()}
     <table class="mtable"><tbody>${rows.map(r=>{ const v=r[1]; const has = v && (typeof v==='object' ? v.html : true); return `<tr><th>${r[0]}</th><td class="${has?'':'empty'}">${has ? (typeof v==='object' ? v.html : esc(v).replace(/\n/g,'<br>')) : '—'}</td></tr>`; }).join('')}</tbody></table>
     <div class="mfoot"><span class="src">${e.source==='excel'?'นำเข้าจากไฟล์ Excel':'บันทึกจากหน้าเว็บ'}${e.updatedAt?' · แก้ไขล่าสุด '+esc(e.updatedAt.slice(0,16).replace('T',' ')):''}${e.createdBy?`<span class="by">บันทึกโดย ${esc(byName(e.createdBy))}${e.updatedBy && e.updatedBy!==e.createdBy?` · แก้ไขล่าสุดโดย ${esc(byName(e.updatedBy))}`:''}</span>`:''}</span>
       ${e.edoc?`<a class="btn edocbtn" href="${esc(e.edoc)}" target="_blank" rel="noopener"><svg class="edoc-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg> เปิดเอกสาร EDOC</a>`:''}
@@ -1687,7 +1753,7 @@ function setKey(k, remember){ try{ localStorage.removeItem(KEY_STORE); sessionSt
 /* ข้อมูลรอบล่าสุดเก็บไว้ในเครื่อง เปิดหน้าครั้งต่อไปแสดงได้ทันที แล้วค่อยโหลดของใหม่เบื้องหลัง (ลบเมื่อออกจากระบบ) */
 const SNAP_KEY = 'tt-snap', SNAP_MAX_AGE = 14*864e5;
 function readSnap(){ try{ const s=JSON.parse(localStorage.getItem(SNAP_KEY)||'null'); return s && s.j && Date.now()-s.t < SNAP_MAX_AGE ? s : null; }catch(_){ return null; } }
-function saveSnap(j){ try{ if (!getKey() || !j || !j.user) return; localStorage.setItem(SNAP_KEY, JSON.stringify({u:j.user.username, t:Date.now(), j:{role:j.role, user:j.user, pending:j.pending, canViewLogs:j.canViewLogs, entries:j.entries, holidays:j.holidays, leaves:j.leaves, leaveSplit:j.leaveSplit}})); }catch(_){ try{ localStorage.removeItem(SNAP_KEY); }catch(__){} } }
+function saveSnap(j){ try{ if (!getKey() || !j || !j.user) return; localStorage.setItem(SNAP_KEY, JSON.stringify({u:j.user.username, t:Date.now(), j:{role:j.role, user:j.user, pending:j.pending, canViewLogs:j.canViewLogs, entries:j.entries, holidays:j.holidays, leaves:j.leaves, leaveSplit:j.leaveSplit, rooms:j.rooms, bookings:j.bookings}})); }catch(_){ try{ localStorage.removeItem(SNAP_KEY); }catch(__){} } }
 function clearSnap(){ try{ localStorage.removeItem(SNAP_KEY); }catch(_){} }
 const RETRY_CODES = ['timeout','network','busy'];
 function newRid(){ let s=''; try{ const a=new Uint8Array(12); crypto.getRandomValues(a); a.forEach(b=>s+=b.toString(16).padStart(2,'0')); }catch(_){ s=(Date.now().toString(36)+Math.random().toString(36).slice(2)).replace(/[^a-z0-9]/g,''); } return s.slice(0,24); }
@@ -1721,6 +1787,7 @@ function makeApiDB(url){
     ROLE = j.role; PENDING = j.pending||0; CAN_LOGS = !!j.canViewLogs; setUser(j.user); cache = j.entries||[];
     Object.keys(HOLIDAYS).forEach(k=>delete HOLIDAYS[k]); Object.assign(HOLIDAYS, j.holidays||{});
     setLeaves(j.leaves, j.leaveSplit); LEAVE_API = Array.isArray(j.leaves) ? true : (j.__snap ? null : false);
+    setRooms(j.rooms, j.bookings); ROOM_API = Array.isArray(j.rooms) ? true : (j.__snap ? ROOM_API : false); renderRoomOpts();
     document.documentElement.classList.toggle('role-view', ROLE!=='edit');
     canWrite = ROLE==='edit'; applyWriteState(); fire();
   }
@@ -1837,12 +1904,12 @@ function autoHours(){
 const MODE_TH={onsite:'ในสถานที่',online:'ออนไลน์',hybrid:'ไฮบริด'};
 function getMode(){ return (document.querySelector('#fMode input:checked')||{}).value || 'onsite'; }
 function setMode(v){ document.querySelectorAll('#fMode input').forEach(i=>i.checked=i.value===(v||'onsite')); applyMode(); }
-function applyMode(){ const m=getMode(); $('boxSite').hidden = m==='online'; $('boxOnline').hidden = m==='onsite'; }
+function applyMode(){ const m=getMode(); $('boxSite').hidden = m==='online'; $('boxOnline').hidden = m==='onsite'; if (typeof renderRoomPick==='function') renderRoomPick(); }
 function guessMode(place){ const p=place||''; const on=/zoom|teams|meet|webex|ออนไลน์|online|meeting id/i.test(p); const site=/ห้อง|ตึก|อาคาร|ชั้น|หอประชุม|รพ\.|โรงพยาบาล/.test(p); return on&&site?'hybrid':on?'online':'onsite'; }
 function guessPlatform(p){ p=p||''; return /teams/i.test(p)?'Microsoft Teams':/meet/i.test(p)&&!/meeting/i.test(p)?'Google Meet':/webex/i.test(p)?'Webex':/zoom/i.test(p)?'Zoom':'Zoom'; }
 function setMsg(t, err){ const m=$('fMsg'); m.textContent=t; m.className='fmsg'+(err?' err':''); }
 function resetForm(){
-  editingId = null; editingExcel = null; SB = {}; $('entryForm').reset(); renderStatusBy(); applyMode(); edocHint(); $('fDate').value = selected || todayIso; delete $('fHours').dataset.manual;
+  editingId = null; editingExcel = null; SB = {}; $('entryForm').reset(); setRoom(''); renderStatusBy(); applyMode(); edocHint(); $('fDate').value = selected || todayIso; delete $('fHours').dataset.manual;
   $('fTitle').textContent='บันทึกงานใหม่'; $('fSave').textContent='บันทึกงาน'; delete $('fSave').dataset.cf; delArm(false); $('fDelete').hidden=true; showDateTh(); setTimeout(checkFormConflicts,0);
   document.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad')); renderFormList();
   if (CUR_USER && !$('fRec').value) $('fRec').value = CUR_USER.name;
@@ -1870,7 +1937,7 @@ function fillForm(d){
   $('fType').value=d.type||''; $('fStatus').value=d.status||'ยืนยัน'; $('fLevel').value=d.level||'';
   SB = {...parseSB(d.statusBy)}; renderStatusBy();
   $('fTitleIn').value=d.title||'';
-  const mode = d.mode || guessMode(d.place); setMode(mode);
+  const mode = d.mode || guessMode(d.place); setRoom(d.room||''); setMode(mode);
   $('fPlace').value = d.mode ? (d.venue||'') : (mode==='online' ? '' : (d.place||''));
   $('fPlatform').value = d.platform || guessPlatform(d.place); $('fLink').value = d.link||'';
   $('fMeetId').value = d.meetingId || (!d.mode && mode!=='onsite' ? ((d.place||'').match(/(?:id\s*[:：]?\s*)([\d\s]{9,})/i)||[])[1]?.trim()||'' : '');
@@ -1897,12 +1964,14 @@ function readForm(){
   document.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad'));
   const bad=[]; if(!who.length) bad.push($('fWho')); if(!date) bad.push($('fDate')); if(!title) bad.push($('fTitleIn')); if(getMode()!=='online' && !$('fPlace').value.trim()) bad.push($('fPlace')); if($('fEdoc').value.trim() && !isUrl(normUrl($('fEdoc').value))) bad.push($('fEdoc'));
   if (bad.length){ bad.forEach(x=>x.classList.add('bad')); setMsg(bad.length===1 && bad[0]===$('fEdoc') ? 'URL เอกสาร EDOC ไม่ถูกต้อง' : bad.includes($('fPlace')) && bad.length===1 ? 'กรุณาใส่สถานที่' : 'กรุณากรอกช่องที่มีเครื่องหมาย * ให้ครบ', true); bad[0].focus?.(); return null; }
+  const room = getMode()!=='online' ? getRoom() : '';
+  if (room && !formRoomSpan()){ $('fRoom').classList.add('bad'); setMsg('จองห้องประชุมต้องระบุเวลาเริ่มและเวลาสิ้นสุด (เวลาสิ้นสุดต้องหลังเวลาเริ่ม)', true); $('fStartH').focus(); return null; }
   const start=$('fStart').value, end=$('fEnd').value;
   const time = start && end ? `${toDot(start)}-${toDot(end)}` : (start ? toDot(start) : '');
   const now=new Date(), recName=$('fRec').value.trim();
   const stamp=`${pad(now.getDate())}/${pad(now.getMonth()+1)}/${be(now.getFullYear())}`;
   return { who, date, start, end, time, hours: $('fHours').value ? String(Number($('fHours').value).toFixed(1)) : '',
-    type:$('fType').value.trim(), status:$('fStatus').value, statusBy: statusByJSON(who, $('fStatus').value), level:$('fLevel').value.trim(), title, ...modeData(),
+    type:$('fType').value.trim(), status:$('fStatus').value, statusBy: statusByJSON(who, $('fStatus').value), level:$('fLevel').value.trim(), title, ...modeData(), room,
     inviter:$('fInviter').value.trim(), fund:$('fFund').value.trim(), docChannel:$('fDocCh').value.trim(), recName, rec: recName ? `${recName} ${stamp}` : `บันทึกผ่านเว็บ ${stamp}`,
     updatedAt: now.toISOString() };
 }
@@ -2006,8 +2075,43 @@ function checkFormLeave(){
   const drop=$('fLvDrop'); if (drop) drop.onclick = () => { XD = XD.filter(d => !xd.includes(d)); xdMsg(`เอาออกแล้ว ${xd.length} วัน`); renderXD(); };
   return list;
 }
+/* ===== เลือกห้องประชุมในฟอร์มบันทึกงาน ===== */
+function getRoom(){ return (document.querySelector('#fRoom input:checked')||{}).value || ''; }
+function setRoom(v){ if (!roomById(v)) v=''; document.querySelectorAll('#fRoom input').forEach(i => i.checked = i.value===v); renderRoomPick(); }
+function renderRoomOpts(){
+  const box=$('fRoom'); if (!box) return; const cur=getRoom();
+  box.innerHTML = `<label class="rpnone"><input type="radio" name="froom" value="" checked><b>ไม่ใช้ห้องของภาควิชาฯ</b><small>จัดที่อื่น / ไม่ต้องจองห้อง</small></label>`
+    + ROOMS.map(r => `<label data-room="${esc(r.id)}" style="--rc:${roomColor(r.id)}"><input type="radio" name="froom" value="${esc(r.id)}"><b>${esc(r.name)}</b><small class="rpst"></small></label>`).join('');
+  box.querySelectorAll('input').forEach(i => { i.disabled = !canWrite; i.checked = i.value===(roomById(cur)?cur:''); });
+  renderRoomPick();
+}
+function formRoomSpan(){ const a=hmMin($('fStart').value), b=hmMin($('fEnd').value); return a!=null && b!=null && b>a ? [a,b] : null; }
+// คืนรายการที่ใช้ห้องที่เลือกซ้อนกับงานในฟอร์ม (ใช้ตอนกดบันทึก)
+function formRoomClash(){
+  const room = getMode()!=='online' ? getRoom() : '';
+  if (!room || OFF_RE.test($('fStatus').value||'')) return [];
+  return roomClashes(room, formDates(), formRoomSpan(), editingId);
+}
+function renderRoomPick(){
+  const box=$('fRoom'); if (!box) return;
+  const sel=getRoom(), dates=formDates(), sp=formRoomSpan(), multi=dates.length>1;
+  box.classList.remove('bad');
+  box.querySelectorAll('label[data-room]').forEach(lb => {
+    const st=lb.querySelector('.rpst'), cl = sp && dates.length ? roomClashes(lb.dataset.room, dates, sp, editingId) : null;
+    lb.classList.toggle('busy', !!(cl && cl.length)); lb.classList.toggle('free', !!(cl && !cl.length));
+    st.textContent = !cl ? 'เลือกเวลาเริ่ม–สิ้นสุด เพื่อดูว่าว่างไหม' : cl.length ? `ไม่ว่าง · ${cl.length>1 ? cl.length+' รายการ' : (multi?shortDate(cl[0].date)+' ':'')+useText(cl[0])}` : (multi ? `ว่างทั้ง ${dates.length} วัน` : 'ว่าง');
+  });
+  const w=$('fRoomWarn'); if (!w) return;
+  const off = OFF_RE.test($('fStatus').value||''), list = formRoomClash();
+  let html='', info=false;
+  if (sel && ROOM_API===false){ html = '<b>Apps Script ยังเป็นเวอร์ชันเก่า ยังบันทึกการจองห้องไม่ได้</b><small>กรุณาอัปเดต Apps Script เป็นเวอร์ชัน 2026-10-23 rooms (งานจะบันทึกได้ แต่ห้องจะไม่ถูกจอง)</small>'; info=true; }
+  else if (sel && !sp){ html = '<b>ระบุเวลาเริ่มและเวลาสิ้นสุดของงาน เพื่อจองห้อง</b>'; info=true; }
+  else if (sel && off){ html = `<small>สถานะ "${esc($('fStatus').value)}" — ${esc(roomName(sel))} จะไม่ถูกนับว่าใช้อยู่</small>`; info=true; }
+  else if (list.length) html = `<b>⚠ ${esc(roomName(sel))} มีรายการอื่นจองไว้ในช่วงเวลานี้</b><ul>${list.map(u=>`<li>${multi?`<b>${esc(shortDate(u.date))}</b> `:''}${esc(useText(u))}${u.kind==='booking'?' · จองจากหน้าห้องประชุม':''}</li>`).join('')}</ul><small>ถ้าตกลงใช้ห้องร่วมกันแล้ว บันทึกต่อได้ (ต้องกดยืนยันอีกครั้ง) หรือเลือกห้องอื่นที่ว่าง</small>`;
+  w.hidden = !html; w.className = 'rmwarn'+(info?' info':''); w.innerHTML = html;
+}
 function checkFormConflicts(){
-  checkFormLeave();
+  checkFormLeave(); renderRoomPick();
   const box=$('fConflict'); if (!box) return [];
   const list = formConflicts(); cfConfirm = false;
   if ($('fSave').dataset.cf){ $('fSave').textContent = $('fSave').dataset.cf; delete $('fSave').dataset.cf; }
@@ -2019,12 +2123,13 @@ async function saveForm(ev){
   ev.preventDefault();
   // เวลาชน หรืออยู่ในช่วงที่อาจารย์ลา → ให้กดยืนยันอีกครั้งก่อนบันทึก
   if (!cfConfirm && DB && canWrite){
-    const cf = checkFormConflicts(), lv = formLeaveBlocks();
-    if (cf.length || lv.length){
-      const label = lv.length ? 'บันทึกทั้งที่อาจารย์ลา' : 'บันทึกทั้งที่เวลาชน';
+    const cf = checkFormConflicts(), lv = formLeaveBlocks(), rc = formRoomClash();
+    if (cf.length || lv.length || rc.length){
+      const label = lv.length ? 'บันทึกทั้งที่อาจารย์ลา' : cf.length ? 'บันทึกทั้งที่เวลาชน' : 'บันทึกทั้งที่ห้องไม่ว่าง';
+      const why = [lv.length?'อาจารย์ลาในช่วงเวลานี้':'', cf.length?'เวลาชนกับงานอื่น':'', rc.length?`${roomName(getRoom())} มีรายการอื่นจองไว้`:''].filter(Boolean);
       cfConfirm = true; $('fSave').dataset.cf = $('fSave').textContent; $('fSave').textContent = label;
-      setMsg(`${lv.length ? 'อาจารย์ลาในช่วงเวลานี้' : 'งานนี้เวลาชนกับงานอื่น'}${lv.length && cf.length ? ' และเวลาชนกับงานอื่น' : ''} ตรวจสอบด้านบน ถ้าต้องการบันทึกไว้ กด "${label}" อีกครั้ง`, true);
-      $(lv.length ? 'fLeave' : 'fConflict').scrollIntoView({behavior:'smooth', block:'center'}); return;
+      setMsg(`${why.join(' และ')} ตรวจสอบด้านบน ถ้าต้องการบันทึกไว้ กด "${label}" อีกครั้ง`, true);
+      $(lv.length ? 'fLeave' : cf.length ? 'fConflict' : 'fRoomWarn').scrollIntoView({behavior:'smooth', block:'center'}); return;
     }
   }
   if (!DB || !canWrite){ setMsg('หน้านี้ยังบันทึกไม่ได้ ดูข้อความด้านบน', true); return; }
@@ -2077,7 +2182,8 @@ async function saveForm(ev){
     }
     const savedAll = [data.date, ...copies].sort(), saved = savedAll[0];
     resetForm(); selected = saved; month = saved.slice(0,7); sheetMonth = month;
-    setMsg(savedAll.length > 1 ? `บันทึกแล้ว ${savedAll.length} วัน · ${savedAll.map(shortDate).join(', ')}` : `บันทึกแล้ว · ${shortDate(saved)}`);
+    setMsg((savedAll.length > 1 ? `บันทึกแล้ว ${savedAll.length} วัน · ${savedAll.map(shortDate).join(', ')}` : `บันทึกแล้ว · ${shortDate(saved)}`)
+      + (data.room ? (ROOM_API===false ? ' · ⚠ ยังไม่ได้จองห้อง (ต้องอัปเดต Apps Script)' : ` · จอง${roomName(data.room)}แล้ว`) : ''), ROOM_API===false && !!data.room);
   }catch(e){
     if (e && e.code==='unauthorized'){ setKey(''); showGate('หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่ ข้อมูลที่กรอกไว้ยังอยู่'); }
     else if (e && e.code==='must_change'){ location.href='account.html?first=1'; return; }
@@ -2133,7 +2239,7 @@ function applyWriteState(){
   renderFormList();
   if (typeof lvApplyWrite==='function') lvApplyWrite();
 }
-initFormStatic(); applyWriteState();
+initFormStatic(); renderRoomOpts(); applyWriteState();
 $('entryForm').addEventListener('submit', saveForm);
 $('fReset').onclick = () => { resetForm(); setMsg(''); };
 $('fCsv').onclick = () => { if (!FORM_DOCS.length) return setMsg('ยังไม่มีงานให้ส่งออก', true); exportCSV(); };
@@ -2150,6 +2256,10 @@ function setT(id, v){ const [h,m]=(v||'').split(':'); $(id+'H').value=h||''; $(i
 ['fStart','fEnd'].forEach(id => { $(id+'H').addEventListener('change', ()=>syncT(id)); $(id+'M').addEventListener('change', ()=>syncT(id)); });
 ['fStartH','fStartM','fEndH','fEndM','fDate','fStatus','fHours'].forEach(id => { const x=$(id); if (x){ x.addEventListener('change', checkFormConflicts); x.addEventListener('input', checkFormConflicts); } });
 $('fWho').addEventListener('change', () => { renderStatusBy(); checkFormConflicts(); });
+$('fRoom').addEventListener('change', () => { const v=getRoom(), p=$('fPlace');
+  if (v && (!p.value.trim() || ROOMS.some(r => r.name===p.value.trim()))){ p.value = roomName(v); p.classList.remove('bad'); }
+  checkFormConflicts(); });
+document.querySelectorAll('#fMode input').forEach(i=>i.addEventListener('change', checkFormConflicts));
 $('fStatus').addEventListener('change', renderStatusBy);
 $('fHours').addEventListener('input', () => { if ($('fHours').value) $('fHours').dataset.manual='1'; else delete $('fHours').dataset.manual; });
 /* ===== ฟอร์มบันทึกวันลา (หน้า record.html) ===== */
