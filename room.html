@@ -813,7 +813,42 @@ table.bk td.cf{color:#B3261E;font-weight:600}
   table.bk tr.brow td{border:0;padding:0;background:none!important;min-width:0}
   table.bk td.tm{grid-area:tm} table.bk td.rmn{grid-area:rmn} table.bk td.ti{grid-area:ti;font-weight:500} table.bk td.by{grid-area:by;font-size:.9em;color:var(--muted)} table.bk td.kd{grid-area:kd} table.bk td.n{grid-area:n;font-size:.86em;color:var(--muted)}
 }
-@media print{ .slot,.nowline,.toast{display:none!important} }
+/* ดึงการใช้ห้องจากตารางงานอาจารย์ */
+.sgbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:12px 16px;border-left:5px solid #1F6FB2}
+.sgbar .sgtx{flex:1;min-width:220px;font-size:.94em}
+.sgbar .sgtx b{font-family:var(--f-display)}
+.sgbox{width:min(1080px,100%)}
+.sgbody{padding:14px 22px 6px;display:flex;flex-direction:column;gap:12px}
+.sgsum{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:.92em}
+.sgsum .xdskip{margin-left:auto}
+.sgnote{font-size:.86em;color:var(--muted);background:var(--surface-2);border-radius:10px;padding:8px 12px}
+table.sg{min-width:900px;font-size:.92em}
+table.sg td{vertical-align:middle}
+table.sg td.ck{width:34px;text-align:center}
+table.sg td.ck input{width:18px;height:18px;accent-color:var(--accent)}
+table.sg td.ti b{font-weight:600}
+table.sg td.ti small{display:block;color:var(--muted)}
+table.sg td.pl{max-width:260px}
+table.sg td.rm select{font:inherit;border:1px solid var(--line);border-radius:8px;padding:5px 8px;background:var(--surface);max-width:210px;box-shadow:inset 4px 0 0 var(--rc)}
+table.sg tr.off td:not(.ck){opacity:.45}
+table.sg td.cf{color:#B3261E;font-size:.84em;width:230px;max-width:230px;line-height:1.4}
+table.sg td.cf span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lvtag{display:inline-block;font-size:.76em;font-weight:700;border-radius:999px;padding:0 8px;white-space:nowrap}
+.lvtag.ex{background:var(--ok-soft);color:var(--ok)}
+.lvtag.near{background:#FFF0CC;color:#7A5300}
+.sgfoot{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 22px 16px;border-radius:0 0 18px 18px}
+.sgfoot .btn.primary.armed{background:#7A1A12;border-color:#7A1A12}
+@media (max-width:760px){
+  .sgbody{padding:12px 14px 6px}
+  table.sg{min-width:0;display:block}
+  table.sg thead{display:none}
+  table.sg tbody{display:block}
+  table.sg tr{display:grid;grid-template-columns:34px minmax(0,1fr);grid-template-areas:"ck dt" "ck ti" "ck pl" "ck rm" "ck cf";gap:3px 8px;padding:10px 4px;border-top:1px solid var(--line)}
+  table.sg td{border:0;padding:0;min-width:0}
+  table.sg td.ck{grid-area:ck;align-self:start} table.sg td.dt{grid-area:dt;font-weight:600} table.sg td.ti{grid-area:ti} table.sg td.pl{grid-area:pl;max-width:none;color:var(--muted)} table.sg td.rm{grid-area:rm} table.sg td.cf{grid-area:cf;max-width:none}
+  .sgfoot{padding:10px 14px 14px}
+}
+@media print{ .slot,.nowline,.toast,.sgbar{display:none!important} }
 </style>
 </head>
 <body>
@@ -867,6 +902,7 @@ table.bk td.cf{color:#B3261E;font-weight:600}
   <section class="rooms" id="rooms" aria-label="ห้องประชุม"></section>
 
   <div class="apinote" id="apiNote" hidden></div>
+  <div class="sgbar" id="sgBar" hidden><div class="sgtx" id="sgTx"></div><button type="button" class="btn sm primary" id="sgOpen">ตรวจและเพิ่มลงการจอง</button></div>
 
   <div class="toolbar">
     <div class="tabs" role="tablist">
@@ -921,7 +957,7 @@ table.bk td.cf{color:#B3261E;font-weight:600}
   </div>
 
   <footer>
-    <div>ห้องที่ใช้ = จองจากหน้านี้ + งานอาจารย์ที่เลือกห้องในหน้าบันทึกงาน (ไม่นับงานที่เลื่อน / ขัดข้อง / ยกเลิก) · ห้องซ้อนกันระบบเตือนแต่ยังจองได้ · <a class="linkbtn" href="index.html">ตารางงานทั้งหมด</a> · <a class="linkbtn" href="record.html">บันทึกงานอาจารย์</a> · <button type="button" class="linkbtn" id="logoutBtn">ออกจากระบบ</button></div>
+    <div>ห้องที่ใช้ = จองจากหน้านี้ + งานอาจารย์ที่เลือกห้องในหน้าบันทึกงาน (ไม่นับงานที่เลื่อน / ขัดข้อง / ยกเลิก) · ห้องซ้อนกันระบบเตือนแต่ยังจองได้ · <a class="linkbtn" href="index.html">ตารางงานทั้งหมด</a> · <a class="linkbtn" href="record.html">บันทึกงานอาจารย์</a> · <a class="linkbtn" href="free.html">หาวันว่างของอาจารย์</a> · <button type="button" class="linkbtn" id="logoutBtn">ออกจากระบบ</button></div>
   </footer>
 </div>
 
@@ -962,6 +998,19 @@ table.bk td.cf{color:#B3261E;font-weight:600}
         <span class="fmsg" id="bMsg" role="status"></span>
       </div>
     </form>
+  </div>
+</div>
+
+<div class="modal" id="sgModal" hidden>
+  <div class="modal-bg" data-sgclose="1"></div>
+  <div class="modal-box sgbox rm" role="dialog" aria-modal="true" aria-labelledby="sgTitle" tabindex="-1" id="sgBox" style="--rc:#1F6FB2">
+    <div class="mhead"><span class="ric" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16"/><path d="M2 21h20M9 21v-4h6v4M8 7h2M14 7h2M8 11h2M14 11h2"/></svg></span><div><div class="who">จากข้อมูลใน Google Sheet</div><h2 id="sgTitle">งานอาจารย์ที่จัดในห้องของภาควิชาฯ แต่ยังไม่ได้จองห้อง</h2></div><button type="button" class="x" data-sgclose="1" aria-label="ปิด">×</button></div>
+    <div class="sgbody">
+      <div class="sgnote">ระบบหาจากช่อง "สถานที่" ของงานอาจารย์ที่บันทึกไว้ — <span class="lvtag ex">ตรง</span> ชื่อห้องตรงกัน · <span class="lvtag near">ใกล้เคียง</span> สะกดต่างกันเล็กน้อย (เช่น "ห้องอเนกประสงค์", "ห้องประขุมภาควิชาฯ", "ห้องพักแพทย์ประจำบ้าน") ตรวจห้องที่เลือกให้ถูกต้องก่อนเพิ่ม · ไม่รวมงานที่ออนไลน์ เลื่อน ขัดข้อง หรือยกเลิก · ระบบแก้เฉพาะช่องห้อง ข้อมูลอื่นของงานไม่เปลี่ยน</div>
+      <div class="sgsum" id="sgSum"></div>
+      <div class="tscroll" id="sgList"></div>
+    </div>
+    <div class="sgfoot"><button type="button" class="btn primary" id="sgApply">เพิ่มลงการจองห้อง</button><button type="button" class="btn" data-sgclose="1">ปิด</button><span class="fmsg" id="sgMsg" role="status"></span></div>
   </div>
 </div>
 
@@ -1191,7 +1240,7 @@ function renderApiNote(){
   n.hidden = ROOM_API !== false;
   if (!n.hidden) n.innerHTML = '<b>Apps Script ยังไม่รองรับการจองห้อง</b>ผู้ดูแลระบบต้องอัปเดตโค้ด Apps Script เป็นเวอร์ชัน <code>2026-10-23 rooms</code> (วางโค้ดใหม่ > ทำให้ใช้งานได้ > จัดการ > ✎ > เวอร์ชันใหม่) จึงจะจองห้องได้';
 }
-function renderAll(){ renderApiNote(); renderHero(); renderRooms(); if (view==='day') renderDay(); else if (view==='month') renderMonth(); else renderList(); }
+function renderAll(){ renderApiNote(); sgBarRender(); renderHero(); renderRooms(); if (view==='day') renderDay(); else if (view==='month') renderMonth(); else renderList(); }
 function setView(v){
   view = ['day','month','list'].includes(v) ? v : 'day'; store.set('room-view', view);
   ['day','month','list'].forEach(k => { $('tab-'+k).setAttribute('aria-selected', view===k); $('view-'+k).hidden = view!==k; });
@@ -1350,13 +1399,95 @@ $('bDelete').onclick = async () => {
   catch(e){ bkBusy = false; bMsg('ยกเลิกไม่สำเร็จ: '+errText(e), true); if (e.code==='unauthorized') authLost(); }
   finally{ b.disabled = false; }
 };
-document.addEventListener('keydown', ev => { if (ev.key==='Escape'){ if (!$('bkModal').hidden) closeBk(); else closeEvModal(); } });
+document.addEventListener('keydown', ev => { if (ev.key==='Escape'){ if (!$('sgModal').hidden) sgClose(); else if (!$('bkModal').hidden) closeBk(); else closeEvModal(); } });
 let toastT = null;
 function toast(msg, warn){ const t=$('toast'); t.textContent = msg; t.className = 'toast'+(warn?' warn':''); t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, warn ? 9000 : 5000); }
 function applyBookings(j){
   setRooms(j.rooms, j.bookings); buildUses(); renderAll();
   try{ const s=JSON.parse(localStorage.getItem(SNAP_KEY)||'null'); if (s && s.j){ s.j.bookings = j.bookings; if (j.rooms) s.j.rooms = j.rooms; localStorage.setItem(SNAP_KEY, JSON.stringify(s)); } }catch(_){}
 }
+
+/* ===== ดึงการใช้ห้องจากตารางงานอาจารย์ (งานที่สถานที่เป็นห้องของภาควิชาฯ แต่ยังไม่ได้เลือกห้อง) ===== */
+// คืน {room, level:'ตรง'|'ใกล้เคียง'} หรือ null — ปรับคำที่ใช้จับได้ที่นี่
+function roomGuess(d){
+  const raw = String((d.mode ? d.venue : '') || d.place || '').replace(/\s+/g,' ').trim();
+  if (!raw) return null;
+  const t = raw.replace(/ประขุม/g, 'ประชุม'), has = id => !!roomById(id);
+  if (has('MULTI') && /อเนกประสงค์/.test(t)) return {room:'MULTI', level: /^ห้องประชุมอเนกประสงค์(\s|$)/.test(raw) ? 'ตรง' : 'ใกล้เคียง'};
+  if (has('DEPT') && /ห้อง(ประชุม)?\s*ภาค(วิชา)?(ฯ|\s|ตึก|เวชศาสตร์การธนาคารเลือด|$)/.test(t)) return {room:'DEPT', level: /^ห้องประชุมภาควิชาฯ(\s|$)/.test(raw) ? 'ตรง' : 'ใกล้เคียง'};
+  if (has('RES') && /ห้อง\S*\s*แพทย์ประจำบ้าน|ห้อง\s*resident/i.test(t)) return {room:'RES', level: /^ห้องแพทย์ประจำบ้าน(\s|$)/.test(raw) ? 'ตรง' : 'ใกล้เคียง'};
+  return null;
+}
+let SG = [], sgArmed = false, sgBusy = false;
+function sgFind(){
+  return FORM_DOCS.filter(d => !d.room && d.mode!=='online' && !OFF_RE.test(d.status||'') && /^\d{4}-\d{2}-\d{2}$/.test(d.date||''))
+    .map(d => { const g = roomGuess(d); if (!g) return null; const sp = evSpan(d); const who = (Array.isArray(d.who)?d.who:String(d.who||'').split(/[,\s]+/)).filter(w=>TEACHERS[w]);
+      return {d, id:d.id, date:d.date, sp, room:g.room, level:g.level, who, on:!!sp}; })
+    .filter(Boolean).sort((a,b) => a.date.localeCompare(b.date) || (a.sp?a.sp[0]:0)-(b.sp?b.sp[0]:0));
+}
+function sgBarRender(){
+  const n = canWrite && ROOM_API===true ? sgFind().filter(x=>x.sp).length : 0;
+  $('sgBar').hidden = !n;
+  if (n) $('sgTx').innerHTML = `พบงานอาจารย์ <b>${n} รายการ</b> ที่สถานที่เป็นห้องของภาควิชาฯ แต่ยังไม่ได้จองห้อง — เพิ่มลงตารางห้องได้ในครั้งเดียว`;
+}
+function sgOpen(){
+  if (!canWrite || ROOM_API!==true) return;
+  SG = sgFind(); sgArmed = false; sgBusy = false; $('sgMsg').textContent = '';
+  if (!lastFocus || $('evModal').hidden) lastFocus = document.activeElement;
+  sgRender(); $('sgModal').hidden = false; document.body.style.overflow = 'hidden'; $('sgBox').focus();
+}
+function sgClose(){ if (sgBusy) return; const m=$('sgModal'); if (m.hidden) return; m.hidden = true; document.body.style.overflow=''; if (lastFocus && lastFocus.focus) lastFocus.focus(); }
+function sgClash(x){
+  if (!x.on || !x.sp) return [];
+  const other = USES.filter(u => u.room===x.room && u.date===x.date && u.s<x.sp[1] && x.sp[0]<u.e).map(u => useText(u));
+  SG.forEach(y => { if (y!==x && y.on && y.sp && y.room===x.room && y.date===x.date && y.sp[0]<x.sp[1] && x.sp[0]<y.sp[1]) other.push(`${minTh(y.sp[0])}–${minTh(y.sp[1])} น. ${y.d.title||''} (ในชุดนี้)`); });
+  return other;
+}
+function sgRender(){
+  const past = $('sgPast') ? $('sgPast').checked : true;
+  const rows = SG.filter(x => past || x.date >= todayIso);
+  const ok = SG.filter(x => x.sp), sel = SG.filter(x => x.on && x.sp);
+  const nEx = ok.filter(x=>x.level==='ตรง').length, nNear = ok.length - nEx, noTime = SG.filter(x=>!x.sp).length;
+  $('sgSum').innerHTML = `<span>พบ <b>${ok.length}</b> รายการ</span><span class="lvtag ex">ตรง ${nEx}</span><span class="lvtag near">ใกล้เคียง ${nNear}</span>${noTime?`<span class="muted">· ไม่มีเวลา ${noTime} รายการ (ต้องใส่เวลาก่อน)</span>`:''}`
+    + `<label class="xdskip"><input type="checkbox" id="sgPast" ${past?'checked':''}> แสดงรายการที่ผ่านมาแล้ว</label><button type="button" class="btn sm" id="sgAll">เลือกทั้งหมด</button><button type="button" class="btn sm" id="sgNone">ไม่เลือกเลย</button>`;
+  if (!rows.length){ $('sgList').innerHTML = `<div class="bkempty">${SG.length ? 'ไม่มีรายการตั้งแต่วันนี้เป็นต้นไป' : 'ไม่พบงานอาจารย์ที่ต้องเพิ่ม — งานที่สถานที่เป็นห้องของภาควิชาฯ จองห้องครบแล้ว'}</div>`; }
+  else $('sgList').innerHTML = `<table class="sg"><thead><tr><th></th><th>วันที่ / เวลา</th><th>งาน</th><th>สถานที่ที่บันทึกไว้</th><th>จองห้อง</th><th>หมายเหตุ</th></tr></thead><tbody>${rows.map(x => { const i = SG.indexOf(x), cf = sgClash(x), d = x.d;
+      return `<tr class="${x.on&&x.sp?'':'off'}"><td class="ck"><input type="checkbox" data-i="${i}" ${x.on&&x.sp?'checked':''} ${x.sp?'':'disabled'} aria-label="เลือก ${esc(d.title||'')}"></td>
+        <td class="dt">${esc(shortDate(x.date))}<small style="display:block;color:var(--muted)">${x.sp?`${minTh(x.sp[0])}–${minTh(x.sp[1])} น.`:'ไม่มีเวลา'}</small></td>
+        <td class="ti"><b>${esc(d.title||'')}</b><small>${esc(x.who.map(w=>TEACHERS[w].short).join(', '))}${d.status?' · '+esc(d.status):''}</small></td>
+        <td class="pl">${esc((d.mode?d.venue:'')||d.place||'')} <span class="lvtag ${x.level==='ตรง'?'ex':'near'}">${x.level}</span></td>
+        <td class="rm" style="--rc:${roomColor(x.room)}">${x.sp?`<select data-r="${i}" aria-label="ห้องสำหรับ ${esc(d.title||'')}">${ROOMS.map(r=>`<option value="${esc(r.id)}" ${r.id===x.room?'selected':''}>${esc(r.name)}</option>`).join('')}</select>`:`<a href="${encodeURI(FORM_FILE)}#edit-${encodeURIComponent(x.id)}" target="_blank" rel="noopener">ใส่เวลาในหน้าบันทึกงาน ↗</a>`}</td>
+        <td class="cf" title="${esc(cf.join('\n'))}">${cf.length?`⚠ ซ้อนกับ ${cf.map(c=>`<span>${esc(c.length>34?c.slice(0,34)+'…':c)}</span>`).join('')}`:''}</td></tr>`; }).join('')}</tbody></table>`;
+  $('sgPast').onchange = sgRender;
+  $('sgAll').onclick = () => { SG.forEach(x => x.on = !!x.sp); sgArmed=false; sgRender(); };
+  $('sgNone').onclick = () => { SG.forEach(x => x.on = false); sgArmed=false; sgRender(); };
+  $('sgList').querySelectorAll('input[data-i]').forEach(c => c.onchange = () => { SG[+c.dataset.i].on = c.checked; sgArmed=false; sgRender(); });
+  $('sgList').querySelectorAll('select[data-r]').forEach(c => c.onchange = () => { SG[+c.dataset.r].room = c.value; sgArmed=false; sgRender(); });
+  const ncf = sel.filter(x => sgClash(x).length).length;
+  const b = $('sgApply'); b.disabled = !sel.length || sgBusy; b.classList.toggle('armed', sgArmed);
+  b.textContent = sgArmed ? `ยืนยันเพิ่ม ${sel.length} รายการ` : `เพิ่ม ${sel.length} รายการลงการจองห้อง`;
+  if (!sgBusy) { $('sgMsg').className = 'fmsg'+(sgArmed||ncf?' err':''); $('sgMsg').textContent = sgArmed ? `กดอีกครั้งเพื่อยืนยัน${ncf?` (มี ${ncf} รายการที่ห้องซ้อนกัน จะเพิ่มไว้พร้อมเครื่องหมาย ⚠)`:''}` : ncf ? `⚠ ${ncf} รายการห้องซ้อนกับรายการอื่น ยังเพิ่มได้` : ''; }
+}
+$('sgOpen').onclick = sgOpen;
+$('sgModal').addEventListener('click', ev => { if (ev.target.closest('[data-sgclose]')) sgClose(); });
+$('sgApply').onclick = async () => {
+  const sel = SG.filter(x => x.on && x.sp); if (!sel.length || sgBusy) return;
+  if (!sgArmed){ sgArmed = true; sgRender(); return; }
+  sgBusy = true; $('sgApply').disabled = true;
+  let done = 0, skipped = [], last = null;
+  try{
+    for (let k=0; k<sel.length; k+=100){
+      const part = sel.slice(k, k+100);
+      $('sgMsg').className='fmsg'; $('sgMsg').textContent = `กำลังเพิ่ม ${Math.min(k+part.length, sel.length)}/${sel.length}…`;
+      last = await apiWrite('room_assign', {items: part.map(x => ({id:x.id, room:x.room, expect:x.d.updatedAt||''}))});
+      done += (last.done||[]).length; skipped = skipped.concat(last.skipped||[]);
+    }
+  }catch(e){ sgBusy = false; $('sgMsg').className='fmsg err'; $('sgMsg').textContent = (done?`เพิ่มแล้ว ${done} รายการ แต่ส่วนที่เหลือไม่สำเร็จ: `:'เพิ่มไม่สำเร็จ: ')+errText(e); $('sgApply').disabled=false; if (e.code==='unauthorized') authLost(); if (done) connect(); return; }
+  sgBusy = false;
+  if (last && last.entries){ FORM_DOCS = last.entries.map(d => ({...d})); try{ const s=JSON.parse(localStorage.getItem(SNAP_KEY)||'null'); if (s && s.j){ s.j.entries = last.entries; localStorage.setItem(SNAP_KEY, JSON.stringify(s)); } }catch(_){} buildUses(); renderAll(); }
+  if (skipped.length){ SG = sgFind(); sgArmed = false; sgRender(); $('sgMsg').className='fmsg err'; $('sgMsg').textContent = `เพิ่มแล้ว ${done} รายการ · ข้าม ${skipped.length} รายการ: ${skipped.slice(0,3).map(x=>x.msg).join(' / ')}${skipped.length>3?' …':''}`; }
+  else { sgClose(); toast(`เพิ่มงานอาจารย์ ${done} รายการลงการจองห้องแล้ว`); }
+};
 
 /* ===== ลิงก์ตรง: #day-YYYY-MM-DD · #booking-<id> · #book-YYYY-MM-DD ===== */
 let hashDone = false;
@@ -1365,6 +1496,7 @@ function handleHash(){
   const h = decodeURIComponent(location.hash||''); let m;
   if ((m = h.match(/^#day-(\d{4}-\d{2}-\d{2})$/))){ hashDone = true; selected = m[1]; setView('day'); }
   else if ((m = h.match(/^#booking-(.+)$/))){ hashDone = true; const u = USES.find(x => x.kind==='booking' && x.id===m[1]); if (u){ selected = u.date; setView('day'); openDetail(u); } else toast('ไม่พบรายการจองนี้ อาจถูกยกเลิกไปแล้ว', true); }
+  else if (h==='#import-rooms'){ hashDone = true; sgOpen(); }
   else if ((m = h.match(/^#book(?:-(\d{4}-\d{2}-\d{2}))?$/))){ hashDone = true; if (m[1]) selected = m[1]; setView('day'); if (canWrite) openBook({date:selected}); }
 }
 window.addEventListener('hashchange', () => { hashDone = false; handleHash(); });

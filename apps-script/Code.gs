@@ -52,7 +52,7 @@ const CONFIG = {
   BOOKING_MAX_DATES: 60,     // จองหลายวันพร้อมกันได้สูงสุดกี่วันต่อครั้ง
 };
 
-const APP_VERSION = '2026-10-23 rooms';  // เปิดลิงก์ /exec ในเบราว์เซอร์ จะเห็นเลขเวอร์ชันนี้ ถ้าไม่ตรง แปลว่ายังไม่ได้ทำให้ใช้งานได้เวอร์ชันใหม่
+const APP_VERSION = '2026-10-23 worktypes';  // + type_assign (จัดประเภทงานเดิมตามข้อ 5 ประกาศทุนเฉลิมพระเกียรติ) · รุ่นก่อน 2026-10-23 rooms: room_assign  // เปิดลิงก์ /exec ในเบราว์เซอร์ จะเห็นเลขเวอร์ชันนี้ ถ้าไม่ตรง แปลว่ายังไม่ได้ทำให้ใช้งานได้เวอร์ชันใหม่
 
 const SHEET_ENTRIES = 'entries';
 const SHEET_HOLIDAYS = 'holidays';
@@ -277,6 +277,10 @@ function handle_(p) {
         if (!r) { r = saveBooking_(p.data || {}, me); if (rid) { try { cache.put('bk_' + rid, JSON.stringify(r), 900); } catch (e) { /* ใหญ่เกินแคช */ } } }
         return out_({ ok: true, saved: r.saved, clash: r.clash, repeated: !!r.repeated, bookings: readBookings_(), rooms: CONFIG.ROOMS });
       }
+      // ใส่ห้องให้งานอาจารย์ที่บันทึกไว้แล้วหลายรายการพร้อมกัน (หน้า room.html > ดึงจากตารางงาน) — แก้เฉพาะช่องห้อง
+      if (action === 'room_assign') return out_(assignRooms_(p, me));
+      // เปลี่ยนประเภทงานหลายรายการพร้อมกัน (หน้า worktype.html) — แก้เฉพาะช่องประเภท
+      if (action === 'type_assign') return out_(assignTypes_(p, me));
       if (action === 'booking_delete') { deleteBooking_(String(p.id || ''), me); return out_({ ok: true, bookings: readBookings_(), rooms: CONFIG.ROOMS }); }
       return out_({ ok: false, error: 'unknown_action' });
     });
@@ -1332,6 +1336,89 @@ function deleteBooking_(id, me) {
   if (before) log_(me, 'booking_delete', { target: roomName_(before.room), entryId: id, entryDate: before.date,
     summary: 'ยกเลิกการจองห้อง: ' + bookingSummary_(before), changes: bookingChanges_(before, {}) });
 }
+
+// ใส่ห้องให้งานอาจารย์ที่มีอยู่แล้ว
+//   p.items = [{ id, room, expect }]  expect = updatedAt ที่หน้าเว็บเห็นตอนตรวจ (มีคนแก้งานนั้นหลังจากนั้น → ข้าม)
+//   แก้เฉพาะ room (+ start/end ถ้างานยังไม่มีเวลาสิ้นสุด คำนวณจากเวลา/ชั่วโมงเหมือนหน้าเว็บ) ช่องอื่นไม่แตะ
+const ROOM_ASSIGN_MAX = 200;
+function assignRooms_(p, me) {
+  const items = Array.isArray(p.items) ? p.items : [];
+  if (items.length > ROOM_ASSIGN_MAX) throw fail_('invalid_argument', 'ส่งได้ครั้งละไม่เกิน ' + ROOM_ASSIGN_MAX + ' รายการ');
+  const sh = sheet_(SHEET_ENTRIES);
+  ensureHeader_(sh, FIELDS);
+  const hm = headerMap_(sh), width = hm.head.length, col = hm.map;
+  const last = sh.getLastRow();
+  const values = last >= 2 ? sh.getRange(2, 1, last - 1, width).getDisplayValues() : [];
+  const rowOf = {};
+  values.forEach((row, i) => { const id = String(row[col.id] || '').trim(); if (id) rowOf[id] = i; });
+  const stamp = me.name + ' (' + me.username + ')', now = now_();
+  const res = { ok: true, done: [], skipped: [] }, logs = [];
+  items.forEach(it => {
+    const id = String(it.id || ''), room = String(it.room || '');
+    const i = rowOf[id];
+    if (i === undefined) { res.skipped.push({ id: id, msg: 'ไม่พบงานนี้ อาจถูกลบไปแล้ว' }); return; }
+    const row = values[i], cur = k => col[k] !== undefined ? String(row[col[k]] || '').trim() : '';
+    if (!roomById_(room)) { res.skipped.push({ id: id, msg: 'ไม่รู้จักห้องนี้' }); return; }
+    if (it.expect !== undefined && String(it.expect || '').trim() !== cur('updatedAt')) { res.skipped.push({ id: id, msg: 'มีการแก้งานนี้หลังจากตรวจ (โดย ' + (cur('updatedBy') || 'ไม่ทราบชื่อ') + ')' }); return; }
+    if (cur('mode') === 'online') { res.skipped.push({ id: id, msg: 'งานออนไลน์ ไม่ใช้ห้อง' }); return; }
+    const sp = entrySpan_({ start: cur('start'), end: cur('end'), time: cur('time'), hours: cur('hours') });
+    if (!sp) { res.skipped.push({ id: id, msg: 'งานนี้ไม่มีเวลา' }); return; }
+    if (cur('room') === room) { res.done.push(id); return; }
+    const before = cur('room');
+    row[col.room] = room;
+    const s0 = hmMin_(cur('start')), e0 = hmMin_(cur('end'));
+    if (s0 == null || e0 == null || e0 <= s0) { row[col.start] = minHm_(sp[0]); row[col.end] = minHm_(sp[1]); }
+    row[col.updatedAt] = now; row[col.updatedBy] = stamp;
+    sh.getRange(i + 2, 1, 1, width).setNumberFormat('@').setValues([row]);
+    res.done.push(id);
+    logs.push(logRow_(me, 'entry_update', { target: cur('title'), entryId: id, entryDate: normDate_(cur('date')),
+      summary: 'จองห้องให้งาน "' + cur('title') + '" วันที่ ' + normDate_(cur('date')) + ': ' + roomName_(room) + ' (จากสถานที่ "' + (cur('venue') || cur('place')) + '")',
+      changes: [{ f: 'room', label: FIELD_TH.room, from: roomName_(before), to: roomName_(room) }] }));
+  });
+  logMany_(logs);
+  SpreadsheetApp.flush();
+  res.entries = readEntries_();
+  return res;
+}
+// เปลี่ยนประเภทงานของงานที่มีอยู่แล้ว (จัดตามข้อ 5 ประกาศทุนเฉลิมพระเกียรติ)
+//   p.items = [{ id, type, expect }]  expect = updatedAt ที่หน้าเว็บเห็นตอนตรวจ (มีคนแก้งานนั้นหลังจากนั้น → ข้าม)
+//   แก้เฉพาะช่อง type ช่องอื่นไม่แตะ — รายชื่อประเภทอยู่ที่หน้าเว็บ (assets/worktypes.js) ที่นี่ตรวจแค่ความยาว
+const TYPE_ASSIGN_MAX = 200;
+function assignTypes_(p, me) {
+  const items = Array.isArray(p.items) ? p.items : [];
+  if (items.length > TYPE_ASSIGN_MAX) throw fail_('invalid_argument', 'ส่งได้ครั้งละไม่เกิน ' + TYPE_ASSIGN_MAX + ' รายการ');
+  const sh = sheet_(SHEET_ENTRIES);
+  ensureHeader_(sh, FIELDS);
+  const hm = headerMap_(sh), width = hm.head.length, col = hm.map;
+  const last = sh.getLastRow();
+  const values = last >= 2 ? sh.getRange(2, 1, last - 1, width).getDisplayValues() : [];
+  const rowOf = {};
+  values.forEach((row, i) => { const id = String(row[col.id] || '').trim(); if (id) rowOf[id] = i; });
+  const stamp = me.name + ' (' + me.username + ')', now = now_();
+  const res = { ok: true, done: [], skipped: [] }, logs = [];
+  items.forEach(it => {
+    const id = String(it.id || ''), type = String(it.type || '').trim().slice(0, 60);
+    const i = rowOf[id];
+    if (i === undefined) { res.skipped.push({ id: id, msg: 'ไม่พบงานนี้ อาจถูกลบไปแล้ว' }); return; }
+    if (!type) { res.skipped.push({ id: id, msg: 'ไม่ได้ระบุประเภท' }); return; }
+    const row = values[i], cur = k => col[k] !== undefined ? String(row[col[k]] || '').trim() : '';
+    if (it.expect !== undefined && String(it.expect || '').trim() !== cur('updatedAt')) { res.skipped.push({ id: id, msg: 'มีการแก้งานนี้หลังจากตรวจ (โดย ' + (cur('updatedBy') || 'ไม่ทราบชื่อ') + ')' }); return; }
+    const before = cur('type');
+    if (before === type) { res.done.push(id); return; }
+    row[col.type] = type;
+    row[col.updatedAt] = now; row[col.updatedBy] = stamp;
+    sh.getRange(i + 2, 1, 1, width).setNumberFormat('@').setValues([row]);
+    res.done.push(id);
+    logs.push(logRow_(me, 'entry_update', { target: cur('title'), entryId: id, entryDate: normDate_(cur('date')),
+      summary: 'จัดประเภทงาน "' + cur('title') + '" วันที่ ' + normDate_(cur('date')) + ': ' + (before || '(ว่าง)') + ' → ' + type,
+      changes: [{ f: 'type', label: FIELD_TH.type || 'ประเภท', from: before, to: type }] }));
+  });
+  logMany_(logs);
+  SpreadsheetApp.flush();
+  res.entries = readEntries_();
+  return res;
+}
+function minHm_(m) { return pad_(Math.floor(m / 60)) + ':' + pad_(m % 60); }
 
 // ทดสอบใน editor: ดูว่าอ่านข้อมูลได้กี่แถว
 function testList() {

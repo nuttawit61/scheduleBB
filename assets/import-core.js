@@ -398,7 +398,9 @@
       };
       // ช่องทั่วไป
       set('title', base.title);
-      set('type', v('type'));
+      // ประเภทงาน: ถ้างานในระบบจัดเป็นประเภทตามข้อ 5 แล้ว (assets/worktypes.js) แต่ไฟล์ Excel ยังเป็นประเภทเดิม เช่น "ประชุม" → ไม่แก้ทับ
+      { const ft = v('type'), isW = (typeof globalThis !== 'undefined' && globalThis.isWorkType) || null;
+        if (!(isW && isW(e.type) && !isW(ft))) set('type', ft); }
       set('hours', v('hours'));
       set('level', v('level'));
       set('inviter', v('inviter'));

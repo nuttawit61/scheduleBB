@@ -534,6 +534,38 @@ footer{border-top-style:dashed}
 .modebadge.hybrid{background:#EFE7F8;color:#6A3EA8}
 .mtable td a{color:var(--accent);word-break:break-all}
 @media (max-width:640px){ .modepick{grid-template-columns:minmax(0,1fr)} }
+/* ประเภทงานตามข้อ 5 (assets/worktypes.js) */
+.wtbox legend{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px}
+.wtsrc{font-weight:400;color:var(--muted);font-size:.92em}
+.wtsrc a{color:var(--accent)}
+.wtgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;border-radius:12px}
+.wtgrid.bad{box-shadow:0 0 0 3px var(--accent-soft);outline:1px solid var(--accent);outline-offset:3px}
+.wt{position:relative;display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);border-radius:12px;padding:9px 12px;cursor:pointer;background:var(--surface);transition:background .12s,border-color .12s;min-width:0}
+.wt:hover{border-color:#B9C2C8}
+.wt input{position:absolute;opacity:0;pointer-events:none}
+.wt .wc{flex:none;min-width:42px;text-align:center;font:600 .78em/1 var(--f-display);font-variant-numeric:tabular-nums;color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:6px 6px 5px;margin-top:1px}
+.wt .wb{display:flex;flex-direction:column;gap:2px;min-width:0}
+.wt b{font-size:.95em;line-height:1.35}
+.wt b em{font-style:normal;font-weight:500;color:var(--muted)}
+.wt small{display:block;color:var(--muted);font-size:.8em;line-height:1.45}
+.wt small::before{content:"เช่น ";font-weight:600;color:#6C777E}
+.wt .wn{display:block;font-style:normal;font-size:.76em;line-height:1.4;color:#8A5A00}
+.wt:has(input:checked){border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.wt:has(input:checked) .wc{background:var(--accent);color:#fff}
+.wt:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.wt.sug:not(:has(input:checked)){border-style:dashed;border-color:var(--accent)}
+.wt.sug:not(:has(input:checked))::after{content:"แนะนำ";position:absolute;top:-8px;right:10px;font-size:.7em;font-weight:600;color:var(--accent);background:var(--surface);border:1px solid var(--accent);border-radius:999px;padding:0 7px;line-height:1.5}
+.wtbox.picked .wtgrid{grid-template-columns:minmax(0,1fr)}
+.wtbox.picked .wt:not(:has(input:checked)){display:none}
+.wtbox .wtchange{justify-self:start;margin-top:6px}
+.wtsug,.wtold{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:.88em;border-radius:10px;padding:8px 12px;margin-bottom:8px}
+.wtsug{background:var(--surface-2);color:var(--ink)}
+.wtsug button{font:inherit;font-weight:600;color:var(--accent);background:var(--surface);border:1px solid var(--accent);border-radius:999px;padding:2px 12px;cursor:pointer}
+.wtsug button:hover{background:var(--accent-soft)}
+.wtsug small{color:var(--muted)}
+.wtold{background:#FFF6E0;color:#6B4A00;border:1px solid #F0D79A}
+.wtold b{font-weight:600}
+@media (max-width:760px){ .wtgrid{grid-template-columns:minmax(0,1fr)} }
 /* 24h time picker */
 .tsel{display:flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:10px;padding:3px 10px 3px 4px;background:var(--surface)}
 .tsel:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
@@ -623,7 +655,7 @@ footer{border-top-style:dashed}
 .gate-rem{display:flex;gap:8px;align-items:center;font-size:.9em;color:var(--muted)}
 .sync{display:flex;align-items:center;gap:6px;font-size:.84em;color:var(--muted)}
 .sync.err{color:var(--accent)}
-.role-view .evacts a.btn:not(.edocbtn),.role-view .hero-btn:not(.back):not(.roombtn),.role-view .mfoot a.btn.primary{display:none}
+.role-view .evacts a.btn:not(.edocbtn),.role-view .hero-btn:not(.back):not(.roombtn):not(.freebtn),.role-view .mfoot a.btn.primary{display:none}
 /* db status */
 .dbbar{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:var(--r,14px);box-shadow:var(--shadow);padding:12px 16px;margin-bottom:clamp(12px,1.6vw,20px);border-left:5px solid var(--st)}
 .dbbar,.sync{--st:#C98A12}
@@ -744,8 +776,8 @@ a.logoutpill{text-decoration:none}
 /* ปุ่มวันลา / จองห้องประชุม ข้างปุ่มบันทึกงาน (เฉพาะหน้าตารางงาน) */
 .hero-btn .plus svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .page-form .hero-xtra,.page-leave .hero-xtra{display:none}
-@media (min-width:1701px){ .hero-side{justify-content:flex-end} }
-@media (min-width:1101px) and (max-width:1700px){ .page-main .hero{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"logo main" "side side"} .page-main .hero-side{justify-self:start} }
+@media (min-width:2101px){ .hero-side{justify-content:flex-end} }
+@media (min-width:1101px) and (max-width:2100px){ .page-main .hero{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"logo main" "side side"} .page-main .hero-side{justify-self:start} }
 .hero-xtra{white-space:nowrap}
 .hero-side .hero-btn{padding:10px 18px 10px 11px;font-size:1em}
 .hero-side .hero-btn .plus{width:28px;height:28px}
@@ -880,6 +912,7 @@ a.logoutpill{text-decoration:none}
       <a class="hero-btn" id="heroBtn" href="#"><span class="plus" aria-hidden="true">＋</span><span id="heroBtnTx">บันทึกงาน</span></a>
       <a class="hero-btn hero-xtra lvbtn" href="leave.html" title="บันทึกวันลาของอาจารย์"><span class="plus" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3 10h18M9.5 13.5l5 5M14.5 13.5l-5 5"/></svg></span><span>วันลา</span></a>
       <a class="hero-btn hero-xtra roombtn" href="room.html" title="ตารางและจองห้องประชุมของภาควิชาฯ"><span class="plus" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16"/><path d="M2 21h20M9 21v-4h6v4M8 7h2M14 7h2M8 11h2M14 11h2"/></svg></span><span>จองห้องประชุม</span></a>
+      <a class="hero-btn hero-xtra freebtn" href="free.html" title="หาวันและช่วงเวลาที่อาจารย์ยังไม่มีภาระงาน สำหรับนัดหมาย"><span class="plus" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3 10h18"/><circle cx="11" cy="15" r="2.6"/><path d="M13 17l2.6 2.6"/></svg></span><span>หาวันว่าง</span></a>
       <div class="hero-today" id="heroToday"></div>
     </div>
   </header>
@@ -948,12 +981,19 @@ a.logoutpill{text-decoration:none}
           <div class="lvwarn" id="fLeave" role="alert" hidden></div>
           <div class="cfwarn" id="fConflict" role="alert" hidden></div>
           <div class="frow">
-            <label class="fld"><span>ประเภท</span><input id="fType" list="typeList" placeholder="เช่น ประชุม สอน วิทยากร"></label>
             <label class="fld"><span>สถานะ</span><select id="fStatus"><option>ยืนยัน</option><option>รอยืนยัน</option><option>เลื่อน</option><option>ขัดข้อง</option></select></label>
             <label class="fld"><span>ระดับ</span><input id="fLevel" list="levelList" placeholder="ภาควิชาฯ / คณะฯ / ชาติ"></label>
           </div>
           <div class="sbbox" id="fStatusBy" hidden></div>
           <label class="fld"><span>รายการ <span class="req">*</span></span><textarea id="fTitleIn" rows="2" required placeholder="ชื่อการประชุม / รายวิชา / กิจกรรม"></textarea></label>
+          <fieldset class="fmode wtbox" id="fTypeBox">
+            <legend>ประเภทงาน <span class="req">*</span> <small class="wtsrc">ตามภาระงานข้อ 5 ประกาศทุนเฉลิมพระเกียรติ ส่วนที่ 1 · <a href="worktype.html" target="_blank" rel="noopener">คำอธิบายทั้งหมด ↗</a></small></legend>
+            <div class="wtold" id="fTypeOld" role="status" hidden></div>
+            <div class="wtsug" id="fTypeSug" hidden></div>
+            <div class="wtgrid" id="fTypeGrid" role="radiogroup" aria-label="ประเภทงาน"></div>
+            <button type="button" class="btn sm wtchange" id="fTypeChange" hidden>เปลี่ยนประเภท</button>
+            <input type="hidden" id="fType" value="">
+          </fieldset>
           <fieldset class="fmode"><legend>รูปแบบการเข้าร่วม <span class="req">*</span></legend>
             <div class="modepick" id="fMode">
               <label><input type="radio" name="mode" value="onsite" checked><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V7l8-4 8 4v14"/><path d="M9 21v-5h6v5M9 10h.01M15 10h.01M9 13h.01M15 13h.01"/></svg><span><b>ในสถานที่</b><small>ไปร่วมด้วยตนเอง</small></span></label>
@@ -994,7 +1034,6 @@ a.logoutpill{text-decoration:none}
             <span class="fmsg" id="fMsg" role="status"></span>
           </div>
         </form>
-        <datalist id="typeList"></datalist>
         <datalist id="docChList"><option value="EDOC"><option value="อีเมล"><option value="LINE"><option value="หนังสือตัวจริง"><option value="โทรศัพท์"><option value="แจ้งด้วยวาจา"></datalist>
         <datalist id="levelList"><option value="ภาควิชาฯ"><option value="คณะฯ"><option value="มหาวิทยาลัย"><option value="ชาติ"><option value="นานาชาติ"></datalist>
       </section>
@@ -1045,7 +1084,7 @@ a.logoutpill{text-decoration:none}
 
 
   <footer>
-    <div>ข้อมูลจาก Google Sheet (ชีต entries และ holidays) · ชั่วโมงรวมไม่นับรายการที่เลื่อนหรือขัดข้อง · <a class="linkbtn" id="logsLink" href="log.html" hidden>ประวัติการใช้งาน</a><span id="logsSep" hidden> · </span><button type="button" class="linkbtn" id="logoutBtn">ออกจากระบบ</button></div>
+    <div>ข้อมูลจาก Google Sheet (ชีต entries และ holidays) · ชั่วโมงรวมไม่นับรายการที่เลื่อนหรือขัดข้อง · <a class="linkbtn" href="worktype.html">ประเภทงานตามข้อ 5</a> · <a class="linkbtn" id="logsLink" href="log.html" hidden>ประวัติการใช้งาน</a><span id="logsSep" hidden> · </span><button type="button" class="linkbtn" id="logoutBtn">ออกจากระบบ</button></div>
     <div>ชั่วโมงที่มีเครื่องหมาย ≈ ไม่ได้กรอกไว้ คำนวณจากช่วงเวลาแทน</div>
   </footer>
 </div>
@@ -1085,6 +1124,7 @@ a.logoutpill{text-decoration:none}
 </div>
 
 <script src="config.js"></script>
+<script src="assets/worktypes.js"></script>
 <script>
 const TEACHERS = {
   AS:{name:'รศ.พญ.ศศิจิต เวชแพศย์', short:'อ.ศศิจิต', ini:'ศ'},
@@ -1686,7 +1726,7 @@ function openEvModal(e){
   const t=TEACHERS[e.who], dd=parseIso(e.date);
   const modeTx = e.mode ? MODE_TH[e.mode] : '';
   const linkHtml = e.link && /^https?:\/\//i.test(e.link) ? `<a href="${esc(e.link)}" target="_blank" rel="noopener">${esc(e.link)}</a>` : esc(e.link||'');
-  const rows=[['วัน/เดือน/ปี',`${fullDate(e.date)}`],['เวลา',e.time?`${e.time} น.`:''],['ประเภท',e.type],['รายการ',e.title],['รูปแบบ',modeTx],
+  const rows=[['วัน/เดือน/ปี',`${fullDate(e.date)}`],['เวลา',e.time?`${e.time} น.`:''],['ประเภท',(window.workTypeLabel?window.workTypeLabel(e.type):e.type)],['รายการ',e.title],['รูปแบบ',modeTx],
     ...(e.mode ? [['สถานที่', e.mode==='online' ? '' : e.venue], ['แพลตฟอร์ม', e.platform], ['Meeting ID', e.meetingId], ['Passcode', e.passcode], ['ลิงก์เข้าร่วม', {html:linkHtml}]].filter(r=>r[0]==='สถานที่'?e.mode!=='online':e.mode!=='onsite') : [['สถานที่',e.place]]),
     ...(e.room && e.mode!=='online' && roomById(e.room) ? [['จองห้องประชุม', {html: roomTag(e.room)+' <a href="room.html#day-'+e.date+'">ดูตารางห้อง ↗</a>'}]] : []),
     ['หมายเหตุ (สถานะ)',e.status],
@@ -1889,8 +1929,7 @@ function importJSON(file){
 const $ = id => document.getElementById(id);
 function initFormStatic(){
   $('fWho').innerHTML = ORDER.map(c => `<label class="t-${c}"><input type="checkbox" value="${c}"><span class="av sm">${TEACHERS[c].ini}</span><span class="nm2" title="${esc(TEACHERS[c].name)}">${esc(TEACHERS[c].short)}</span></label>`).join('');
-  const types = [...new Set(EXCEL_EVENTS.map(e=>e.type).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'th'));
-  $('typeList').innerHTML = types.map(t=>`<option value="${esc(t)}">`).join('');
+  renderTypeGrid();
   $('fDate').value = todayIso;
   showDateTh();
 }
@@ -1909,7 +1948,7 @@ function guessMode(place){ const p=place||''; const on=/zoom|teams|meet|webex|�
 function guessPlatform(p){ p=p||''; return /teams/i.test(p)?'Microsoft Teams':/meet/i.test(p)&&!/meeting/i.test(p)?'Google Meet':/webex/i.test(p)?'Webex':/zoom/i.test(p)?'Zoom':'Zoom'; }
 function setMsg(t, err){ const m=$('fMsg'); m.textContent=t; m.className='fmsg'+(err?' err':''); }
 function resetForm(){
-  editingId = null; editingExcel = null; SB = {}; $('entryForm').reset(); setRoom(''); renderStatusBy(); applyMode(); edocHint(); $('fDate').value = selected || todayIso; delete $('fHours').dataset.manual;
+  editingId = null; editingExcel = null; SB = {}; $('entryForm').reset(); setType(''); setRoom(''); renderStatusBy(); applyMode(); edocHint(); $('fDate').value = selected || todayIso; delete $('fHours').dataset.manual;
   $('fTitle').textContent='บันทึกงานใหม่'; $('fSave').textContent='บันทึกงาน'; delete $('fSave').dataset.cf; delArm(false); $('fDelete').hidden=true; showDateTh(); setTimeout(checkFormConflicts,0);
   document.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad')); renderFormList();
   if (CUR_USER && !$('fRec').value) $('fRec').value = CUR_USER.name;
@@ -1934,9 +1973,9 @@ function fillForm(d){
   document.querySelectorAll('#fWho input').forEach(i => i.checked = who.includes(i.value));
   $('fDate').value = d.date||''; setT('fStart', d.start); setT('fEnd', d.end);
   $('fHours').value = d.hours||''; if (d.hours) $('fHours').dataset.manual='1';
-  $('fType').value=d.type||''; $('fStatus').value=d.status||'ยืนยัน'; $('fLevel').value=d.level||'';
+  $('fStatus').value=d.status||'ยืนยัน'; $('fLevel').value=d.level||'';
   SB = {...parseSB(d.statusBy)}; renderStatusBy();
-  $('fTitleIn').value=d.title||'';
+  $('fTitleIn').value=d.title||''; setType(d.type||'');
   const mode = d.mode || guessMode(d.place); setRoom(d.room||''); setMode(mode);
   $('fPlace').value = d.mode ? (d.venue||'') : (mode==='online' ? '' : (d.place||''));
   $('fPlatform').value = d.platform || guessPlatform(d.place); $('fLink').value = d.link||'';
@@ -1958,12 +1997,61 @@ function modeData(){
   return mode==='onsite' ? {mode, venue, place, platform:'', link:'', meetingId:'', passcode:'', notes:$('fNotes').value.trim(), edoc}
                          : {mode, venue: mode==='hybrid'?venue:'', place, platform, link, meetingId, passcode, notes:$('fNotes').value.trim(), edoc};
 }
+/* ===== ประเภทงานตามข้อ 5 (รายการและตัวอย่างอยู่ใน assets/worktypes.js) ===== */
+const WT = window.WORK_TYPES || [];
+const isWT = v => !!(window.isWorkType && window.isWorkType(v));
+const WT_FB = WT.length ? null : 'assets/worktypes.js'; // ไฟล์ประเภทงานโหลดไม่ได้ (ยังไม่ได้อัปโหลด?)
+function renderTypeGrid(){
+  const g = $('fTypeGrid'); if (!g) return;
+  if (!WT.length){ g.innerHTML = `<div class="wtold">โหลดรายการประเภทงานไม่ได้ (ไม่พบไฟล์ ${WT_FB}) — แจ้งผู้ดูแลระบบให้อัปโหลดไฟล์นี้ขึ้น GitHub</div>`; return; }
+  g.innerHTML = WT.map(t => `<label class="wt" data-k="${esc(t.key)}"><input type="radio" name="wtype" value="${esc(t.key)}"><span class="wc">${esc(t.code)}</span><span class="wb"><b>${esc(t.name)}${t.sub?` <em>· ${esc(t.sub)}</em>`:''}</b><small>${t.ex.map(esc).join(' · ')}</small>${t.note?`<i class="wn">${esc(t.note)}</i>`:''}</span></label>`).join('');
+  g.querySelectorAll('input[name=wtype]').forEach(i => i.onchange = () => { if (i.checked) { $('fType').value = i.value; g.classList.remove('bad'); syncType(true); } });
+}
+function setType(v){
+  v = String(v||'').trim();
+  $('fType').value = v;
+  const k = isWT(v) ? window.workTypeOf(v).key : '';
+  document.querySelectorAll('#fTypeGrid input[name=wtype]').forEach(i => i.checked = i.value===k);
+  $('fTypeGrid').classList.remove('bad');
+  syncType(!!k);
+}
+function openTypeGrid(){ $('fTypeBox').classList.remove('picked'); $('fTypeChange').hidden = true; syncTypeSug(); }
+function syncType(collapse){
+  const v = $('fType').value, ok = isWT(v), box = $('fTypeBox');
+  box.classList.toggle('picked', ok && collapse);
+  $('fTypeChange').hidden = !(ok && collapse);
+  const old = $('fTypeOld');
+  old.hidden = !v || ok;
+  if (v && !ok) old.innerHTML = `ประเภทเดิมของงานนี้คือ <b>"${esc(v)}"</b> ซึ่งยังไม่ตรงกับข้อ 5 — กรุณาเลือกประเภทใหม่ด้านล่าง`;
+  syncTypeSug();
+}
+function syncTypeSug(){
+  const el = $('fTypeSug'), g = $('fTypeGrid'); if (!el || !window.suggestWorkType) return;
+  g.querySelectorAll('.wt.sug').forEach(x => x.classList.remove('sug'));
+  const v = $('fType').value, ok = isWT(v), open = !$('fTypeBox').classList.contains('picked');
+  const s = open ? window.suggestWorkType(ok ? '' : v, $('fTitleIn').value) : null;
+  const t = s && window.workTypeOf(s.key);
+  if (!t || (ok && window.workTypeOf(v).key===t.key)){ el.hidden = true; return; }
+  const card = g.querySelector(`.wt[data-k="${CSS.escape(t.key)}"]`); if (card) card.classList.add('sug');
+  el.hidden = false;
+  el.innerHTML = `<span>แนะนำจาก${s.kw.startsWith('ประเภทเดิม')?'':'ชื่อรายการ'}:</span><button type="button" data-k="${esc(t.key)}">${esc(t.code)} ${esc(t.name)}</button><small>${s.kw.startsWith('ประเภทเดิม') ? esc(s.kw) : `พบคำว่า "${esc(s.kw)}"`} · ตรวจให้ตรงกับลักษณะงานก่อนใช้</small>`;
+  el.querySelector('button').onclick = () => setType(t.key);
+}
+function typeFieldOk(){
+  if (!WT.length || isWT($('fType').value)) return true;
+  $('fTypeGrid').classList.add('bad'); openTypeGrid();
+  setMsg($('fType').value ? `"${$('fType').value}" เป็นประเภทเดิม กรุณาเลือกประเภทงานใหม่ตามข้อ 5` : 'กรุณาเลือกประเภทงาน', true);
+  $('fTypeBox').scrollIntoView({behavior:'smooth', block:'center'});
+  const f = $('fTypeGrid').querySelector('.wt.sug input') || $('fTypeGrid').querySelector('input'); f?.focus({preventScroll:true});
+  return false;
+}
 function readForm(){
   const who=[...document.querySelectorAll('#fWho input:checked')].map(i=>i.value);
   const date=$('fDate').value, title=$('fTitleIn').value.trim();
   document.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad'));
   const bad=[]; if(!who.length) bad.push($('fWho')); if(!date) bad.push($('fDate')); if(!title) bad.push($('fTitleIn')); if(getMode()!=='online' && !$('fPlace').value.trim()) bad.push($('fPlace')); if($('fEdoc').value.trim() && !isUrl(normUrl($('fEdoc').value))) bad.push($('fEdoc'));
   if (bad.length){ bad.forEach(x=>x.classList.add('bad')); setMsg(bad.length===1 && bad[0]===$('fEdoc') ? 'URL เอกสาร EDOC ไม่ถูกต้อง' : bad.includes($('fPlace')) && bad.length===1 ? 'กรุณาใส่สถานที่' : 'กรุณากรอกช่องที่มีเครื่องหมาย * ให้ครบ', true); bad[0].focus?.(); return null; }
+  if (!typeFieldOk()) return null;
   const room = getMode()!=='online' ? getRoom() : '';
   if (room && !formRoomSpan()){ $('fRoom').classList.add('bad'); setMsg('จองห้องประชุมต้องระบุเวลาเริ่มและเวลาสิ้นสุด (เวลาสิ้นสุดต้องหลังเวลาเริ่ม)', true); $('fStartH').focus(); return null; }
   const start=$('fStart').value, end=$('fEnd').value;
@@ -2121,6 +2209,7 @@ function checkFormConflicts(){
 }
 async function saveForm(ev){
   ev.preventDefault();
+  if (DB && canWrite && !typeFieldOk()) return;
   // เวลาชน หรืออยู่ในช่วงที่อาจารย์ลา → ให้กดยืนยันอีกครั้งก่อนบันทึก
   if (!cfConfirm && DB && canWrite){
     const cf = checkFormConflicts(), lv = formLeaveBlocks(), rc = formRoomClash();
@@ -2242,6 +2331,8 @@ function applyWriteState(){
 initFormStatic(); renderRoomOpts(); applyWriteState();
 $('entryForm').addEventListener('submit', saveForm);
 $('fReset').onclick = () => { resetForm(); setMsg(''); };
+$('fTypeChange').onclick = () => { openTypeGrid(); const c = $('fTypeGrid').querySelector('input:checked')||$('fTypeGrid').querySelector('input'); c?.focus({preventScroll:true}); };
+{ let tq; $('fTitleIn').addEventListener('input', () => { clearTimeout(tq); tq = setTimeout(syncTypeSug, 250); }); }
 $('fCsv').onclick = () => { if (!FORM_DOCS.length) return setMsg('ยังไม่มีงานให้ส่งออก', true); exportCSV(); };
 $('fDate').addEventListener('input', showDateTh);
 document.querySelectorAll('#fMode input').forEach(i=>i.addEventListener('change', applyMode));
@@ -2429,8 +2520,24 @@ function onData(){
     hashDone=true; const doc=FORM_DOCS.find(d=>d.id===location.hash.slice(6));
     if (doc){ fillForm(doc); } else setMsg('ไม่พบรายการนี้ อาจถูกลบไปแล้ว', true);
   }
+  if (!hashDone && PAGE==='form' && location.hash.startsWith('#new-')){ hashDone=true; newFromHash(location.hash); }
   lvHash(); if (PAGE==='leave') lvCheck();
 }
+// ลิงก์จากหน้าหาวันว่าง (free.html): #new-YYYY-MM-DD[-HHMM-HHMM][-AJ.AK][-rROOM] → เปิดฟอร์มงานใหม่พร้อมวัน เวลา อาจารย์ (และห้อง)
+function newFromHash(h){
+  const m = decodeURIComponent(h||'').match(/^#new-(\d{4}-\d{2}-\d{2})(?:-(\d{4})-(\d{4}))?(?:-([A-Z][A-Z.]*))?(?:-r([A-Za-z0-9_]+))?$/);
+  if (!m || PAGE!=='form') return;
+  resetForm();
+  const who = (m[4]||'').split('.').filter(c => TEACHERS[c]);
+  document.querySelectorAll('#fWho input').forEach(i => i.checked = who.includes(i.value));
+  $('fDate').value = m[1]; showDateTh();
+  if (m[2]){ setT('fStart', m[2].slice(0,2)+':'+m[2].slice(2)); setT('fEnd', m[3].slice(0,2)+':'+m[3].slice(2)); autoHours(); }
+  if (m[5] && roomById(m[5])){ setRoom(m[5]); if (!$('fPlace').value.trim()) $('fPlace').value = roomName(m[5]); }
+  renderStatusBy(); checkFormConflicts();
+  setMsg('เติมวัน เวลา และอาจารย์จากหน้าหาวันว่างแล้ว กรอกรายการและรายละเอียด แล้วกดบันทึกงาน');
+  setTimeout(() => $('entryForm').scrollIntoView({behavior:'smooth', block:'start'}), 60);
+}
+window.addEventListener('hashchange', () => { if (PAGE==='form' && location.hash.startsWith('#new-') && LAST_SYNC){ hashDone=true; newFromHash(location.hash); } });
 function showGate(msg){ $('gate').hidden=false; $('gateMsg').textContent=msg||''; $('idleWarn').hidden=true; if (!$('gateUser').value) $('gateUser').value=lastUsername(); setTimeout(()=>($('gateUser').value?$('gateKey'):$('gateUser')).focus(),50); }
 const OUT_KEY='tt-logged-out';
 function isLoggedOut(){ try{ return localStorage.getItem(OUT_KEY)==='1'; }catch(_){ return false; } }
