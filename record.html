@@ -543,17 +543,21 @@ footer{border-top-style:dashed}
 .wt{position:relative;display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);border-radius:12px;padding:9px 12px;cursor:pointer;background:var(--surface);transition:background .12s,border-color .12s;min-width:0}
 .wt:hover{border-color:#B9C2C8}
 .wt input{position:absolute;opacity:0;pointer-events:none}
-.wt .wc{flex:none;min-width:42px;text-align:center;font:600 .78em/1 var(--f-display);font-variant-numeric:tabular-nums;color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:6px 6px 5px;margin-top:1px}
+.wt{border-left:5px solid var(--tc,var(--line))}
+.wt .wc{flex:none;min-width:42px;text-align:center;font:600 .78em/1 var(--f-display);font-variant-numeric:tabular-nums;color:var(--tc,var(--accent));background:var(--ts,var(--accent-soft));border-radius:8px;padding:6px 6px 5px;margin-top:1px}
+.wt b{color:var(--tc,var(--ink))}
+.chip .tyx{font-weight:600}
+.tyd{display:inline-block;width:.62em;height:.62em;border-radius:2px;margin-right:3px;vertical-align:.02em;text-decoration:none}
 .wt .wb{display:flex;flex-direction:column;gap:2px;min-width:0}
 .wt b{font-size:.95em;line-height:1.35}
 .wt b em{font-style:normal;font-weight:500;color:var(--muted)}
 .wt small{display:block;color:var(--muted);font-size:.8em;line-height:1.45}
 .wt small::before{content:"เช่น ";font-weight:600;color:#6C777E}
 .wt .wn{display:block;font-style:normal;font-size:.76em;line-height:1.4;color:#8A5A00}
-.wt:has(input:checked){border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
-.wt:has(input:checked) .wc{background:var(--accent);color:#fff}
+.wt:has(input:checked){border-color:var(--tc,var(--accent));background:var(--ts,var(--accent-soft));box-shadow:inset 0 0 0 1px var(--tc,var(--accent))}
+.wt:has(input:checked) .wc{background:var(--tc,var(--accent));color:#fff}
 .wt:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
-.wt.sug:not(:has(input:checked)){border-style:dashed;border-color:var(--accent)}
+.wt.sug:not(:has(input:checked)){border-style:dashed;border-color:var(--tc,var(--accent));border-left-style:solid}
 .wt.sug:not(:has(input:checked))::after{content:"แนะนำ";position:absolute;top:-8px;right:10px;font-size:.7em;font-weight:600;color:var(--accent);background:var(--surface);border:1px solid var(--accent);border-radius:999px;padding:0 7px;line-height:1.5}
 .wtbox.picked .wtgrid{grid-template-columns:minmax(0,1fr)}
 .wtbox.picked .wt:not(:has(input:checked)){display:none}
@@ -1378,7 +1382,7 @@ function renderCal(){
     const dayCf = ev.some(e => (e._cf && e._cf.length) || e._lv);
     const lvs = ORDER.filter(c => active.has(c)).flatMap(c => leavesOn(c, ds));
     const lvChips = lvs.map(l => `<span class="chip lvchip t-${l.who}" title="${esc(TEACHERS[l.who].short+' · '+lvLabel(l)+(l.note?' · '+l.note:''))}"><i></i><span class="tx"><b>ลา</b><span class="lvn"> ${esc(TEACHERS[l.who].short)}${l.period!=='full'?' · '+esc(l.period==='time'?lvWhen(l):LEAVE_PERIOD[l.period].replace('ครึ่งวัน','ครึ่ง')):''}</span></span></span>`).join('');
-    const chips = ev.slice(0,3).map(e => `<span class="chip t-${e.who} ${e._st}${e._cf&&e._cf.length?' cf':''}${e._lv?' lvx':''}" title="${esc(TEACHERS[e.who].short+' · '+e.time+' · '+e.title+(e._cf&&e._cf.length?' · ⚠ เวลาชนกับ '+e._cf.map(cfText).join(', '):'')+(e._lv?' · ⛔ อยู่ในช่วงลา ('+lvLabel(e._lv)+')':''))}"><i></i><span class="tx"><span class="tm">${esc(startLabel(e.time))}</span> ${esc(e.type)}</span></span>`).join('');
+    const chips = ev.slice(0,3).map(e => `<span class="chip t-${e.who} ${e._st}${e._cf&&e._cf.length?' cf':''}${e._lv?' lvx':''}" title="${esc(TEACHERS[e.who].short+' · '+e.time+' · '+e.title+(e._cf&&e._cf.length?' · ⚠ เวลาชนกับ '+e._cf.map(cfText).join(', '):'')+(e._lv?' · ⛔ อยู่ในช่วงลา ('+lvLabel(e._lv)+')':''))}"><i></i><span class="tx"><span class="tm">${esc(startLabel(e.time))}</span> ${tyDot(e.type)}<span class="tyx"${tyCol(e.type)?` style="color:${tyCol(e.type).c}"`:''}>${esc(e.type)}</span></span></span>`).join('');
     const more = ev.length>3 ? `<span class="more">+${ev.length-3} รายการ</span>` : '';
     const label = `${d} ${TH_M[m-1]}${hol?' '+hol:''}${lvs.length?' '+lvs.map(l=>TEACHERS[l.who].short+' '+lvLabel(l)).join(', '):''}${ev.length?` มี ${ev.length} ภารกิจ`:''}`;
     html += `<button class="${cls}${dayCf?' hascf':''}" data-d="${ds}" aria-label="${esc(label+(dayCf?' มีงานเวลาชนกัน':''))}"><span class="dn num">${d}</span>${dayCf?'<span class="cfmark" title="มีงานเวลาชนกันหรืออยู่ในช่วงวันลา">⚠</span>':''}${hol?`<span class="hol">${esc(hol)}</span>`:''}<span class="chips">${lvChips}${chips}${more}</span></button>`;
@@ -1399,7 +1403,7 @@ function evCard(e){
     ['หน่วยงานที่เชิญ', e.inviter], ['ทุนสนับสนุน', e.fund], ['ลิงก์', e.link], ['ช่องทางรับเอกสาร', e.docChannel], ['EDOC', e.edoc], ['เพิ่มเติม', e.notes], ['ผู้บันทึก', e.rec]
   ].filter(r => r[1]);
   return `<article class="ev t-${e.who} ${e._st}${e._cf&&e._cf.length?' cf':''}${e._lv?' lvx':''}">
-    <div class="r1"><span class="time">${esc(e.time||'ไม่ระบุเวลา')}</span><span class="tag">${esc(e.type)}</span>
+    <div class="r1"><span class="time">${esc(e.time||'ไม่ระบุเวลา')}</span><span class="tag"${tyStyle(e.type)}>${esc(e.type)}</span>
       <span class="pill ${e._st}" style="margin-left:auto">${esc(e.status||'ไม่ระบุสถานะ')}</span></div>
     <div class="ttl">${esc(e.title)}${e.source==='web'?` <span class="srcbadge">เพิ่มจากหน้าเว็บ</span>`:''}${e.room&&e.mode!=='online'?' '+roomTag(e.room):''}</div>${cfNote(e)}${e._lv?`<div class="lvnote" role="note"><b>⛔ อยู่ในช่วงที่อาจารย์ลา</b> (${esc(lvLabel(e._lv))}) — ย้ายเวลา หรือเปลี่ยนสถานะเป็น ขัดข้อง / เลื่อน</div>`:''}
     <dl class="kv">${rows.map(r=>`<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join('')}</dl>
@@ -1440,7 +1444,7 @@ function renderList(){
       rows += `<tr class="erow" data-d="${e.date}" tabindex="0" title="ดูในปฏิทิน">
         <td class="dt">${d.getDate()} ${TH_MS[d.getMonth()]}<small>${TH_D[d.getDay()]}</small></td>
         <td class="tm">${esc(e.time||'—')}</td>
-        <td class="ty"><span class="tag t-${c}">${esc(e.type)}</span></td>
+        <td class="ty"><span class="tag t-${c}"${tyStyle(e.type)}>${esc(e.type)}</span></td>
         <td class="ti">${esc(e.title)}${e.edoc?` <a class="edocchip" href="${esc(e.edoc)}" target="_blank" rel="noopener" title="เปิดเอกสาร EDOC">EDOC</a>`:''}</td>
         <td class="pl">${esc(e.place)}</td>
         <td class="st"><span class="pill ${e._st}">${esc(e.status||'ไม่ระบุ')}</span></td>
@@ -1527,7 +1531,7 @@ function renderSheet(){
       const cf = e._cf && e._cf.length;
       rows += `<tr class="srow ${e._st}${tcls}${cf?' cf':''}${e._lv?' lvx':''}" data-d="${ds}" data-k="${EVENTS.indexOf(e)}" tabindex="0" title="${cf?esc('⚠ เวลาชนกับ '+e._cf.map(cfText).join(', ')):e._lv?esc('⛔ อยู่ในช่วงวันลา ('+lvLabel(e._lv)+')'):'ดูรายละเอียด'}">${i===0 && !lvs.length?dayCells(nRow):''}
         <td class="tt">${cf?'<span class="cfi" aria-label="เวลาชน">⚠</span> ':''}${e._lv?'<span class="lvi" aria-label="อยู่ในช่วงวันลา">⛔</span> ':''}${esc(e.time||'—')}</td>
-        <td><span class="tag">${esc(e.type)}</span></td>
+        <td><span class="tag"${tyStyle(e.type)}>${esc(e.type)}</span></td>
         <td class="ti">${esc(e.title)}${e.edoc?` <a class="edocchip" href="${esc(e.edoc)}" target="_blank" rel="noopener" title="เปิดเอกสาร EDOC">EDOC</a>`:''}</td>
         <td class="sm">${esc(e.place||'')}</td>
         <td class="hc"><span class="pill ${e._st}">${esc(e.status||'ไม่ระบุ')}</span></td>
@@ -1734,7 +1738,7 @@ function openEvModal(e){
   const box=document.getElementById('evBox');
   box.className='modal-box t-'+e.who;
   box.innerHTML=`<div class="mhead"><span class="av">${t.ini}</span><div><div class="who">${esc(t.name)}</div><h2 id="mTitle">${esc(e.title)}</h2></div><button class="x" data-close="1" aria-label="ปิด">×</button></div>
-    <div class="mquick"><span class="when">${shortDate(e.date)} · ${esc(e.time||'ไม่ระบุเวลา')}</span>${e.mode?`<span class="modebadge ${e.mode}">${MODE_TH[e.mode]}</span>`:''}<span class="tag">${esc(e.type)}</span><span class="pill ${e._st}">${esc(e.status||'ไม่ระบุสถานะ')}</span></div>
+    <div class="mquick"><span class="when">${shortDate(e.date)} · ${esc(e.time||'ไม่ระบุเวลา')}</span>${e.mode?`<span class="modebadge ${e.mode}">${MODE_TH[e.mode]}</span>`:''}<span class="tag"${tyStyle(e.type)}>${esc(e.type)}</span><span class="pill ${e._st}">${esc(e.status||'ไม่ระบุสถานะ')}</span></div>
     ${quickStatusHtml(e)}
     ${e._cf && e._cf.length ? `<div class="mcf"><b>⚠ งานนี้เวลาชนกับงานอื่นของ ${esc(t.short)} ในวันเดียวกัน</b><ul>${e._cf.map(o=>`<li>${esc(cfText(o))}${o.status?` <small>(${esc(o.status)})</small>`:''}</li>`).join('')}</ul></div>` : ''}
     ${(() => { if (!e.room || e.mode==='online' || e._st==='off') return ''; const rc = roomClashes(e.room, [e.date], evSpan(e), e.id); return rc.length ? `<div class="mcf"><b>⚠ ${esc(roomName(e.room))} มีรายการอื่นจองซ้อนในช่วงเวลานี้</b><ul>${rc.map(u=>`<li>${esc(useText(u))}</li>`).join('')}</ul></div>` : ''; })()}
@@ -1997,14 +2001,17 @@ function modeData(){
   return mode==='onsite' ? {mode, venue, place, platform:'', link:'', meetingId:'', passcode:'', notes:$('fNotes').value.trim(), edoc}
                          : {mode, venue: mode==='hybrid'?venue:'', place, platform, link, meetingId, passcode, notes:$('fNotes').value.trim(), edoc};
 }
-/* ===== ประเภทงานตามข้อ 5 (รายการและตัวอย่างอยู่ใน assets/worktypes.js) ===== */
+/* ===== ประเภทงานตามข้อ 5 (รายการ ตัวอย่าง และสีอยู่ใน assets/worktypes.js) ===== */
+const tyCol = t => (window.workTypeColor && window.workTypeColor(t)) || null;
+const tyStyle = t => { const k = tyCol(t); return k ? ` style="--c:${k.c};--soft:${k.soft}"` : ''; };
+const tyDot = t => { const k = tyCol(t); return k ? `<u class="tyd" style="background:${k.c}" aria-hidden="true"></u>` : ''; };
 const WT = window.WORK_TYPES || [];
 const isWT = v => !!(window.isWorkType && window.isWorkType(v));
 const WT_FB = WT.length ? null : 'assets/worktypes.js'; // ไฟล์ประเภทงานโหลดไม่ได้ (ยังไม่ได้อัปโหลด?)
 function renderTypeGrid(){
   const g = $('fTypeGrid'); if (!g) return;
   if (!WT.length){ g.innerHTML = `<div class="wtold">โหลดรายการประเภทงานไม่ได้ (ไม่พบไฟล์ ${WT_FB}) — แจ้งผู้ดูแลระบบให้อัปโหลดไฟล์นี้ขึ้น GitHub</div>`; return; }
-  g.innerHTML = WT.map(t => `<label class="wt" data-k="${esc(t.key)}"><input type="radio" name="wtype" value="${esc(t.key)}"><span class="wc">${esc(t.code)}</span><span class="wb"><b>${esc(t.name)}${t.sub?` <em>· ${esc(t.sub)}</em>`:''}</b><small>${t.ex.map(esc).join(' · ')}</small>${t.note?`<i class="wn">${esc(t.note)}</i>`:''}</span></label>`).join('');
+  g.innerHTML = WT.map(t => { const k = tyCol(t.key); return `<label class="wt" data-k="${esc(t.key)}"${k?` style="--tc:${k.c};--ts:${k.soft}"`:''}><input type="radio" name="wtype" value="${esc(t.key)}"><span class="wc">${esc(t.code)}</span><span class="wb"><b>${esc(t.name)}${t.sub?` <em>· ${esc(t.sub)}</em>`:''}</b><small>${t.ex.map(esc).join(' · ')}</small>${t.note?`<i class="wn">${esc(t.note)}</i>`:''}</span></label>`; }).join('');
   g.querySelectorAll('input[name=wtype]').forEach(i => i.onchange = () => { if (i.checked) { $('fType').value = i.value; g.classList.remove('bad'); syncType(true); } });
 }
 function setType(v){
@@ -2305,7 +2312,7 @@ function renderFormList(){
     const who=(Array.isArray(d.who)?d.who:[d.who]).filter(w=>TEACHERS[w]);
     const st = stc(d);
     return `<article class="fitem ${editingId===d.id?'editing':''}">
-      <div class="r1"><b>${d.date?shortDate(d.date):'—'}</b><span>${esc(d.time||'ไม่ระบุเวลา')}</span>${d.type?`<span class="tag">${esc(d.type)}</span>`:''}<span class="pill ${st}" style="margin-left:auto">${esc(d.status||'')}</span></div>
+      <div class="r1"><b>${d.date?shortDate(d.date):'—'}</b><span>${esc(d.time||'ไม่ระบุเวลา')}</span>${d.type?`<span class="tag"${tyStyle(d.type)}>${esc(d.type)}</span>`:''}<span class="pill ${st}" style="margin-left:auto">${esc(d.status||'')}</span></div>
       <div class="ttl">${esc(d.title||'')}${d.overrides?' <span class="srcbadge">แก้จาก Excel</span>':''}${d.edoc?` <a class="edocchip" href="${esc(d.edoc)}" target="_blank" rel="noopener">EDOC</a>`:''}</div>
       <div class="meta">${who.map(w=>`<span class="av sm t-${w}" title="${esc(TEACHERS[w].name)}">${TEACHERS[w].ini}</span>`).join(' ')} ${esc(d.place||'')}</div>${Object.keys(parseSB(d.statusBy)).length?`<div class="sbnote">${Object.entries(parseSB(d.statusBy)).map(([w,v])=>`${esc(TEACHERS[w]?TEACHERS[w].short:w)}: <b>${esc(v)}</b>`).join(' · ')}</div>`:''}
       ${canWrite ? (confirmDel===d.id

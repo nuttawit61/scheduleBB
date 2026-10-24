@@ -628,10 +628,10 @@ a.logoutpill{text-decoration:none}
 .src b{color:var(--ink);font-weight:600}
 /* คำอธิบายประเภท */
 .guide{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.gcard{display:flex;gap:12px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface);min-width:0}
-.gcard .wc{flex:none;min-width:46px;height:fit-content;text-align:center;font:600 .82em/1 var(--f-display);font-variant-numeric:tabular-nums;color:#fff;background:var(--accent);border-radius:8px;padding:7px 6px 6px}
+.gcard{display:flex;gap:12px;border:1px solid var(--line);border-left:5px solid var(--tc,var(--line));border-radius:12px;padding:12px 14px;background:var(--surface);min-width:0}
+.gcard .wc{flex:none;min-width:46px;height:fit-content;text-align:center;font:600 .82em/1 var(--f-display);font-variant-numeric:tabular-nums;color:#fff;background:var(--tc,var(--accent));border-radius:8px;padding:7px 6px 6px}
 .gcard .gb{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
-.gcard h3{font-size:1em;font-weight:600;line-height:1.35;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px}
+.gcard h3{color:var(--tc,var(--ink));font-size:1em;font-weight:600;line-height:1.35;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px}
 .gcard h3 em{font-style:normal;font-weight:500;color:var(--muted);font-size:.9em}
 .gcard h3 .gn{margin-left:auto;font:500 .78em var(--f-body);color:var(--muted);white-space:nowrap}
 .gcard ul{margin:0;padding-left:1.1em;color:var(--ink);font-size:.88em;line-height:1.55}
@@ -689,9 +689,9 @@ a.logoutpill{text-decoration:none}
 .rtable td.old{white-space:nowrap}
 .oldtag{display:inline-block;font-size:.84em;border-radius:999px;padding:1px 10px;background:#FFF0D6;color:#7A4B00;border:1px solid #F0D79A}
 .oldtag.none{background:var(--surface-2);color:var(--muted);border-color:var(--line)}
-.newtag{display:inline-block;font-size:.84em;border-radius:999px;padding:1px 10px;background:var(--ok-soft);color:#1E5A34}
+.newtag{display:inline-block;font-size:.84em;font-weight:600;border-radius:999px;padding:1px 10px;background:var(--ts,var(--ok-soft));color:var(--tc,#1E5A34)}
 .rtable td.nw{min-width:250px}
-.rtable td.nw select{font:inherit;font-size:.92em;width:100%;border:1px solid var(--line);border-radius:9px;padding:6px 8px;background:var(--surface);color:var(--ink)}
+.rtable td.nw select{font:inherit;font-size:.92em;width:100%;border:1px solid var(--line);border-left:5px solid var(--tc,var(--line));border-radius:9px;padding:6px 8px;background:var(--surface);color:var(--ink)}
 .rtable td.nw select.unset{border-color:#E0A33A;background:#FFFBF2}
 .rtable td.nw small{display:block;color:var(--muted);font-size:.8em;margin-top:4px;line-height:1.4}
 .rtable td.nw small.ex{color:#55626A}
@@ -766,7 +766,7 @@ a.logoutpill{text-decoration:none}
   </header>
 
   <section class="panel" aria-labelledby="gTitle">
-    <div class="phead"><h2 id="gTitle">ประเภทงาน 10 ข้อ</h2><p>ใช้เลือกในช่อง "ประเภทงาน" ของหน้าบันทึกงาน · ตัวเลขด้านขวาคือจำนวนงานในระบบที่ใช้ประเภทนั้นแล้ว</p></div>
+    <div class="phead"><h2 id="gTitle">ประเภทงาน 11 ประเภท</h2><p>ใช้เลือกในช่อง "ประเภทงาน" ของหน้าบันทึกงาน · ตัวเลขด้านขวาคือจำนวนงานในระบบที่ใช้ประเภทนั้นแล้ว</p></div>
     <div class="src">จัดตาม <b>ข้อ 5 ภาระงานที่ใช้เสนอขอรับทุน</b> ในประกาศคณะแพทยศาสตร์ศิริราชพยาบาล เรื่อง หลักเกณฑ์และวิธีการขอรับทุนเฉลิมพระเกียรติ ส่วนที่ 1 พ.ศ. 2568 (ปทบ. 5/2568) · บริการทางการแพทย์จัดไว้ในข้อ 5.3 (ก) งานบริการวิชาการที่ทำเป็นประจำ และประกาศข้อ 6 กำหนดเกณฑ์บริการทางการแพทย์แยกไว้</div>
     <div class="guide" id="guide"></div>
   </section>
@@ -875,6 +875,7 @@ function parseSB(v){ if (!v) return {}; if (typeof v==='object') return v; try{ 
 const WT = window.WORK_TYPES || [];
 const wtOf = v => window.workTypeOf ? window.workTypeOf(v) : null;
 const isWT = v => !!wtOf(v);
+const tyVars = k => { const c = window.workTypeColor && window.workTypeColor(k); return c ? ` style="--tc:${c.c};--ts:${c.soft}"` : ''; };
 const wtLabel = k => { const t = wtOf(k); return t ? `${t.code} ${t.name}${t.sub?' · '+t.sub:''}` : k; };
 let canWrite = false;
 const PAGE_SIZE = 150;
@@ -904,7 +905,7 @@ const willSave = r => canWrite && r.p.on && changed(r);
 function renderGuide(){
   const cnt = {}; FORM_DOCS.forEach(d => { const t = wtOf(d.type); if (t) cnt[t.key] = (cnt[t.key]||0)+1; });
   if (!WT.length){ $('guide').innerHTML = `<div class="empty">โหลดรายการประเภทงานไม่ได้ (ไม่พบไฟล์ assets/worktypes.js)</div>`; return; }
-  $('guide').innerHTML = WT.map(t => `<article class="gcard"><span class="wc">${esc(t.code)}</span><div class="gb">
+  $('guide').innerHTML = WT.map(t => `<article class="gcard"${tyVars(t.key)}><span class="wc">${esc(t.code)}</span><div class="gb">
       <h3>${esc(t.name)}${t.sub?`<em>${esc(t.sub)}</em>`:''}<span class="gn">${DATA_READY ? (cnt[t.key]||0)+' งาน' : ''}</span></h3>
       <ul>${t.ex.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
       ${t.note?`<div class="wn">${esc(t.note)}</div>`:''}
@@ -949,8 +950,8 @@ function rowHtml(r){
     <td class="ck"><input type="checkbox" ${r.p.on?'checked':''} ${!canWrite||!r.p.type?'disabled':''} aria-label="เลือก ${esc(d.title||'')}"></td>
     <td class="dt">${esc(shortDate(d.date))}<small>${esc(d.time||'')}</small></td>
     <td class="ti"><b>${esc(d.title||'(ไม่มีชื่อรายการ)')}</b><small>${esc(who)}${d.status?' · '+esc(d.status):''} · <a href="${FORM_FILE}#edit-${encodeURIComponent(r.id)}" target="_blank" rel="noopener">เปิดงาน ↗</a></small></td>
-    <td class="old">${r.ok ? `<span class="newtag">${esc(wtOf(r.cur).code)} ${esc(r.cur)}</span>` : `<span class="oldtag${r.cur?'':' none'}">${esc(r.cur||'(ว่าง)')}</span>`}</td>
-    <td class="nw"><select ${canWrite?'':'disabled'} class="${r.p.type?'':'unset'}" aria-label="ประเภทใหม่ของ ${esc(d.title||'')}">${typeOptions(r.p.type)}</select><small>${esc(why)}</small>${t?`<small class="ex">เช่น ${esc(t.ex.slice(0,2).join(' · '))}</small>`:''}</td></tr>`;
+    <td class="old">${r.ok ? `<span class="newtag"${tyVars(r.cur)}>${esc(wtOf(r.cur).code)} ${esc(r.cur)}</span>` : `<span class="oldtag${r.cur?'':' none'}">${esc(r.cur||'(ว่าง)')}</span>`}</td>
+    <td class="nw"${tyVars(r.p.type)}><select ${canWrite?'':'disabled'} class="${r.p.type?'':'unset'}" aria-label="ประเภทใหม่ของ ${esc(d.title||'')}">${typeOptions(r.p.type)}</select><small>${esc(why)}</small>${t?`<small class="ex">เช่น ${esc(t.ex.slice(0,2).join(' · '))}</small>`:''}</td></tr>`;
 }
 function renderList(){
   if (!DATA_READY){ $('list').innerHTML = ''; $('moreBtn').hidden = true; renderBulk(); return; }
