@@ -1,0 +1,1646 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>รายงานภาระงานอาจารย์</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* หน้ารายงานภาระงานอาจารย์ — สไตล์พื้นฐานคัดลอกจาก worktype.html / teaching.html / index.html (แก้หน้าตาหลักที่ index.html แล้วคัดลอกมาที่นี่ด้วย) */
+:root{
+  --bg:#FAFBFC; --surface:#FFFFFF; --surface-2:#F2F5F7; --ink:#1A2227; --muted:#5B676F; --line:#D9DFE3;
+  --accent:#9B1C31; --accent-soft:#F6E4E7; --ok:#2C7A47; --ok-soft:#E3F1E8;
+  --t-AS:#0E7C74; --t-AS-soft:#DDF0EE; --t-AJ:#4A52C4; --t-AJ-soft:#E5E6F8; --t-AK:#A85F0A; --t-AK-soft:#F6EAD9; --t-APAO:#A3367E; --t-APAO-soft:#F7E3EF;
+  --weekend:#F7F9FA; color-scheme:light;
+  --f-display:"Anuphan","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai","Anuphan",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:clamp(14px,.45vw + 9.6px,19px);line-height:1.55}
+.wrap{width:100%;margin:0;padding-inline:clamp(16px,3vw,48px);padding-block:clamp(18px,3vw,36px) 48px;display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+header .eyebrow{font-size:.87em;color:var(--muted);letter-spacing:.02em}
+header h1{font-size:clamp(24px,2.4vw,46px);font-weight:700;margin-top:4px}
+header .sub{color:var(--muted);margin-top:4px;font-size:.93em}
+header .sub code{font-family:inherit;background:var(--surface-2);padding:1px 6px;border-radius:4px;font-size:13px}
+
+/* teacher strip */
+.teachers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.tcard{display:flex;flex-direction:column;gap:8px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;cursor:pointer;transition:border-color .15s,opacity .15s;min-width:0}
+.tcard:hover{border-color:var(--c)}
+.tcard[aria-pressed="false"]{opacity:.45}
+.tcard .top{display:flex;align-items:center;gap:10px;min-width:0}
+.sw{width:12px;height:12px;border-radius:50%;background:var(--c);flex:none}
+.tcard .nm{font-family:var(--f-display);font-weight:600;font-size:1.07em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tcard .chk{margin-left:auto;font-size:12px;color:var(--muted);flex:none}
+.stats{display:flex;gap:18px;flex-wrap:wrap;font-size:.87em;color:var(--muted)}
+.stats b{display:block;font-size:1.55em;color:var(--ink);font-family:var(--f-display);font-weight:600;line-height:1.2}
+.stats .pend b{color:var(--accent)}
+.next{font-size:.87em;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.next strong{color:var(--ink);font-weight:500}
+
+/* toolbar */
+.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tabs{display:inline-flex;background:var(--surface-2);border-radius:8px;padding:3px}
+.tabs button{border:0;background:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:500;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0 / .08)}
+.linkbtn{border:0;background:none;color:var(--accent);cursor:pointer;font-size:.93em;padding:4px 2px}
+.legend{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap;font-size:.84em;color:var(--muted);align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:.8em;padding:1px 8px;border-radius:999px;white-space:nowrap;font-weight:500}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.pend{border:1px dashed var(--accent);color:var(--accent)}
+
+/* calendar */
+.work{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(340px,1fr);gap:clamp(12px,1.6vw,24px);align-items:start}
+.cal{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;min-width:0}
+.calhead{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.calhead h2{font-size:1.35em;font-weight:600;min-width:9.5em}
+.navbtn{border:1px solid var(--line);background:var(--surface);width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:16px;display:grid;place-items:center}
+.navbtn:disabled{opacity:.35;cursor:default}
+.mchips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.mchips button{border:1px solid var(--line);background:none;border-radius:999px;padding:2px 10px;font-size:.87em;cursor:pointer;color:var(--muted)}
+.mchips button[aria-current="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.dow,.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.dow div{font-size:.84em;color:var(--muted);padding:8px 8px 6px;font-weight:500}
+.dow div:nth-child(1),.dow div:nth-child(7){color:var(--accent)}
+.grid{border-top:1px solid var(--line)}
+.day{position:relative;min-height:clamp(88px,calc((100dvh - 190px) / 6),260px);border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--surface);text-align:left;padding:6px 6px 8px;display:flex;flex-direction:column;gap:4px;cursor:pointer;min-width:0}
+.day:nth-child(7n){border-right:0}
+.day.we{background:var(--weekend)}
+.day.blank{cursor:default;background:var(--surface-2);opacity:.5}
+.day:hover:not(.blank){background:var(--surface-2)}
+.day .dn{font-size:.9em;font-weight:600;width:24px;height:24px;display:grid;place-items:center;border-radius:50%}
+.day.today .dn{background:var(--accent);color:#fff}
+.day.sel{box-shadow:inset 0 0 0 2px var(--ink)}
+.day .hol{font-size:clamp(11px,.3vw + 7px,14px);line-height:1.3;color:var(--accent);font-weight:500}
+.chips{display:flex;flex-direction:column;gap:3px;min-width:0}
+.chip{display:flex;align-items:center;gap:5px;font-size:clamp(11.5px,.35vw + 7px,15px);line-height:1.35;padding:2px 5px;border-radius:4px;background:var(--soft);color:var(--ink);min-width:0}
+.chip i{width:7px;height:7px;border-radius:50%;background:var(--c);flex:none}
+.chip .tx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.chip .tm{font-weight:600;font-variant-numeric:tabular-nums}
+.chip.pend{background:none;outline:1px dashed var(--c);outline-offset:-1px}
+.more{font-size:11px;color:var(--muted);padding-left:4px}
+
+/* detail */
+.detail{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;flex-direction:column;gap:16px;min-width:0}
+.detail h2{font-size:1.28em;font-weight:600}
+.detail .dsub{font-size:.87em;color:var(--muted);margin-top:2px}
+.holbox{background:var(--accent-soft);color:var(--accent);border-radius:8px;padding:8px 12px;font-weight:500;font-size:.93em}
+.tgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.tblock{display:flex;flex-direction:column;gap:8px;min-width:0}
+.tblock h3{font-size:.97em;font-weight:600;display:flex;align-items:center;gap:8px}
+.free{font-size:.9em;color:var(--muted);padding:6px 0 2px 20px}
+.ev{border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
+.ev .r1{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ev .time{font-family:var(--f-display);font-weight:600;font-size:1.08em;font-variant-numeric:tabular-nums}
+.tag{font-size:.8em;padding:1px 8px;border-radius:4px;background:var(--soft);color:var(--c);font-weight:600}
+.ev .ttl{font-weight:500;line-height:1.5}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 12px;font-size:.88em;margin:0}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;overflow-wrap:anywhere}
+
+/* list view */
+.list{display:flex;flex-direction:column;gap:22px}
+.lsec{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.lsec>header{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.lsec>header h2{font-size:18px;font-weight:600}
+.lsec>header .stats{margin-left:auto;gap:14px}
+.lsec>header .stats span b{display:inline;font-size:15px;margin-right:3px}
+.tscroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.95em;min-width:820px}
+th{font-weight:500;color:var(--muted);text-align:left;font-size:12.5px;padding:8px 12px;background:var(--surface-2);white-space:nowrap}
+td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:top}
+tr.mrow td{background:var(--surface-2);font-family:var(--f-display);font-weight:600;font-size:13.5px;padding:6px 12px;color:var(--muted)}
+tr.erow{cursor:pointer}
+tr.erow:hover td{background:var(--surface-2)}
+td.dt{white-space:nowrap;font-variant-numeric:tabular-nums}
+td.dt small{display:block;color:var(--muted);font-size:12px}
+td.tm{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:500}
+td.hr{text-align:right;font-variant-numeric:tabular-nums}
+td.pl{color:var(--muted);font-size:13px;max-width:260px}
+
+footer{font-size:.84em;color:var(--muted);display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--line);padding-top:14px}
+
+.t-AS{--c:var(--t-AS);--soft:var(--t-AS-soft)}
+.t-AJ{--c:var(--t-AJ);--soft:var(--t-AJ-soft)}
+.t-AK{--c:var(--t-AK);--soft:var(--t-AK-soft)}
+.t-APAO{--c:var(--t-APAO);--soft:var(--t-APAO-soft)}
+.pill.off{background:var(--surface-2);color:var(--muted);text-decoration:line-through}
+.pill.none{background:var(--surface-2);color:var(--muted)}
+.chip.off{opacity:.5}
+/* เวลาชนกัน */
+.chip.cf{box-shadow:inset 0 0 0 1.5px #D93025;background:#FDECEA}
+.chip.cf .tm::before{content:"⚠ ";color:#D93025}
+.day .cfmark{position:absolute;top:6px;right:7px;width:20px;height:20px;border-radius:50%;background:#D93025;color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;line-height:1;box-shadow:0 1px 3px rgb(0 0 0 / .2)}
+.ev.cf{border-color:#F0A8A1;box-shadow:inset 3px 0 0 #D93025}
+.cfnote{background:#FDECEA;color:#8A1C12;border-radius:8px;padding:6px 10px;font-size:.88em;line-height:1.5}
+.cfnote b{margin-right:4px}
+.cfnote .sep{margin:0 6px;opacity:.5}
+table.sheet tr.srow.cf td{background:#FFF1F0}
+table.sheet tr.srow.cf td.tt{color:#B3261E;font-weight:700;box-shadow:inset 3px 0 0 #D93025}
+.cfi{color:#D93025}
+.mcf{margin:0 22px 6px;background:#FDECEA;border:1px solid #F3B8B2;color:#7A1A12;border-radius:10px;padding:10px 14px;font-size:.92em}
+.mcf ul{margin:6px 0 0;padding-left:18px}
+.cfbar{border:1px solid #F3B8B2;background:#FFF4F3;border-radius:12px;padding:0;color:#7A1A12}
+.cfbar summary{cursor:pointer;padding:10px 14px;list-style:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cfbar summary::-webkit-details-marker{display:none}
+.cfbar summary small{color:#9A4A42;font-weight:400}
+.cfbar .cfic{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#D93025;color:#fff;font-size:13px;font-weight:700;flex:none}
+.cflist{display:flex;flex-direction:column;gap:6px;padding:0 14px 12px}
+.cfitem{display:grid;grid-template-columns:auto auto auto minmax(0,1fr);gap:10px;align-items:center;text-align:left;border:1px solid #F3D0CC;background:#fff;border-radius:10px;padding:8px 12px;font:inherit;font-size:.92em;color:var(--ink);cursor:pointer}
+.cfitem:hover{border-color:#D93025}
+.cfitem .sw{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.cfitem .cfw{font-weight:600}
+.cfitem .cfd{color:var(--muted);font-variant-numeric:tabular-nums}
+.cfitem .cfx i{font-style:normal;color:#D93025;font-weight:600;margin:0 4px}
+.cfwarn{grid-column:1/-1;background:#FDECEA;border:1px solid #F3B8B2;color:#7A1A12;border-radius:10px;padding:10px 14px;font-size:.92em;margin-top:8px}
+.cfwarn ul{margin:6px 0;padding-left:0;list-style:none}
+.cfwarn li{display:flex;align-items:center;gap:8px}
+.cfwarn .sw{width:10px;height:10px;border-radius:50%;background:var(--c);flex:none}
+@media (max-width:640px){ .cfitem{grid-template-columns:auto auto minmax(0,1fr)} .cfitem .cfx{grid-column:1/-1} }
+@media print{ .cfbar,.cfmark{display:none!important} table.sheet tr.srow.cf td{background:none} }
+.chip.off .tx{text-decoration:line-through}
+.ev.off .ttl{text-decoration:line-through;color:var(--muted)}
+.ev.off{opacity:.75}
+
+/* large desktop */
+@media (min-width:1500px){
+  .day .dn{width:1.9em;height:1.9em}
+}
+/* small laptop / tablet landscape */
+@media (max-width:1180px){
+  .teachers{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .work{grid-template-columns:minmax(0,1.6fr) minmax(290px,1fr)}
+  .tcard{padding:12px 14px}
+  .stats{gap:14px}
+}
+/* tablet portrait: calendar full width, day detail below in columns */
+@media (max-width:960px){
+  .work{grid-template-columns:minmax(0,1fr)}
+  .detail{position:static}
+  .tgrid{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .day{min-height:clamp(84px,11vw,110px)}
+  .calhead h2{min-width:0}
+  .stats b{font-size:18px}
+  .tcard .chk{display:none}
+}
+/* tablet portrait narrow / large phone landscape */
+@media (max-width:820px){
+  .teachers{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .next{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .chip .tx .tm{display:none}
+}
+/* phones */
+@media (max-width:640px){
+  .teachers{grid-template-columns:minmax(0,1fr);gap:8px}
+  .tcard{padding:10px 12px;gap:6px}
+  .tcard .nm{font-size:15px}
+  .stats{gap:16px}
+  .stats b{font-size:17px;display:inline;margin-right:4px}
+  .next{-webkit-line-clamp:1}
+  .toolbar{gap:8px}
+  .tabs{flex:1}
+  .tabs button{flex:1;padding:8px 10px}
+  .legend{margin-left:0;width:100%}
+  .calhead{padding:10px}
+  .calhead h2{font-size:17px}
+  .mchips{margin-left:0;width:100%;flex-wrap:nowrap;overflow-x:auto}
+  .mchips button{flex:1;white-space:nowrap;padding:4px 8px}
+  .dow div{padding:6px 0;text-align:center;font-size:12px}
+  .day{min-height:58px;padding:4px 2px;align-items:center}
+  .day .dn{font-size:13px}
+  .day .hol{font-size:0;text-align:center}
+  .day .hol::before{content:"หยุด";font-size:10px}
+  .chips{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:3px}
+  .chip{padding:0;background:none;outline:0!important}
+  .chip .tx{display:none}
+  .chip i{width:8px;height:8px}
+  .chip.pend i{background:none;box-shadow:inset 0 0 0 1.5px var(--c)}
+  .more{display:none}
+  .detail{padding:14px}
+  .detail h2{font-size:17px}
+  .ev{padding:10px 12px}
+  .kv{grid-template-columns:minmax(0,1fr);gap:0}
+  .kv dd{margin-bottom:4px}
+  /* list view becomes cards */
+  .lsec>header{padding:12px}
+  .lsec>header .stats{margin-left:0;width:100%}
+  .tscroll{overflow:visible}
+  .lsec table{min-width:0;display:block}
+  .lsec thead{display:none}
+  .lsec tbody{display:block}
+  tr.mrow,tr.mrow td{display:block}
+  .sheethead{flex-direction:column;align-items:flex-start}
+  .sh-meta{text-align:left}
+  .seg{width:100%;display:grid;grid-template-columns:1fr 1fr}
+  .seg button{justify-content:center;padding:7px 6px;white-space:nowrap}
+  .tabs button{white-space:nowrap;padding:8px 6px;font-size:.9em}
+  .toolbar .tabs{width:100%}
+  tr.erow{display:grid;grid-template-columns:52px minmax(0,1fr) auto;grid-template-areas:"dt tm st" "dt ti ti" "dt pl pl" "dt ty hr";gap:4px 10px;padding:12px;border-top:1px solid var(--line)}
+  tr.erow td{border:0;padding:0;background:none!important;min-width:0}
+  td.dt{grid-area:dt;font-weight:600}
+  td.tm{grid-area:tm} td.st{grid-area:st} td.ti{grid-area:ti;line-height:1.45}
+  td.pl{grid-area:pl;max-width:none} td.ty{grid-area:ty} td.hr{grid-area:hr;color:var(--muted);font-size:13px}
+  td.hr::after{content:" ชม."}
+}
+@media (max-width:360px){
+  .day{min-height:50px}
+  .chip i{width:6px;height:6px}
+  .dow div{font-size:11px}
+}
+/* per-teacher sheet (Excel-like) */
+.sheetbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.seg{display:inline-flex;flex-wrap:wrap;gap:6px}
+.seg button{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:500}
+.seg button[aria-pressed="true"]{border-color:var(--c);background:var(--soft);color:var(--ink);box-shadow:inset 0 0 0 1px var(--c)}
+.sheetbar .ympick{order:3;flex-basis:100%}
+.sheetbar .pdfbtn{margin-left:auto}
+.sheetbar .xlwrap{margin-left:auto;position:relative}
+.sheetbar .xlwrap + .pdfbtn{margin-left:0}
+.xlbtn{white-space:nowrap;display:inline-flex;align-items:center;gap:6px;border-color:#1D6F42;color:#1D6F42}
+.xlbtn:hover{border-color:#1D6F42;background:#EEF7F1}
+.xlbtn .car{font-size:.7em;opacity:.8}
+.xlmenu{position:absolute;right:0;top:calc(100% + 6px);z-index:40;min-width:250px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(20,30,40,.16);padding:6px;display:flex;flex-direction:column;gap:2px}
+.xlmenu[hidden]{display:none}
+.xlmenu button{font:inherit;text-align:left;border:0;background:none;border-radius:8px;padding:9px 12px;cursor:pointer;color:var(--ink);display:flex;flex-direction:column;gap:1px}
+.xlmenu button:hover,.xlmenu button:focus-visible{background:var(--surface-2);outline:none}
+.xlmenu button small{color:var(--muted);font-size:.82em}
+.xlmsg{font-size:.85em;color:var(--muted);flex-basis:100%;text-align:right;order:4}
+.xlmsg.err{color:var(--accent)}
+.xlmsg:empty{display:none}
+@media (max-width:640px){ .xlmenu{right:auto;left:0} }
+.ympwrap{flex-basis:100%;min-width:0}
+.ympick{display:flex;flex-direction:column;gap:10px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;min-width:0}
+.ymrow{display:flex;align-items:center;gap:12px;min-width:0}
+.ymlab{flex:none;width:52px;font-size:.8em;font-weight:700;letter-spacing:.04em;color:var(--muted);text-transform:uppercase}
+.ysel{display:flex;gap:8px;flex-wrap:wrap}
+.ysel button{font:inherit;font-family:var(--f-display);font-weight:700;font-size:1.05em;padding:5px 18px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums;transition:border-color .15s,background .15s}
+.ysel button:hover{border-color:var(--accent);color:var(--accent)}
+.ysel button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 3px 10px rgb(155 28 49 / .25)}
+.ysel button .yn{display:block;font-family:var(--f-body);font-weight:500;font-size:.68em;opacity:.8;margin-top:-2px}
+.ympick .mchips{display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;margin:0!important;width:auto!important;overflow:visible!important;flex:1;min-width:0}
+.ympick .mchips button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-height:44px;padding:4px 2px!important;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-size:.88em;font-weight:600;cursor:pointer;white-space:nowrap;transition:border-color .15s,background .15s}
+.ympick .mchips button:hover{border-color:var(--ink)}
+.ympick .mchips button i{font-style:normal;font-size:.74em;font-weight:600;color:var(--accent);line-height:1.2}
+.ympick .mchips button.none{color:#9AA4AA;font-weight:500;background:transparent;border-style:dashed}
+.ympick .mchips button.now:not([aria-current="true"]){border:1.5px solid var(--accent)}
+.ympick .mchips button[aria-current="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.ympick .mchips button[aria-current="true"] i{color:#FFD7DE}
+@media (max-width:900px){ .ympick .mchips{grid-template-columns:repeat(6,minmax(0,1fr))} }
+@media (max-width:560px){ .ymrow{flex-direction:column;align-items:stretch;gap:6px} .ymlab{width:auto} .ympick{padding:10px} }
+@media print{ .ympick{display:none!important} }
+.sheetwrap{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.sheethead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:16px 18px;border-bottom:3px solid var(--c)}
+.sheethead .eyebrow{font-size:.84em;color:var(--muted)}
+.sheethead h2{font-size:1.35em;font-weight:600;display:flex;align-items:center;gap:10px}
+.sh-meta{text-align:right;display:flex;flex-direction:column;gap:2px}
+.sh-meta b{font-family:var(--f-display);font-size:1.15em}
+.sh-meta span{color:var(--muted);font-size:.87em}
+table.sheet{min-width:1180px;font-size:.92em;border-collapse:collapse}
+table.sheet th,table.sheet td{border:1px solid var(--line);padding:7px 10px;vertical-align:top}
+table.sheet th{background:var(--surface-2);color:var(--ink);font-weight:600;text-align:center;white-space:nowrap;position:sticky;top:0}
+table.sheet tr.wk td{background:var(--soft);font-family:var(--f-display);font-weight:600;padding:5px 10px;color:var(--ink)}
+table.sheet td.dw{white-space:nowrap;font-weight:500}
+table.sheet td.dw.we{color:var(--accent)}
+table.sheet td.dd{white-space:nowrap;font-variant-numeric:tabular-nums}
+table.sheet td.tt{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:500}
+table.sheet td.hc{text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.sheet td.sm{color:var(--muted);font-size:.9em}
+table.sheet td.lv{white-space:nowrap}
+table.sheet td.holc{background:var(--accent-soft);color:var(--accent);font-weight:500;text-align:center}
+table.sheet tr.empty td{height:2.3em}
+table.sheet tr.today td.dw,table.sheet tr.today td.dd{background:var(--accent-soft)}
+table.sheet tr.srow{cursor:pointer}
+table.sheet tr.srow:hover td:not(.dw):not(.dd){background:var(--surface-2)}
+table.sheet tr.off td.ti{text-decoration:line-through;color:var(--muted)}
+.sheetfoot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 18px;font-size:.84em;color:var(--muted);border-top:1px solid var(--line)}
+/* ===== polish layer ===== */
+.hero{position:relative;overflow:hidden;border-radius:22px;padding:clamp(22px,3vw,40px) clamp(20px,3vw,40px)!important;color:#fff;
+  background:radial-gradient(600px 260px at 15% 0%, #B8304A 0%, transparent 70%), linear-gradient(120deg,#6E0F21 0%,#931B32 45%,#A8233C 100%);
+  box-shadow:0 10px 30px rgb(110 15 33 / .25)}
+.hero-art{position:absolute;inset:0 0 0 auto;width:min(70%,900px);height:100%;pointer-events:none}
+.hero-main,.hero-today{position:relative;z-index:1}
+:root{ --shadow:0 1px 2px rgb(20 30 40 / .05), 0 4px 14px rgb(20 30 40 / .05); --shadow-lg:0 2px 4px rgb(20 30 40 / .05), 0 12px 32px rgb(20 30 40 / .08); --r:14px }
+body{background:radial-gradient(1200px 380px at 85% -120px, #F8E9EC 0%, transparent 70%), linear-gradient(#FBFCFD, #F4F6F8) fixed; background-color:var(--bg)}
+.hero{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;padding-block:6px 4px}
+.hero-main{min-width:0}
+.hero .eyebrow{display:flex;align-items:center;gap:8px;color:#FFE3E8;font-weight:500}
+.drop{width:11px;height:14px;background:#fff;border-radius:50% 50% 50% 50% / 62% 62% 38% 38%;transform:rotate(0deg);clip-path:polygon(50% 0,100% 62%,92% 85%,70% 100%,30% 100%,8% 85%,0 62%);flex:none}
+.hero h1{font-size:clamp(28px,3vw,52px);letter-spacing:-.01em;line-height:1.15;margin-top:6px}
+.hero h1{color:#fff;text-shadow:0 2px 12px rgb(60 0 10 / .25)}
+.hero .sub{color:#FFD7DE}
+.hero .sub code{background:rgb(255 255 255 / .16);color:#fff}
+.whoami{display:inline-flex;align-items:center;gap:8px;margin-top:10px;background:rgb(255 255 255 / .14);border:1px solid rgb(255 255 255 / .22);border-radius:999px;padding:4px 14px 4px 5px;font-size:.9em;color:#fff;max-width:100%}
+.whoami .wav{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#fff;color:var(--accent);font-weight:700;font-size:.85em;flex:none}
+.whoami b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.whoami .wr{color:#FFD7DE;font-size:.9em;white-space:nowrap}
+.whoami[hidden]{display:none}
+.mfoot .src .by{display:block;margin-top:2px}
+@media print{ .whoami{display:none!important} }
+.hero-today{color:var(--ink);display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 16px 10px 10px;box-shadow:var(--shadow);cursor:pointer}
+.hero-today:hover{transform:translateY(-2px)}
+.hero-today{border-color:transparent;box-shadow:0 8px 24px rgb(60 0 10 / .25);transition:transform .15s}
+.ht-date{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--accent);color:#fff;border-radius:10px;padding:6px 12px;line-height:1.1;min-width:64px}
+.ht-date span{font-size:.72em;opacity:.9}
+.ht-date b{font-family:var(--f-display);font-size:1.8em;font-weight:700}
+.ht-lbl{font-size:.8em;color:var(--muted)}
+.ht-n{font-family:var(--f-display);font-weight:600;font-size:1.15em}
+.ht-who{display:flex;gap:4px;margin-top:4px}
+.av{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--c);color:#fff;font-family:var(--f-display);font-weight:700;font-size:15px;flex:none;box-shadow:0 0 0 3px var(--soft)}
+.av.sm{width:22px;height:22px;font-size:11px;box-shadow:none}
+.tcard{border-radius:var(--r);box-shadow:var(--shadow);border-color:transparent;position:relative;overflow:hidden;padding-top:16px;transition:transform .15s,box-shadow .15s,opacity .15s,border-color .15s}
+.tcard::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--c)}
+.tcard:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.tcard[aria-pressed="true"]{background:linear-gradient(180deg,var(--soft) 0%, var(--surface) 55%)}
+.tcard .stats b{font-size:1.65em}
+.tabs{background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:4px}
+.tabs button{border-radius:9px;padding:7px 16px}
+.tabs button[aria-selected="true"]{background:var(--ink);color:#fff;box-shadow:none}
+.cal,.detail,.lsec,.sheetwrap{border-radius:var(--r);border-color:transparent;box-shadow:var(--shadow)}
+.calhead{padding:14px 16px;background:linear-gradient(180deg,var(--surface),var(--surface-2))}
+.calhead h2{font-weight:700}
+.navbtn{border-radius:10px}
+.navbtn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.mchips button{transition:background .15s}
+.mchips button:hover{background:var(--surface-2)}
+.mchips button[aria-current="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.dow{background:var(--surface)}
+.dow div{text-transform:none;font-weight:600;letter-spacing:.02em;padding-inline:10px}
+.day{transition:background .12s}
+.day .dn{font-weight:600}
+.day.today .dn{box-shadow:0 0 0 3px var(--accent-soft)}
+.day.sel{box-shadow:inset 0 0 0 2px var(--accent);background:color-mix(in srgb,var(--accent-soft) 35%, var(--surface))}
+.day .hol{background:var(--accent-soft);border-radius:4px;padding:1px 5px;align-self:flex-start}
+.chip{border-radius:6px;padding:3px 6px}
+.chip i{box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 22%, transparent)}
+.detail{gap:18px}
+.dhead{display:flex;gap:14px;align-items:center}
+.dbig{display:flex;flex-direction:column;align-items:center;border-radius:12px;overflow:hidden;border:1px solid var(--line);min-width:62px;flex:none;background:var(--surface)}
+.dbig span{background:var(--accent);color:#fff;width:100%;text-align:center;font-size:.75em;padding:2px 6px;font-weight:600}
+.dbig b{font-family:var(--f-display);font-size:1.9em;line-height:1.25;padding:2px 10px 4px}
+.todaytag{background:var(--accent);color:#fff;border-radius:999px;padding:0 8px;font-size:.9em}
+.tblock{background:color-mix(in srgb,var(--soft) 45%, var(--surface));border-radius:12px;padding:12px}
+.tblock h3 .sw{box-shadow:0 0 0 3px var(--surface)}
+.free{padding:2px 0 2px 20px}
+.ev{border-color:transparent;box-shadow:0 1px 2px rgb(20 30 40 / .06);border-left:0}
+.holbox{display:flex;align-items:center;gap:8px}
+.holbox::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.lsec>header{background:linear-gradient(90deg,var(--soft),var(--surface) 60%)}
+th{letter-spacing:.02em}
+tr.erow:nth-child(even) td{background:color-mix(in srgb,var(--surface-2) 45%, var(--surface))}
+.sheethead{background:linear-gradient(90deg,var(--soft),var(--surface) 65%);border-bottom-width:4px}
+.sheethead h2 .sw{width:14px;height:14px}
+table.sheet th{background:var(--ink);color:#fff;border-color:color-mix(in srgb,var(--ink) 80%, #fff)}
+table.sheet tr.srow:nth-child(even) td:not(.dw):not(.dd){background:color-mix(in srgb,var(--surface-2) 55%, var(--surface))}
+table.sheet td.dw,table.sheet td.dd{background:var(--surface)}
+table.sheet tr.wk td{background:var(--c);color:#fff;letter-spacing:.02em}
+.seg button{border-radius:999px;box-shadow:var(--shadow);border-color:transparent}
+.seg button[aria-pressed="true"]{background:var(--c);color:#fff;box-shadow:var(--shadow)}
+.seg button[aria-pressed="true"] .sw{background:#fff}
+footer{border-top-style:dashed}
+.tag{white-space:nowrap;display:inline-block}
+@media (max-width:640px){
+  .hero-today{width:100%}
+  .av{width:28px;height:28px;font-size:13px}
+  .tblock{padding:10px}
+}
+.btn{font:inherit;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 18px;cursor:pointer;font-weight:500}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sm{padding:4px 10px;font-size:.85em}
+.btn.danger{color:var(--accent)}
+.btn.fdel{margin-left:auto;border-color:#F0B9C2}
+.edoc-ic{width:18px;height:18px;flex:none;fill:none;stroke:#2D5AA8;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fld small.err{color:var(--accent)} .fld small:not(.err){color:var(--muted)}
+.edocchip{display:inline-block;font-size:.72em;font-weight:700;letter-spacing:.03em;text-decoration:none;color:#fff;background:#2D5AA8;border-radius:5px;padding:0 6px;vertical-align:middle}
+.edocchip:hover{background:#1F4386}
+.edocbtn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:#2D5AA8!important;border-color:#C9D7F0!important;background:#F2F6FD!important}
+.evacts{gap:6px}
+@media print{ .edocchip{display:none} }
+.modebadge{display:inline-flex;align-items:center;gap:4px;font-size:.78em;font-weight:600;border-radius:999px;padding:0 9px;background:#E7EEF9;color:#2D5AA8}
+.modebadge.onsite{background:#EEF1F3;color:#46525A}
+.modebadge.hybrid{background:#EFE7F8;color:#6A3EA8}
+.mtable td a{color:var(--accent);word-break:break-all}
+.evacts{display:flex;justify-content:flex-end}
+.evacts a{text-decoration:none;color:var(--ink)}
+.evacts a:hover{border-color:var(--accent);color:var(--accent)}
+/* event detail modal */
+.modal{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px}
+.modal-bg{position:absolute;inset:0;background:rgb(20 10 14 / .45);backdrop-filter:blur(2px)}
+.modal-box{position:relative;background:var(--surface);border-radius:18px;box-shadow:0 24px 60px rgb(20 10 14 / .3);width:min(640px,100%);max-height:calc(100dvh - 32px);overflow:auto;outline:none;animation:pop .16s ease-out}
+@keyframes pop{from{transform:translateY(8px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+.mhead{display:flex;gap:14px;align-items:flex-start;padding:20px 22px 16px;background:linear-gradient(180deg,var(--soft),var(--surface));border-bottom:4px solid var(--c);border-radius:18px 18px 0 0}
+.mhead .av{width:44px;height:44px;font-size:19px}
+.mhead .who{font-size:.86em;color:var(--muted)}
+.mhead h2{font-size:1.25em;font-weight:700;margin-top:2px;line-height:1.4}
+.mhead .x{margin-left:auto;border:0;background:var(--surface);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:18px;flex:none;box-shadow:var(--shadow)}
+.mquick{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:14px 22px 0}
+.mquick .when{font-family:var(--f-display);font-weight:600;font-size:1.05em}
+.mtable{width:calc(100% - 44px);margin:14px 22px;border-collapse:collapse;min-width:0;font-size:.95em}
+.mtable th{background:none;text-align:left;color:var(--muted);font-weight:500;width:9.5em;padding:8px 10px 8px 0;vertical-align:top;white-space:normal;border-bottom:1px solid var(--line)}
+.mtable td{border-top:0;border-bottom:1px solid var(--line);padding:8px 0;overflow-wrap:anywhere}
+.mtable tr:last-child th,.mtable tr:last-child td{border-bottom:0}
+.mtable td.empty{color:var(--muted)}
+.mfoot{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-items:center;padding:12px 22px 20px}
+.mfoot .src{margin-right:auto;font-size:.85em;color:var(--muted)}
+.mfoot a.btn{text-decoration:none;color:inherit}
+.mfoot a.btn.primary{color:#fff}
+@media (max-width:640px){ .modal{place-items:end center;padding:0} .modal-box{border-radius:18px 18px 0 0;max-height:92dvh} .mtable th{width:7.5em} }
+/* gate + sync */
+.gate{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:24px 16px;overflow:auto;background:radial-gradient(900px 500px at 50% -10%, #C23A55 0%, transparent 60%),radial-gradient(700px 400px at 100% 110%, #5A0B1B 0%, transparent 60%),linear-gradient(135deg,#6E0F21,#A8233C)}
+.gate-inner{display:flex;flex-direction:column;align-items:center;gap:22px;width:min(420px,100%)}
+.gate-logo{width:min(300px,78%);height:auto;filter:drop-shadow(0 4px 14px rgb(40 0 10 / .4))}
+.gate-foot{margin:0;color:rgb(255 255 255 / .7);font-size:.82em;text-align:center}
+.gate-box{background:var(--surface);border-radius:20px;box-shadow:0 24px 60px rgb(20 10 14 / .35);padding:28px;width:100%;text-align:center;display:flex;flex-direction:column;gap:14px}
+.gate-box h2{font-size:1.3em;font-weight:700}
+.gate-title{display:flex;flex-direction:column;align-items:center;gap:10px}
+.gate-lock{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--accent-soft)}
+.gate-lock svg{width:24px;height:24px;fill:none;stroke:var(--accent);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.gate-box .fld{text-align:center}
+.gate-box .fld input{text-align:center;font-size:1.05em;letter-spacing:.08em}
+.gate-box .btn{width:100%;padding:11px}
+.gate-box .gate-rem{justify-content:center}
+.gate-box p{margin:0;color:var(--muted);font-size:.92em}
+.gate-rem{display:flex;gap:8px;align-items:center;font-size:.9em;color:var(--muted)}
+.sync{display:flex;align-items:center;gap:6px;font-size:.84em;color:var(--muted)}
+.sync.err{color:var(--accent)}
+.role-view .evacts a.btn:not(.edocbtn),.role-view .hero-btn:not(.back),.role-view .mfoot a.btn.primary{display:none}
+/* db status */
+.dbbar{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:var(--r,14px);box-shadow:var(--shadow);padding:12px 16px;margin-bottom:clamp(12px,1.6vw,20px);border-left:5px solid var(--st)}
+.dbbar,.sync{--st:#C98A12}
+.dbbar.ok,.sync.ok{--st:#2C7A47}
+.dbbar.error,.sync.error{--st:#B3261E}
+.dbtxt{display:flex;flex-direction:column;min-width:0;flex:1}
+.dbtxt b{font-family:var(--f-display);font-size:1.02em;color:var(--st)}
+.dbtxt small{color:var(--muted);font-size:.84em;overflow-wrap:anywhere}
+.dbdot{width:12px;height:12px;border-radius:50%;background:var(--st);flex:none;box-shadow:0 0 0 4px color-mix(in srgb,var(--st) 20%,transparent)}
+.dbdot.sm{width:8px;height:8px;box-shadow:0 0 0 3px color-mix(in srgb,var(--st) 20%,transparent)}
+.connecting .dbdot{animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+.sync .dbdot{margin-right:2px}
+.sync.error #syncTx{color:var(--st)}
+.dbref{flex:none;display:inline-flex;align-items:center;gap:6px}
+.dbref .ri,#syncBtn{display:inline-block}
+.spin .ri{animation:rot .8s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+@media (max-width:640px){ .dbbar{flex-wrap:wrap} .dbref{width:100%;justify-content:center} }
+@media (prefers-reduced-motion:reduce){ .connecting .dbdot,.spin .ri{animation:none} }
+/* top db bar + alerts */
+.wrap>.dbbar{margin-bottom:0;position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:20;padding:8px 10px 8px 14px;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px)}
+.dbbar.ok{background:color-mix(in srgb,#E6F4EA 92%,transparent)}
+.dbbar.error{background:color-mix(in srgb,#FCE8E6 92%,transparent)}
+.bellbtn{display:inline-flex;align-items:center;gap:6px;flex:none;border-color:#E9C46A!important;background:#FFF6DD!important;color:#7A5300}
+.bellbtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.bellnum{background:#B3261E;color:#fff;border-radius:999px;font-size:.78em;font-weight:700;min-width:20px;padding:0 6px;text-align:center}
+.alertbox{width:min(600px,100%)}
+.ahead{display:flex;gap:12px;align-items:flex-start;padding:20px 22px 14px;background:linear-gradient(180deg,#FFF6DD,var(--surface));border-bottom:4px solid #E9A400;border-radius:18px 18px 0 0}
+.aic{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#E9A400;flex:none;animation:ring 1.2s ease-in-out 2}
+.aic svg{width:24px;height:24px;fill:none;stroke:#fff;stroke-width:1.9;stroke-linejoin:round}
+@keyframes ring{0%,100%{transform:rotate(0)}20%{transform:rotate(-14deg)}40%{transform:rotate(12deg)}60%{transform:rotate(-8deg)}80%{transform:rotate(5deg)}}
+.ahead h2{font-size:1.2em;font-weight:700}
+.ahead p{margin:2px 0 0;color:var(--muted);font-size:.9em}
+.ahead .x{margin-left:auto;border:0;background:var(--surface);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:18px;flex:none;box-shadow:var(--shadow)}
+.alist{padding:14px 22px;display:flex;flex-direction:column;gap:10px}
+.aday{font-family:var(--f-display);font-weight:700;font-size:.92em;display:flex;align-items:center;gap:8px;margin-top:4px}
+.aday .due{font-size:.8em;font-weight:700;border-radius:999px;padding:0 9px;background:#FCE8E6;color:#B3261E}
+.aday .due.soon{background:#FFF0CC;color:#7A5300}
+.aitem{display:flex;gap:10px;align-items:center;border:1px dashed var(--accent);border-radius:12px;padding:10px 12px;background:var(--surface)}
+.aitem .av{width:32px;height:32px;font-size:14px}
+.aitem .ai{flex:1;min-width:0}
+.aitem .ai b{display:block;font-weight:500;line-height:1.4}
+.aitem .ai small{color:var(--muted)}
+.aitem .aa{display:flex;gap:6px;flex:none}
+.aitem .aa a{text-decoration:none;color:inherit}
+.afoot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 22px 20px;flex-wrap:wrap}
+@media (max-width:640px){ .aitem{flex-wrap:wrap} .aitem .aa{width:100%;justify-content:flex-end} .wrap>.dbbar{flex-wrap:wrap;position:static} .wrap>.dbbar .dbtxt{flex:1 1 calc(100% - 30px)} .dbref,.bellbtn{flex:1;justify-content:center} }
+@media (prefers-reduced-motion:reduce){ .aic{animation:none} }
+/* logo */
+.hero{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"logo main side";align-items:center;column-gap:clamp(16px,2.4vw,32px);row-gap:14px}
+.hero-main{grid-area:main}
+.hero-logo{grid-area:logo;justify-self:start;padding-right:clamp(16px,2.4vw,32px);border-right:1px solid rgb(255 255 255 / .35);height:clamp(96px,9vw,150px);width:auto;position:relative;z-index:1;filter:drop-shadow(0 2px 6px rgb(40 0 10 / .35))}
+.hero-side{grid-area:side;justify-self:end}
+@media (max-width:1100px){
+  .hero{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"logo main" "side side"}
+  .hero-side{justify-self:start}
+}
+@media (max-width:820px){
+  .hero{grid-template-columns:minmax(0,1fr);grid-template-areas:"logo" "main" "side"}
+  .hero-logo{justify-self:start;height:84px;padding-right:0;border-right:0}
+  .hero-side{justify-self:stretch}
+}
+@media print{ .hero-logo{display:none} }
+.flist #fList{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:10px}
+.flist .fempty{grid-column:1/-1}
+table.sheet td.cd{white-space:nowrap;font-variant-numeric:tabular-nums}
+table.sheet td.cd small{display:block}
+.muted{color:var(--muted)}
+/* top-right group */
+.topright{position:absolute;top:12px;right:14px;z-index:3;display:flex;gap:8px;align-items:center}
+.topright .conn{position:static}
+.logoutpill{display:inline-flex;align-items:center;gap:6px;border:1px solid rgb(255 255 255 / .28);background:rgb(255 255 255 / .16);color:#fff;border-radius:999px;padding:5px 12px 5px 9px;font:inherit;font-size:.8em;cursor:pointer;backdrop-filter:blur(6px)}
+.logoutpill svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.logoutpill:hover{background:#fff;color:var(--accent)}
+.logoutpill[hidden]{display:none}
+a.logoutpill{text-decoration:none}
+.acctpill .an{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gate-help{font-size:.85em!important}
+.gate-help a{color:var(--accent);font-weight:600}
+.abadge{background:#FFD54F;color:#5C3D00;border-radius:999px;font-size:.85em;font-weight:700;padding:0 7px;line-height:1.5}
+@media (max-width:640px){ .topright{top:10px;right:10px;flex-direction:column;align-items:flex-end;gap:6px} }
+@media print{ .topright{display:none} }
+/* compact connection pill + bell near record button */
+.conn{position:absolute;top:12px;right:14px;z-index:3;display:inline-flex;align-items:center;gap:7px;padding:4px 4px 4px 11px;border-radius:999px;background:rgb(255 255 255 / .16);border:1px solid rgb(255 255 255 / .28);color:#fff;font-size:.8em;backdrop-filter:blur(6px)}
+.cdot{width:9px;height:9px;border-radius:50%;background:#F4B400;box-shadow:0 0 0 3px rgb(244 180 0 / .3)}
+.conn.ok .cdot{background:#34D399;box-shadow:0 0 0 3px rgb(52 211 153 / .3),0 0 10px #34D399}
+.conn.error .cdot{background:#FF6B6B;box-shadow:0 0 0 3px rgb(255 107 107 / .3)}
+.conn.connecting .cdot{animation:pulse 1.1s ease-in-out infinite}
+.cref{border:0;background:rgb(255 255 255 / .18);color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;display:grid;place-items:center;font-size:13px;padding:0}
+.cref:hover{background:rgb(255 255 255 / .32)}
+.cref .ri{display:inline-block}
+.cref.spin .ri{animation:rot .8s linear infinite}
+.hero .bellbtn{display:inline-flex;align-items:center;gap:7px;border:0;cursor:pointer;font:inherit;font-weight:600;background:#FFD54F;color:#5C3D00;border-radius:999px;padding:10px 12px 10px 14px;box-shadow:0 8px 24px rgb(60 0 10 / .28);transition:transform .15s}
+.hero .bellbtn:hover{transform:translateY(-2px)}
+.hero .bellbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linejoin:round;animation:ring 1.4s ease-in-out 3}
+.hero .bellbtn[hidden]{display:none}
+.hero .bellnum{background:#B3261E;color:#fff;border-radius:999px;font-size:.8em;font-weight:700;min-width:22px;padding:1px 6px;text-align:center}
+.wrap>.dbbar[hidden]{display:none!important}
+@media (max-width:640px){ .conn{top:10px;right:10px} .hero .bellbtn{flex:1;justify-content:center} }
+@media print{ .conn{display:none} }
+/* page split */
+.hero-side{position:relative;z-index:1;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hero-btn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:var(--accent);text-decoration:none;font-family:var(--f-display);font-weight:700;font-size:1.05em;padding:12px 22px 12px 14px;border-radius:999px;box-shadow:0 8px 24px rgb(60 0 10 / .28);transition:transform .15s, box-shadow .15s}
+.hero-btn .plus{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-size:1.05em}
+.hero-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgb(60 0 10 / .35)}
+.hero-btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.hero-btn.back{background:rgb(255 255 255 / .14);color:#fff;box-shadow:none;border:1px solid rgb(255 255 255 / .4)}
+.hero-btn.back .plus{background:#fff;color:var(--accent)}
+.page-main #tab-form{display:none}
+.page-form .teachers,.page-form .toolbar{display:none}
+@media (max-width:640px){ .hero-side{width:100%} .hero-btn{flex:1;justify-content:center} }
+/* วันลาของอาจารย์ (บันทึกที่หน้าบันทึกงาน) */
+.chip.lvchip{background:repeating-linear-gradient(-45deg,var(--soft) 0 6px,color-mix(in srgb,var(--soft) 55%,var(--surface)) 6px 12px);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 45%,transparent);color:var(--c)}
+.chip.lvchip i{border-radius:2px;background:none;box-shadow:inset 0 0 0 2px var(--c)}
+.chip.lvx{box-shadow:inset 0 0 0 1.5px #B3261E;background:#FDECEA}
+.lvbox{display:flex;flex-direction:column;gap:2px;border-radius:10px;padding:8px 12px;background:repeating-linear-gradient(-45deg,var(--soft) 0 8px,color-mix(in srgb,var(--soft) 50%,var(--surface)) 8px 16px);border:1px solid color-mix(in srgb,var(--c) 40%,transparent);font-size:.92em}
+.lvbox .lvt{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:600;color:var(--c)}
+.lvbox .lvk{background:var(--c);color:#fff;border-radius:6px;padding:0 7px;font-size:.85em}
+.lvbox small{color:var(--muted);font-size:.9em}
+.lvnote{background:#FDECEA;color:#8A1C12;border-radius:8px;padding:6px 10px;font-size:.88em;line-height:1.5}
+.ev.lvx{border-color:#F0A8A1;box-shadow:inset 3px 0 0 #B3261E}
+@media (max-width:640px){
+  .chip.lvchip{padding:0 4px;background:var(--c);color:#fff;border-radius:4px;box-shadow:none}
+  .chip.lvchip i,.chip.lvchip .lvn{display:none}
+  .chip.lvchip .tx{display:block;font-size:10px;line-height:1.5}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media print{ html .hero, html .wrap>.dbbar, .modal{display:none!important} *{outline:none!important} }
+/* idle auto-logout warning */
+.idlewarn{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:58;display:flex;gap:16px;align-items:center;background:var(--surface);color:inherit;border-radius:16px;border-left:5px solid var(--accent);box-shadow:0 18px 48px rgb(20 10 14 / .28);padding:14px 16px 14px 18px;width:min(460px,calc(100% - 32px))}
+.idlewarn[hidden]{display:none}
+.idlewarn>div{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.idlewarn span{color:var(--muted);font-size:.92em}
+.idlewarn span b{color:var(--accent);font-variant-numeric:tabular-nums}
+.idlewarn .btn{white-space:nowrap}
+@media (max-width:480px){ .idlewarn{flex-direction:column;align-items:stretch;gap:10px;bottom:12px} }
+@media print{ .idlewarn{display:none!important} }
+
+
+/* ===== เฉพาะหน้ารายงานภาระงาน (report.html) ===== */
+.hero-side .hero-btn{padding:10px 18px 10px 11px;font-size:1em}
+.hero-side .hero-btn .plus{width:28px;height:28px}
+.panel{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:clamp(14px,1.6vw,22px);display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel>*{min-width:0}
+.phead{display:flex;align-items:baseline;gap:6px 12px;flex-wrap:wrap}
+.phead h2{font-size:1.2em;font-weight:700}
+.phead p{margin:0;color:var(--muted);font-size:.88em;flex:1 1 320px}
+/* ตัวกรอง */
+.rq{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.rrow{display:grid;grid-template-columns:9.5em minmax(0,1fr);gap:8px 14px;align-items:start}
+.rlab{font-size:.84em;font-weight:700;color:var(--muted);letter-spacing:.02em;padding-top:5px;display:flex;flex-direction:column;gap:2px}
+.rlab .linkbtn{font-size:.95em;font-weight:500;text-align:left;padding:0}
+.rbody{display:flex;flex-direction:column;gap:8px;min-width:0}
+.opts{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.opts button{font:inherit;font-size:.88em;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;cursor:pointer;white-space:nowrap;color:var(--ink);display:inline-flex;align-items:center;gap:6px}
+.opts button:hover{border-color:var(--ink)}
+.opts button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.opts button small{opacity:.7;font-variant-numeric:tabular-nums}
+.opts.wts button{border-left:4px solid var(--tc,var(--line));border-radius:9px;padding:4px 11px 4px 9px}
+.opts.wts button .wc{font-weight:700;font-size:.85em;font-variant-numeric:tabular-nums;color:var(--tc,var(--muted))}
+.opts.wts button[aria-pressed="true"]{background:var(--ts,var(--surface-2));color:var(--ink);border-color:var(--tc,var(--ink));box-shadow:inset 0 0 0 1px var(--tc,var(--ink))}
+.opts.wts button[aria-pressed="false"]{opacity:.72}
+.opts.wts button[aria-pressed="true"]::before{content:"✓";font-weight:700;color:var(--tc,var(--ink))}
+.opts.whos button{border-radius:999px}
+.opts.whos button .sw{width:10px;height:10px}
+.opts.whos button[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:#fff}
+.opts.whos button[aria-pressed="true"] .sw{background:#fff}
+.dates{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dates input[type=date]{font:inherit;border:1px solid var(--line);border-radius:10px;padding:5px 10px;background:var(--surface);color:var(--ink);min-width:0}
+.dates input[type=date]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.dates .to{color:var(--muted)}
+.dates small{color:var(--muted);font-size:.85em}
+.rhint{font-size:.82em;color:var(--muted)}
+.rhint.err{color:#B3261E}
+/* แถบคำสั่ง export */
+.rbar{position:sticky;top:8px;z-index:6;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;background:color-mix(in srgb,var(--surface) 94%,transparent);backdrop-filter:blur(8px);border-radius:14px;box-shadow:var(--shadow-lg);padding:10px 12px 10px 16px}
+.rbar .rsum{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:1px}
+.rbar .rsum b{font-family:var(--f-display);font-size:1.02em}
+.rbar .rsum span{font-size:.84em;color:var(--muted);overflow-wrap:anywhere}
+.rbar .btn{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.rbar .btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.xlbtn{border-color:#1D6F42;color:#1D6F42}
+.xlbtn:hover{border-color:#1D6F42;background:#EEF7F1}
+.rbar .xlmsg{flex-basis:100%;font-size:.85em;color:var(--muted);text-align:right}
+.rbar .xlmsg.err{color:#B3261E}
+.rbar .xlmsg:empty{display:none}
+/* สรุป */
+.tscroll{overflow-x:auto}
+.sumt{width:100%;border-collapse:separate;border-spacing:0;font-size:.92em;min-width:640px}
+.sumt th,.sumt td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sumt thead th{background:var(--surface-2);color:var(--ink);font-weight:600;font-size:.86em}
+.sumt thead tr:first-child th.tch{border-top:4px solid var(--c);text-align:center;background:color-mix(in srgb,var(--soft) 60%,var(--surface))}
+.sumt thead tr:last-child th{font-weight:500;color:var(--muted);font-size:.8em;padding-top:3px}
+.sumt th.tl,.sumt td.tl{text-align:left;white-space:normal;min-width:15em}
+.sumt td.tl .wc{display:inline-block;min-width:3.4em;font-weight:700;font-size:.86em;color:var(--tc,var(--muted))}
+.sumt td.tl i{display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--tc,var(--line));margin-right:8px;vertical-align:-1px}
+.sumt td.z{color:#B8C0C5}
+.sumt td.hc{font-weight:600}
+.sumt td.g,.sumt th.g{border-left:1px solid var(--line)}
+.sumt tfoot td{font-weight:700;background:var(--surface-2);border-bottom:0}
+.sumt tfoot td.tl{font-family:var(--f-display)}
+.sumt tr.lvr td{color:#1F4E79;background:#F2F7FC}
+.sumnote{font-size:.82em;color:var(--muted)}
+/* รายท่าน */
+.tjump{display:flex;flex-wrap:wrap;gap:6px}
+.tjump a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--ink);background:var(--surface);border-radius:999px;box-shadow:var(--shadow);padding:5px 12px 5px 9px;font-size:.88em;font-weight:500}
+.tjump a:hover{background:var(--soft)}
+.tjump a small{color:var(--muted);font-variant-numeric:tabular-nums}
+.tsec{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;scroll-margin-top:90px}
+.tsec>header{display:flex;justify-content:space-between;align-items:flex-end;gap:10px 16px;flex-wrap:wrap;padding:16px 18px 14px;border-bottom:4px solid var(--c);background:linear-gradient(90deg,var(--soft),var(--surface) 65%)}
+.tsec>header .eyebrow{font-size:.84em;color:var(--muted)}
+.tsec>header h2{font-size:1.3em;font-weight:700;display:flex;align-items:center;gap:10px}
+.tsec>header h2 .sw{width:14px;height:14px}
+.tsec .tmeta{display:flex;gap:6px 18px;flex-wrap:wrap;font-size:.88em;color:var(--muted)}
+.tsec .tmeta b{font:700 1.35em var(--f-display);color:var(--ink);font-variant-numeric:tabular-nums;margin-right:3px}
+.tsec .tmeta .pend b{color:var(--accent)}
+.tsec .tmeta .lv b{color:#1F4E79}
+.tbrk{display:flex;flex-wrap:wrap;gap:6px;padding:12px 18px 0}
+.tbrk span{display:inline-flex;align-items:center;gap:6px;font-size:.84em;border-radius:8px;padding:2px 10px 2px 8px;background:var(--ts,var(--surface-2));color:var(--ink);border-left:4px solid var(--tc,var(--line))}
+.tbrk span b{color:var(--tc,var(--ink));font-weight:600}
+.tbrk span em{font-style:normal;color:var(--muted);font-variant-numeric:tabular-nums}
+.tsec .tscroll{padding:12px 0 0}
+.et{width:100%;border-collapse:collapse;font-size:.9em;min-width:980px}
+.et th{background:var(--ink);color:#fff;font-weight:600;font-size:.86em;text-align:left;padding:7px 10px;white-space:nowrap}
+.et td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.et td.no{color:var(--muted);text-align:right;font-variant-numeric:tabular-nums;width:2.5em}
+.et td.dt{white-space:nowrap;font-variant-numeric:tabular-nums}
+.et td.dt small{display:none;color:var(--muted);font-size:.85em}
+.et td.lv{white-space:nowrap}
+.et td.dt.we{color:var(--accent)}
+.et td.tm{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:500}
+.et td.ti{min-width:16em;line-height:1.5}
+.et td.ti a{color:var(--accent);text-decoration:none;font-size:.85em;margin-left:4px}
+.et td.ti .co{display:block;color:var(--muted);font-size:.84em}
+.et td.pl,.et td.sm{color:var(--muted);font-size:.92em;max-width:16em}
+.et td.hr{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.et td.hr.est{font-weight:500}
+.et .tag{font-size:.82em;padding:1px 8px;border-radius:5px;background:var(--ts,var(--surface-2));color:var(--tc,var(--muted));font-weight:600;white-space:nowrap;display:inline-block}
+.et tr:nth-child(even) td{background:color-mix(in srgb,var(--surface-2) 45%,var(--surface))}
+.et tr.off td{color:var(--muted)}
+.et tr.off td.ti{text-decoration:line-through}
+.et tr.gh td{background:var(--ts,var(--surface-2))!important;border-left:5px solid var(--tc,var(--line));font-family:var(--f-display);font-weight:700;color:var(--tc,var(--ink));padding:7px 10px}
+.et tr.gh td small{font-family:var(--f-body);font-weight:500;color:var(--muted);margin-left:8px}
+.et tr.gs td{background:var(--surface)!important;font-weight:600;font-size:.92em;color:var(--muted);border-bottom:2px solid var(--line)}
+.et tr.gs td.hr{color:var(--ink)}
+.et tr.tot td{background:var(--surface-2)!important;font-weight:700;border-bottom:0}
+.et .lvi{color:#B3261E}
+.tsec .empty{padding:22px;text-align:center;color:var(--muted)}
+.tfoot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 18px 14px;font-size:.82em;color:var(--muted)}
+.lvlist{padding:0 18px 4px;font-size:.86em;color:#1F4E79}
+.lvlist b{font-weight:600}
+.loading{padding:30px;text-align:center;color:var(--muted)}
+.print-only{display:none}
+@media (max-width:760px){
+  .opts.wts button{white-space:normal;text-align:left;max-width:100%}
+  .sumt th.tl,.sumt td.tl{min-width:10.5em}
+  .rrow{grid-template-columns:minmax(0,1fr);gap:6px}
+  .rlab{padding-top:0;flex-direction:row;gap:10px;align-items:baseline}
+  .rbar{position:static}
+  .rbar .btn{flex:1;justify-content:center}
+  .rbar .xlmsg{text-align:left}
+  .tsec>header{padding:14px}
+  /* ตารางรายการเป็นการ์ด */
+  .et{min-width:0}
+  .et thead{display:none}
+  .et,.et tbody,.et tr,.et td{display:block;width:auto}
+  .et tr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"dt dt hr" "ty ty st" "ti ti ti" "pl pl pl" "sm sm sm";gap:3px 10px;padding:10px 14px;border-bottom:1px solid var(--line)}
+  .et tr td{border:0;padding:0;background:none!important}
+  .et td.no{display:none}
+  .et td.dt{grid-area:dt;font-weight:600}
+  .et td.dt small{display:inline;margin-left:6px}
+  .et td.lv{white-space:normal}
+  .et td.tm{display:none}
+  .et td.ty{grid-area:ty} .et td.st{grid-area:st;text-align:right}
+  .et td.ti{grid-area:ti;min-width:0}
+  .et td.pl{grid-area:pl;max-width:none}
+  .et td.sm{grid-area:sm;max-width:none}
+  .et td.sm:empty{display:none}
+  .et td.hr{grid-area:hr}
+  .et td.hr::after{content:" ชม."}
+  .et td.lv,.et td.inv{display:none}
+  .et tr.gh,.et tr.gs,.et tr.tot{display:flex;justify-content:space-between;gap:8px}
+  .et tr.gh td,.et tr.gs td,.et tr.tot td{padding:0}
+  .et tr.gh{background:var(--ts,var(--surface-2));border-left:5px solid var(--tc,var(--line))}
+  .et tr.gh td{border:0!important}
+  .et tr.gs td:empty,.et tr.tot td:empty{display:none}
+  .et tr.tot{background:var(--surface-2)}
+}
+/* PDF (A4 แนวนอน) */
+@media print{
+  @page{size:A4 landscape;margin:9mm 8mm 10mm}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html,body{background:#fff!important;font-size:8.6pt}
+  .hero,.panel.filt,.rbar,.tjump,.wrap>footer,.gate,.idlewarn,.screen-only,.et td.ti a{display:none!important}
+  .print-only{display:block}
+  .wrap{padding:0!important;gap:4mm}
+  .panel,.tsec{box-shadow:none!important;border-radius:0;padding:0}
+  .phead p{display:none}
+  .rhead{display:flex!important;justify-content:space-between;align-items:flex-end;border-bottom:1.2mm solid var(--accent);padding-bottom:2mm}
+  .rhead .porg{font-size:8pt;color:#555}
+  .rhead h1{font-size:15pt}
+  .rhead .rr{text-align:right;font-size:8pt;color:#333;display:flex;flex-direction:column;gap:1px}
+  .rhead .rr b{font-size:11pt}
+  .tscroll{overflow:visible!important}
+  .sumt{min-width:0!important;font-size:7.6pt}
+  .sumt th,.sumt td{padding:1.1mm 1.6mm}
+  .tsec{break-before:page;page-break-before:always}
+  .tsec>header{padding:0 0 2.4mm;background:none!important;border-bottom-width:1.2mm}
+  .tsec>header h2{font-size:12.5pt}
+  .tsec .tmeta{font-size:8pt}
+  .tsec .tmeta b{font-size:11pt}
+  .tbrk{padding:2mm 0 0;gap:1.4mm}
+  .tbrk span{font-size:7.2pt;padding:0 1.6mm}
+  .tsec .tscroll{padding-top:2mm}
+  .et{min-width:0!important;table-layout:fixed;font-size:7.4pt;line-height:1.35}
+  .et col.c-no{width:3%} .et col.c-dt{width:8.5%} .et col.c-tm{width:7.5%} .et col.c-ty{width:8.5%} .et col.c-ti{width:26%} .et col.c-pl{width:14%} .et col.c-st{width:7%} .et col.c-hr{width:4.5%} .et col.c-lv{width:8%} .et col.c-in{width:13%}
+  .et thead{display:table-header-group}
+  .et th{padding:1.4mm 1.2mm;font-size:7.2pt;white-space:normal}
+  .et td{padding:1.2mm 1.2mm;overflow-wrap:anywhere;word-break:break-word}
+  .et td.dt,.et td.tm{white-space:normal}
+  .et tr{break-inside:avoid;page-break-inside:avoid}
+  .et tr.gh{break-after:avoid;page-break-after:avoid}
+  .et .tag{font-size:6.8pt;padding:0 1mm;white-space:normal}
+  .et .pill{font-size:6.6pt;padding:0 1.2mm;white-space:normal}
+  .tfoot{padding:2mm 0 0;font-size:7pt}
+  .lvlist{padding:1.5mm 0 0;font-size:7.6pt}
+}
+.rhead{display:none}
+
+.print-inline{display:none}
+@media print{ .print-inline{display:inline} }
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="dbbar error" id="dbBar" role="alert" hidden>
+    <span class="dbdot" aria-hidden="true"></span>
+    <div class="dbtxt"><b id="dbTx">กำลังเชื่อมต่อฐานข้อมูล…</b><small id="dbMeta">Google Sheet</small></div>
+    <button type="button" class="btn sm dbref" id="dbRefresh"><span class="ri" aria-hidden="true">↻</span> รีเฟรช</button>
+  </div>
+  <header class="hero">
+    <div class="topright">
+    <div class="conn connecting" id="connPill" role="status" aria-live="polite"><span class="cdot" aria-hidden="true"></span><span id="connTx">กำลังเชื่อมต่อ…</span><button type="button" class="cref" id="connRef" title="รีเฟรชข้อมูลจาก Google Sheet" aria-label="รีเฟรชข้อมูล"><span class="ri">↻</span></button></div>
+    <a class="logoutpill acctpill" id="acctTop" href="account.html" title="บัญชีผู้ใช้ · เปลี่ยนรหัสผ่าน" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="an" id="acctName">บัญชีผู้ใช้</span><span class="abadge" id="acctBadge" hidden></span></a>
+    <button type="button" class="logoutpill" id="logoutTop" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l-5-5 5-5M5 12h11"/></svg>ออกจากระบบ</button>
+    </div>
+
+    <svg class="hero-art" viewBox="0 0 860 260" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
+  <defs>
+    <radialGradient id="heroRbc" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#FF8A9B" stop-opacity=".55"/><stop offset=".7" stop-color="#E0465E" stop-opacity=".35"/><stop offset="1" stop-color="#C02640" stop-opacity=".2"/></radialGradient>
+    <pattern id="heroGrid" width="26" height="26" patternUnits="userSpaceOnUse"><rect x="3" y="3" width="20" height="20" rx="4" fill="none" stroke="#fff" stroke-opacity=".07"/></pattern>
+    <linearGradient id="heroFade" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".45" stop-color="#fff" stop-opacity="1"/></linearGradient>
+    <mask id="heroMask"><rect width="860" height="260" fill="url(#heroFade)"/></mask>
+  </defs>
+  <g mask="url(#heroMask)">
+    <rect width="860" height="260" fill="url(#heroGrid)"/>
+    <g transform="translate(470 60) rotate(-20)"><ellipse rx="46" ry="37.7" fill="url(#heroRbc)"/><ellipse rx="20.7" ry="16.6" fill="#5A0B18" opacity=".28"/></g><g transform="translate(560 170) rotate(15)"><ellipse rx="58" ry="47.6" fill="url(#heroRbc)"/><ellipse rx="26.1" ry="20.9" fill="#5A0B18" opacity=".28"/></g><g transform="translate(680 80) rotate(30)"><ellipse rx="70" ry="57.4" fill="url(#heroRbc)"/><ellipse rx="31.5" ry="25.2" fill="#5A0B18" opacity=".28"/></g><g transform="translate(760 210) rotate(-10)"><ellipse rx="40" ry="32.8" fill="url(#heroRbc)"/><ellipse rx="18.0" ry="14.4" fill="#5A0B18" opacity=".28"/></g><g transform="translate(610 40) rotate(40)"><ellipse rx="26" ry="21.3" fill="url(#heroRbc)"/><ellipse rx="11.7" ry="9.4" fill="#5A0B18" opacity=".28"/></g><g transform="translate(400 190) rotate(10)"><ellipse rx="30" ry="24.6" fill="url(#heroRbc)"/><ellipse rx="13.5" ry="10.8" fill="#5A0B18" opacity=".28"/></g><g transform="translate(720 150) rotate(0)"><ellipse rx="22" ry="18.0" fill="url(#heroRbc)"/><ellipse rx="9.9" ry="7.9" fill="#5A0B18" opacity=".28"/></g><g transform="translate(520 110) rotate(-35)"><ellipse rx="18" ry="14.8" fill="url(#heroRbc)"/><ellipse rx="8.1" ry="6.5" fill="#5A0B18" opacity=".28"/></g><g transform="translate(800 60) rotate(20)"><ellipse rx="34" ry="27.9" fill="url(#heroRbc)"/><ellipse rx="15.3" ry="12.2" fill="#5A0B18" opacity=".28"/></g><g transform="translate(330 70) rotate(0)"><ellipse rx="16" ry="13.1" fill="url(#heroRbc)"/><ellipse rx="7.2" ry="5.8" fill="#5A0B18" opacity=".28"/></g><g transform="translate(650 230) rotate(-25)"><ellipse rx="28" ry="23.0" fill="url(#heroRbc)"/><ellipse rx="12.6" ry="10.1" fill="#5A0B18" opacity=".28"/></g>
+    <path d="M770 18 C 805 70 832 102 832 140 a62 62 0 0 1 -124 0 C 708 102 735 70 770 18 Z" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2.5"/>
+    <path d="M748 140 a22 22 0 0 0 22 22" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="3" stroke-linecap="round"/>
+    <g transform="translate(588 92)" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="2">
+      <rect x="0" y="14" width="64" height="86" rx="12"/>
+      <path d="M32 14 V0 M24 0 h16"/>
+      <path d="M8 58 h48" stroke-dasharray="3 5"/>
+      <path d="M32 100 v18 q0 10 10 10 h22"/>
+    </g>
+  </g>
+</svg>
+
+    <div class="hero-main">
+      <div class="eyebrow"><span class="drop" aria-hidden="true"></span>ภาควิชาเวชศาสตร์การธนาคารเลือด · คณะแพทยศาสตร์ศิริราชพยาบาล</div>
+      <h1>รายงานภาระงานอาจารย์</h1>
+      <div class="sub">เลือกประเภทงานและช่วงเวลา · แยกรายอาจารย์ · Export PDF / Excel</div>
+      <div class="whoami" id="whoami" hidden><span class="wav" id="whoAv" aria-hidden="true">?</span><span style="display:flex;gap:6px;align-items:baseline;min-width:0;flex-wrap:wrap">เข้าสู่ระบบโดย <b id="whoName"></b><span class="wr" id="whoRole"></span></span></div>
+    </div>
+    <img class="hero-logo" src="assets/logo.png" alt="ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล มหาวิทยาลัยมหิดล" width="451" height="300">
+    <div class="hero-side">
+      <a class="hero-btn back" href="index.html"><span class="plus" aria-hidden="true">←</span><span>ตารางงานทั้งหมด</span></a>
+      <a class="hero-btn" href="record.html"><span class="plus" aria-hidden="true">＋</span><span>บันทึกงาน</span></a>
+    </div>
+  </header>
+
+  <div class="rhead print-only" id="pHead"></div>
+
+  <section class="panel filt" aria-labelledby="qTitle">
+    <div class="phead"><h2 id="qTitle">เลือกข้อมูลในรายงาน</h2><p>เลือกช่วงเวลา อาจารย์ และประเภทงาน รายงานจะแยกเป็นแต่ละอาจารย์ · การเลือกจะจำไว้ในเครื่องนี้</p></div>
+    <div class="rq">
+      <div class="rrow">
+        <div class="rlab">ช่วงเวลา</div>
+        <div class="rbody">
+          <div class="opts" id="perOpts" role="group" aria-label="เลือกช่วงเวลาด่วน"></div>
+          <div class="dates"><input type="date" id="qFrom" aria-label="ตั้งแต่วันที่"><span class="to">ถึง</span><input type="date" id="qTo" aria-label="ถึงวันที่"><small id="qRangeTx"></small></div>
+        </div>
+      </div>
+      <div class="rrow">
+        <div class="rlab">อาจารย์ <button type="button" class="linkbtn" id="whoAll">เลือกทุกท่าน</button></div>
+        <div class="rbody"><div class="opts whos" id="whoOpts" role="group" aria-label="อาจารย์"></div></div>
+      </div>
+      <div class="rrow">
+        <div class="rlab">ประเภทงาน <span><button type="button" class="linkbtn" id="tyAll">ทั้งหมด</button> · <button type="button" class="linkbtn" id="tyNone">ไม่เลือก</button></span></div>
+        <div class="rbody">
+          <div class="opts wts" id="tyOpts" role="group" aria-label="ประเภทงาน"></div>
+          <div class="rhint" id="tyHint">ตัวเลขคือจำนวนงานของอาจารย์ที่เลือกในช่วงเวลานี้ · ประเภทตามข้อ 5 ทุนเฉลิมพระเกียรติ (<a class="linkbtn" href="worktype.html" style="font-size:1em;padding:0">คำอธิบาย</a>)</div>
+        </div>
+      </div>
+      <div class="rrow">
+        <div class="rlab">สถานะที่นับ</div>
+        <div class="rbody"><div class="opts" id="stOpts" role="group" aria-label="สถานะที่นับ">
+          <button type="button" data-st="active">ยืนยัน + รอยืนยัน</button>
+          <button type="button" data-st="ok">เฉพาะที่ยืนยันแล้ว</button>
+          <button type="button" data-st="all" title="แสดงงานที่เลื่อน ขัดข้อง ยกเลิก หรือไม่เข้าร่วมด้วย (ขีดฆ่า ไม่นับชั่วโมง)">ทุกสถานะ <small>เลื่อน/ขัดข้องไม่นับชั่วโมง</small></button>
+        </div></div>
+      </div>
+      <div class="rrow">
+        <div class="rlab">เรียงรายการ</div>
+        <div class="rbody"><div class="opts" id="grpOpts" role="group" aria-label="เรียงรายการในแต่ละท่าน">
+          <button type="button" data-g="type">แยกตามประเภทงาน</button>
+          <button type="button" data-g="date">ตามวันที่</button>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="rbar" id="rbar">
+    <div class="rsum"><b id="rsumT">กำลังโหลดข้อมูล…</b><span id="rsumS"></span></div>
+    <button type="button" class="btn xlbtn" id="xlBtn" title="ดาวน์โหลดเป็นไฟล์ Excel (.xlsx) — ชีตสรุป + ชีตละอาจารย์ + รายการทั้งหมด"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Export Excel</button>
+    <button type="button" class="btn primary" id="pdfBtn" title="บันทึกเป็น PDF ขนาด A4 แนวนอน (หน้าสรุป + หน้าละอาจารย์)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Export PDF</button>
+    <div class="xlmsg" id="xlMsg" role="status" aria-live="polite"></div>
+  </div>
+
+  <section class="panel" aria-labelledby="sTitle" id="sumPanel">
+    <div class="phead"><h2 id="sTitle">สรุปรายอาจารย์</h2><p>จำนวนงาน และชั่วโมง แยกตามประเภทงาน · งานร่วมนับให้อาจารย์ทุกท่านที่เข้าร่วม</p></div>
+    <div class="tscroll" id="sumBox"><div class="loading">กำลังโหลดข้อมูล…</div></div>
+    <div class="sumnote" id="sumNote"></div>
+  </section>
+
+  <nav class="tjump" id="tJump" aria-label="ไปที่อาจารย์"></nav>
+  <div id="tList" style="display:flex;flex-direction:column;gap:22px"></div>
+
+  <footer>
+    <div>ข้อมูลจาก Google Sheet ชุดเดียวกับหน้าตารางงาน · ชั่วโมงไม่นับงานที่เลื่อน ขัดข้อง ยกเลิก หรือไม่เข้าร่วม · ≈ = คำนวณจากช่วงเวลา (ไม่ได้กรอกจำนวนชั่วโมง) · <a class="linkbtn" href="index.html">ตารางงานทั้งหมด</a> · <a class="linkbtn" href="worktype.html">ประเภทงานตามข้อ 5</a> · <button type="button" class="linkbtn" id="logoutBtn">ออกจากระบบ</button></div>
+    <div>วันลานับเฉพาะวันทำการ (ทั้งวัน = 1 · ครึ่งวัน = 0.5) · ตารางงานเก็บเฉพาะงานที่นัดหมายไว้ ชั่วโมงรวมจึงไม่ใช่ภาระงานทั้งหมดของอาจารย์</div>
+  </footer>
+
+</div>
+
+<div class="idlewarn" id="idleWarn" role="alertdialog" aria-live="assertive" hidden>
+  <div><b>ไม่มีการใช้งานมาระยะหนึ่ง</b><span>ระบบจะออกจากระบบอัตโนมัติใน <b id="idleSec">60</b> วินาที</span></div>
+  <button type="button" class="btn primary" id="idleStay">ใช้งานต่อ</button>
+</div>
+<div class="gate" id="gate" hidden>
+  <div class="gate-inner">
+  <img class="gate-logo" src="assets/logo.png" alt="ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล มหาวิทยาลัยมหิดล">
+  <form class="gate-box" id="gateForm">
+    <div class="gate-title"><span class="gate-lock" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15" r="1.3"/></svg></span>
+    <h2>รายงานภาระงานอาจารย์</h2></div>
+    <p>เข้าสู่ระบบด้วยบัญชีเดียวกับหน้าตารางงาน</p>
+    <label class="fld"><span>ชื่อผู้ใช้</span><input type="text" id="gateUser" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+    <label class="fld"><span>รหัสผ่าน</span><input type="password" id="gateKey" autocomplete="current-password" required></label>
+    <button type="submit" class="btn primary" id="gateBtn">เข้าใช้งาน</button>
+    <div class="fmsg err" id="gateMsg" role="alert"></div>
+    <p class="gate-help">ยังไม่มีบัญชี? <a href="register.html">สมัครใช้งาน</a> · <a href="register.html#forgot">ลืมรหัสผ่าน</a></p>
+  </form>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="assets/worktypes.js"></script>
+<script>
+/* รายชื่ออาจารย์ — ต้องตรงกับ index.html / record.html / teaching.html / room.html / free.html / worktype.html / Code.gs */
+const TEACHERS = {
+  AS:{name:'รศ.พญ.ศศิจิต เวชแพศย์', short:'อ.ศศิจิต', ini:'ศ'},
+  AJ:{name:'ผศ.ดร.พญ.เจนจิรา กิตติวรภัทร', short:'อ.เจนจิรา', ini:'จ'},
+  AK:{name:'ผศ.พญ.กุลวรา กิตติสาเรศ', short:'อ.กุลวรา', ini:'ก'},
+  APAO:{name:'นพ.ปวริศร์ อารยะสุขวัฒน์', short:'อ.ปวริศร์', ini:'ป'}
+};
+const ORDER = ['AJ','AK','APAO','AS'];
+const HOLIDAYS = {};
+const FORM_FILE = 'record.html';
+const DEFAULT_ROOMS = [{id:'DEPT', name:'ห้องประชุมภาควิชาฯ'}, {id:'MULTI', name:'ห้องประชุมอเนกประสงค์'}, {id:'RES', name:'ห้องแพทย์ประจำบ้าน'}];
+const ROOM_COLORS = ['#9B1C31','#1F6FB2','#2C7A47','#7A4FB5','#B4690E','#0E7C74'];
+let FORM_DOCS = [], ALL = [], BYDATE = {};
+let ROOMS = DEFAULT_ROOMS.slice(), BOOKINGS = [], ROOM_API = null, USES = [], USEDATE = {};
+let DATA_READY = false;
+
+const TH_M = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const TH_MS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const TH_D = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+const TH_DS = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+const pad = n => String(n).padStart(2,'0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseIso = s => { const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); };
+const be = y => y + 543;
+const fullDate = s => { const d=parseIso(s); return `วัน${TH_D[d.getDay()]}ที่ ${d.getDate()} ${TH_M[d.getMonth()]} ${be(d.getFullYear())}`; };
+const shortDate = s => { const d=parseIso(s); return `${d.getDate()} ${TH_MS[d.getMonth()]} ${String(be(d.getFullYear())).slice(2)}`; };
+const dayShort = s => { const d=parseIso(s); return `${TH_DS[d.getDay()]} ${d.getDate()} ${TH_MS[d.getMonth()]}`; };
+const esc = s => String(s??'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $ = id => document.getElementById(id);
+let todayIso = iso(new Date());
+const nowMin = () => { const d=new Date(); return d.getHours()*60+d.getMinutes(); };
+const addDays = (s,n) => { const d=parseIso(s); d.setDate(d.getDate()+n); return iso(d); };
+const daysBetween = (a,b) => Math.round((parseIso(b)-parseIso(a))/864e5);
+const OFF_RE = /เลื่อน|ขัดข้อง|ยกเลิก|ไม่เข้าร่วม/;
+const hmMin = v => { const m=String(v||'').match(/^(\d{1,2})[.:](\d{2})/); return m ? +m[1]*60 + +m[2] : null; };
+const minTh = n => `${pad(Math.floor(n/60))}.${pad(n%60)}`;
+const hhmm = n => `${pad(Math.floor(n/60))}${pad(n%60)}`;
+const durTh = m => { const h=Math.floor(m/60), mm=m%60; return h&&mm ? `${h} ชม. ${mm} นาที` : h ? `${h} ชม.` : `${mm} นาที`; };
+const hrsTh = m => { const v=Math.round(m/6)/10; return (v%1 ? v.toFixed(1) : String(v)) + ' ชม.'; };
+
+/* ===== กติกาเดียวกับหน้าตารางงาน ===== */
+function stc(e){ const s=(e.status||'').trim(); if (s==='ยืนยัน') return 'ok'; if (s.startsWith('รอ')) return 'pend'; if (OFF_RE.test(s)) return 'off'; return 'none'; }
+function parseSB(v){ if (!v) return {}; if (typeof v==='object') return v; try{ const o=JSON.parse(v); return o && typeof o==='object' ? o : {}; }catch(_){ return {}; } }
+
+/* ===== หน้ารายงานภาระงานอาจารย์ =====
+   ใช้ action list เดิม (อ่านอย่างเดียว ไม่ต้องแก้ Code.gs) · กติกานับชั่วโมงเดียวกับหน้าตารางงาน:
+   ไม่นับงานที่เลื่อน/ขัดข้อง/ยกเลิก/ไม่เข้าร่วม (ใช้สถานะรายบุคคล statusBy ถ้ามี) · งานร่วมนับชั่วโมงเต็มให้ทุกท่าน
+   ชั่วโมง = ช่อง hours ถ้ากรอก ไม่งั้นคำนวณจากช่วงเวลา (แสดง ≈) */
+const WT = window.WORK_TYPES || [];
+const wtOf = v => window.workTypeOf ? window.workTypeOf(v) : null;
+const OLD = '__old';
+const OLD_COLOR = {c:'#8A6100', soft:'#FBF1DA'};
+const tyKey = v => { const t = wtOf(v); return t ? t.key : OLD; };
+const TYPES = [...WT.map(t => ({key:t.key, code:t.code, name:t.name, sub:t.sub||''})), {key:OLD, code:'—', name:'ยังไม่จัดตามข้อ 5', sub:'ประเภทเดิม / ไม่ระบุ'}];
+const tyInfo = k => TYPES.find(t => t.key===k) || TYPES[TYPES.length-1];
+const tyCol = k => (k!==OLD && window.workTypeColor && window.workTypeColor(k)) || OLD_COLOR;
+const tyVars = k => { const c = tyCol(k); return ` style="--tc:${c.c};--ts:${c.soft}"`; };
+const tyName = k => { const t = tyInfo(k); return k===OLD ? t.name : `${t.code} ${t.name}`; };
+const tyFull = k => { const t = tyInfo(k); return k===OLD ? t.name : `${t.code} ${t.name}${t.sub?' ('+t.sub+')':''}`; };
+const ST_LABEL = {active:'ยืนยัน + รอยืนยัน', ok:'เฉพาะที่ยืนยันแล้ว', all:'ทุกสถานะ (งานที่เลื่อน/ขัดข้อง/ยกเลิกไม่นับชั่วโมง)'};
+const DOW_SHORT = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+const fmtHr = (v, est) => v ? (est?'≈':'') + (Math.round(v*10)/10).toFixed(1) : '—';
+const fmt1 = v => (Math.round(v*10)/10).toFixed(1);
+const fmtDays = v => (v%1 ? v.toFixed(1) : String(v));
+
+let canWrite = false, LEAVES = [], LEAVE_SPLIT = 720, HOL = {}, EV = [];
+const whoOf = d => (Array.isArray(d.who) ? d.who : String(d.who||'').split(/[,\s]+/)).filter(w => TEACHERS[w]);
+const SEL = { clear(){} };
+
+/* ----- ชั่วโมง / เวลา (กติกาเดียวกับ index.html) ----- */
+function startMinOf(e){
+  const s = hmMin(e.start); if (s!=null) return s;
+  const t = String(e.time||''), m = t.match(/(\d{1,2})[.:](\d{2})/);
+  if (m) return +m[1]*60 + +m[2];
+  if (t.includes('เช้า')) return 480; if (t.includes('บ่าย')) return 780;
+  return 9999;
+}
+function hoursOf(e){
+  if (e.hours && !isNaN(parseFloat(e.hours))) return {v:parseFloat(e.hours), est:false};
+  const m = String(e.time||'').match(/(\d{1,2})[.:](\d{2})\s*(?:-|–|ถึง)\s*(\d{1,2})[.:](\d{2})/);
+  if (m){ const v = ((+m[3]*60 + +m[4]) - (+m[1]*60 + +m[2]))/60; return {v: v>0 ? v : 0, est:true}; }
+  const s = hmMin(e.start), en = hmMin(e.end);
+  if (s!=null && en!=null && en>s) return {v:(en-s)/60, est:true};
+  return {v:0, est:true};
+}
+function evSpan(e){
+  let s = hmMin(e.start), en = hmMin(e.end);
+  const t = String(e.time||'');
+  if (s==null){ const m=t.match(/(\d{1,2})[.:](\d{2})(?:\s*(?:-|–|ถึง)\s*(\d{1,2})[.:](\d{2}))?/); if (m){ s=+m[1]*60 + +m[2]; if (m[3]!=null) en=+m[3]*60 + +m[4]; } }
+  if (s==null){ if (/ทั้งวัน|เต็มวัน/.test(t)){ s=480; en=990; } else if (/เช้า/.test(t)){ s=480; en=720; } else if (/บ่าย/.test(t)){ s=780; en=990; } }
+  if (s==null) return null;
+  if (en==null || en<=s){ const h=parseFloat(e.hours); en = s + (h>0 ? Math.round(h*60) : 60); }
+  return [s,en];
+}
+/* ----- วันลา ----- */
+const LEAVE_PERIOD = {full:'ทั้งวัน', am:'ครึ่งวันเช้า', pm:'ครึ่งวันบ่าย', time:'บางช่วงเวลา'};
+function setLeaves(list, split){
+  LEAVES = (Array.isArray(list)?list:[]).filter(l => l && l.id && TEACHERS[l.who] && /^\d{4}-\d{2}-\d{2}$/.test(l.date||''))
+    .map(l => { const o={...l, endDate: /^\d{4}-\d{2}-\d{2}$/.test(l.endDate||'') && l.endDate>=l.date ? l.endDate : l.date, period: LEAVE_PERIOD[l.period] ? l.period : 'full'};
+      if (o.period==='time' && !(hmMin(o.start)!=null && hmMin(o.end)!=null && hmMin(o.start)<hmMin(o.end))) o.period='full'; return o; })
+    .sort((a,b) => a.date.localeCompare(b.date));
+  const s = hmMin(split); if (s) LEAVE_SPLIT = s;
+}
+function lvBlock(l){ return l.period==='am' ? [0,LEAVE_SPLIT] : l.period==='pm' ? [LEAVE_SPLIT,1440] : l.period==='time' ? [hmMin(l.start), hmMin(l.end)] : [0,1440]; }
+const lvWhen = l => l.period==='time' ? `${minTh(hmMin(l.start))}–${minTh(hmMin(l.end))} น.` : LEAVE_PERIOD[l.period];
+const lvRange = l => l.endDate>l.date ? `${shortDate(l.date)} – ${shortDate(l.endDate)}` : shortDate(l.date);
+const leavesOn = (who, ds) => LEAVES.filter(l => l.who===who && l.date<=ds && ds<=l.endDate);
+const isWorkday = ds => { const w = parseIso(ds).getDay(); return w!==0 && w!==6 && !HOL[ds]; };
+// จำนวนวันลา (วันทำการ) ในช่วง a–b: ทั้งวัน 1 · ครึ่งวัน 0.5 · ระบุเวลา ตามชั่วโมง ÷ 7
+function leaveDays(who, a, b){
+  let t = 0; const ls = LEAVES.filter(l => l.who===who && l.date<=b && l.endDate>=a); if (!ls.length) return 0;
+  for (let ds = a; ds <= b; ds = addDays(ds,1)){ if (!isWorkday(ds)) continue;
+    ls.forEach(l => { if (l.date<=ds && ds<=l.endDate){ const k=lvBlock(l); t += l.period==='full' ? 1 : l.period==='time' ? Math.min(1,(k[1]-k[0])/420) : 0.5; } }); }
+  return Math.round(t*10)/10;
+}
+const leavesIn = (who, a, b) => LEAVES.filter(l => l.who===who && l.date<=b && l.endDate>=a);
+
+/* ----- งานแยกรายอาจารย์ ----- */
+function buildEv(){
+  EV = [];
+  FORM_DOCS.forEach(d => {
+    if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d.date||'')) return;
+    const sb = parseSB(d.statusBy), whos = whoOf(d);
+    const h = hoursOf(d), s = startMinOf(d), sp = evSpan(d), k = tyKey(d.type);
+    whos.forEach(w => {
+      const status = String(sb[w] || d.status || '').trim();
+      const e = {...d, who:w, status, co: whos.filter(x => x!==w), _st: stc({status}), _k:k, _h:h, _s:s, _sp:sp};
+      e._lv = e._st==='off' ? null : (leavesOn(w, e.date).find(l => l.period==='full' || !sp || (sp[0] < lvBlock(l)[1] && lvBlock(l)[0] < sp[1])) || null);
+      EV.push(e);
+    });
+  });
+  EV.sort((a,b) => a.date.localeCompare(b.date) || a._s-b._s || String(a.title||'').localeCompare(String(b.title||''),'th'));
+}
+
+/* ----- ตัวเลือก (จำในเครื่อง) ----- */
+const OPT_KEY = 'tt-report-opts';
+const O = {per:'fy0', from:'', to:'', who:ORDER.slice(), tyOff:[], st:'active', g:'type'};
+try{ const s = JSON.parse(localStorage.getItem(OPT_KEY)||'null'); if (s && typeof s==='object'){
+  if (typeof s.per==='string') O.per = s.per;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s.from||'')) O.from = s.from;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s.to||'')) O.to = s.to;
+  if (Array.isArray(s.who)) O.who = ORDER.filter(w => s.who.includes(w));
+  if (Array.isArray(s.tyOff)) O.tyOff = s.tyOff.filter(k => TYPES.some(t => t.key===k));
+  if (ST_LABEL[s.st]) O.st = s.st;
+  if (s.g==='date' || s.g==='type') O.g = s.g;
+} }catch(_){}
+function saveOpts(){ try{ localStorage.setItem(OPT_KEY, JSON.stringify(O)); }catch(_){} }
+
+const ym2 = (y,m) => `${TH_MS[m]} ${String(be(y)).slice(2)}`;
+function presets(){
+  const n = new Date(), y = n.getFullYear(), m = n.getMonth();
+  const r = (a,b) => [iso(a), iso(b)];
+  const fy = m>=9 ? y+1 : y;            // ปีงบประมาณ (ค.ศ. ของเดือน ก.ย. ที่สิ้นสุด)
+  const gy = m>=6 ? y : y-1;            // รอบทุน ก.ค.–มิ.ย. เริ่มปี
+  const q = Math.floor(m/3)*3;
+  const ds = EV.map(e => e.date).sort();
+  return [
+    {id:'m0', label:'เดือนนี้', sub:TH_M[m], range:r(new Date(y,m,1), new Date(y,m+1,0)), name:`${TH_M[m]} ${be(y)}`},
+    {id:'m1', label:'เดือนที่แล้ว', sub:TH_M[(m+11)%12], range:r(new Date(y,m-1,1), new Date(y,m,0)), name:`${TH_M[(m+11)%12]} ${be(m?y:y-1)}`},
+    {id:'q0', label:'ไตรมาสนี้', sub:`${TH_MS[q]}–${TH_MS[q+2]}`, range:r(new Date(y,q,1), new Date(y,q+3,0)), name:`ไตรมาส ${TH_MS[q]}–${TH_MS[q+2]} ${be(y)}`},
+    {id:'fy0', label:`ปีงบประมาณ ${be(fy)}`, sub:`${ym2(fy-1,9)}–${ym2(fy,8)}`, range:r(new Date(fy-1,9,1), new Date(fy,8,30)), name:`ปีงบประมาณ ${be(fy)}`},
+    {id:'fy1', label:`ปีงบประมาณ ${be(fy-1)}`, sub:`${ym2(fy-2,9)}–${ym2(fy-1,8)}`, range:r(new Date(fy-2,9,1), new Date(fy-1,8,30)), name:`ปีงบประมาณ ${be(fy-1)}`},
+    {id:'gr0', label:'รอบทุน', sub:`${ym2(gy,6)}–${ym2(gy+1,5)}`, range:r(new Date(gy,6,1), new Date(gy+1,5,30)), name:`รอบทุน ก.ค. ${be(gy)} – มิ.ย. ${be(gy+1)}`, title:'รอบการประเมินทุนเฉลิมพระเกียรติ (ก.ค.–มิ.ย.)'},
+    {id:'y0', label:`ปี พ.ศ. ${be(y)}`, sub:'ม.ค.–ธ.ค.', range:r(new Date(y,0,1), new Date(y,11,31)), name:`ปี พ.ศ. ${be(y)}`},
+    {id:'all', label:'ข้อมูลทั้งหมด', sub:'', range: ds.length ? [ds[0], ds[ds.length-1]] : r(new Date(y,m,1), new Date(y,m+1,0)), name:'ข้อมูลทั้งหมด'}
+  ];
+}
+function curRange(){
+  if (O.per!=='custom'){ const p = presets().find(x => x.id===O.per); if (p) return {a:p.range[0], b:p.range[1], name:p.name, preset:p}; O.per = 'fy0'; return curRange(); }
+  let a = O.from, b = O.to;
+  if (!a && !b){ const p = presets().find(x => x.id==='fy0'); a = p.range[0]; b = p.range[1]; }
+  a = a || b; b = b || a; if (a > b) [a,b] = [b,a];
+  return {a, b, name:`${shortDate(a)} – ${shortDate(b)}`};
+}
+const longRange = R => `${parseIso(R.a).getDate()} ${TH_M[parseIso(R.a).getMonth()]} ${be(parseIso(R.a).getFullYear())} – ${parseIso(R.b).getDate()} ${TH_M[parseIso(R.b).getMonth()]} ${be(parseIso(R.b).getFullYear())}`;
+const tyOn = k => !O.tyOff.includes(k);
+const stPass = e => O.st==='all' ? true : O.st==='ok' ? e._st==='ok' : e._st!=='off';
+const counted = e => e._st!=='off';
+function inRange(R){ return EV.filter(e => e.date>=R.a && e.date<=R.b); }
+function selected(R){ return inRange(R).filter(e => O.who.includes(e.who) && tyOn(e._k) && stPass(e)); }
+function typesShown(rows){
+  // ประเภทที่เลือกไว้ (ข้อ 5 ทุกข้อที่เลือก แสดงแม้เป็น 0) + "ยังไม่จัด" เฉพาะเมื่อมีงาน
+  return TYPES.filter(t => tyOn(t.key) && (t.key!==OLD || rows.some(e => e._k===OLD)));
+}
+function stats(list){
+  const c = list.filter(counted);
+  return { n:list.length, h:c.reduce((s,e)=>s+e._h.v,0), est:c.some(e=>e._h.est && e._h.v), off:list.length-c.length, pend:list.filter(e=>e._st==='pend').length, noh:c.filter(e=>!e._h.v).length };
+}
+function tyFilterText(){
+  const on = TYPES.filter(t => tyOn(t.key));
+  if (on.length===TYPES.length) return 'ทุกประเภท';
+  if (!on.length) return 'ไม่ได้เลือกประเภท';
+  return on.map(t => t.key===OLD ? t.name : t.code+' '+t.name).join(', ');
+}
+const whoFilterText = () => O.who.length===ORDER.length ? 'อาจารย์ทุกท่าน' : O.who.map(w => TEACHERS[w].short).join(', ');
+
+/* ----- แสดงผล ----- */
+function renderFilters(){
+  const P = presets(), R = curRange();
+  $('perOpts').innerHTML = P.map(p => `<button type="button" data-p="${p.id}" aria-pressed="${O.per===p.id}"${p.title?` title="${esc(p.title)}"`:''}>${esc(p.label)}${p.sub?` <small>${esc(p.sub)}</small>`:''}</button>`).join('')
+    + `<button type="button" data-p="custom" aria-pressed="${O.per==='custom'}">กำหนดเอง</button>`;
+  $('perOpts').querySelectorAll('button').forEach(b => b.onclick = () => {
+    if (b.dataset.p==='custom'){ const r = curRange(); O.from = r.a; O.to = r.b; O.per = 'custom'; saveOpts(); renderAll(); $('qFrom').focus(); return; }
+    O.per = b.dataset.p; saveOpts(); renderAll(); });
+  $('qFrom').value = R.a; $('qTo').value = R.b;
+  const nd = daysBetween(R.a, R.b) + 1;
+  $('qRangeTx').textContent = `${longRange(R)} · ${nd} วัน`;
+  // อาจารย์
+  const base = inRange(R).filter(e => tyOn(e._k) && stPass(e));
+  $('whoOpts').innerHTML = ORDER.map(w => `<button type="button" class="t-${w}" data-w="${w}" aria-pressed="${O.who.includes(w)}"><span class="sw"></span>${esc(TEACHERS[w].short)} <small>${base.filter(e=>e.who===w).length}</small></button>`).join('');
+  $('whoOpts').querySelectorAll('button').forEach(b => b.onclick = () => {
+    const w = b.dataset.w; O.who = O.who.includes(w) ? O.who.filter(x=>x!==w) : ORDER.filter(x => x===w || O.who.includes(x)); saveOpts(); renderAll(); });
+  $('whoAll').hidden = O.who.length===ORDER.length;
+  // ประเภท
+  const tb = inRange(R).filter(e => O.who.includes(e.who) && stPass(e));
+  $('tyOpts').innerHTML = TYPES.map(t => { const n = tb.filter(e => e._k===t.key).length; if (t.key===OLD && !n && tyOn(OLD)) return '';
+    return `<button type="button" data-k="${esc(t.key)}" aria-pressed="${tyOn(t.key)}"${tyVars(t.key)} title="${esc(tyFull(t.key))}"><span class="wc">${esc(t.code)}</span>${esc(t.key===OLD ? t.name : t.name)}${t.sub && t.key!==OLD?` <small>· ${esc(t.sub)}</small>`:''} <small>${n}</small></button>`; }).join('');
+  $('tyOpts').querySelectorAll('button').forEach(b => b.onclick = () => { const k = b.dataset.k; O.tyOff = tyOn(k) ? [...O.tyOff, k] : O.tyOff.filter(x=>x!==k); saveOpts(); renderAll(); });
+  $('stOpts').querySelectorAll('button').forEach(b => { b.setAttribute('aria-pressed', b.dataset.st===O.st); b.onclick = () => { O.st = b.dataset.st; saveOpts(); renderAll(); }; });
+  $('grpOpts').querySelectorAll('button').forEach(b => { b.setAttribute('aria-pressed', b.dataset.g===O.g); b.onclick = () => { O.g = b.dataset.g; saveOpts(); renderAll(); }; });
+}
+function onDates(){
+  let a = $('qFrom').value, b = $('qTo').value; if (!a && !b) return;
+  O.per = 'custom'; O.from = a || b; O.to = b || a; if (O.from > O.to) [O.from, O.to] = [O.to, O.from];
+  saveOpts(); renderAll();
+}
+$('qFrom').addEventListener('change', onDates); $('qTo').addEventListener('change', onDates);
+$('whoAll').onclick = () => { O.who = ORDER.slice(); saveOpts(); renderAll(); };
+$('tyAll').onclick = () => { O.tyOff = []; saveOpts(); renderAll(); };
+$('tyNone').onclick = () => { O.tyOff = TYPES.map(t => t.key); saveOpts(); renderAll(); };
+
+function problem(){
+  if (!DATA_READY) return 'loading';
+  if (!O.who.length) return 'เลือกอาจารย์อย่างน้อย 1 ท่าน';
+  if (!TYPES.some(t => tyOn(t.key))) return 'เลือกประเภทงานอย่างน้อย 1 ประเภท';
+  return '';
+}
+function renderBar(R, rows){
+  const p = problem();
+  $('xlBtn').disabled = $('pdfBtn').disabled = !!p;
+  if (p==='loading'){ $('rsumT').textContent = 'กำลังโหลดข้อมูล…'; $('rsumS').textContent = ''; return; }
+  if (p){ $('rsumT').textContent = p; $('rsumS').textContent = ''; return; }
+  const s = stats(rows);
+  $('rsumT').textContent = `${R.name} · ${s.n} งาน · ${fmt1(s.h)} ชม.`;
+  $('rsumS').textContent = `${whoFilterText()} · ${tyFilterText()} · ${ST_LABEL[O.st]}`;
+}
+function renderSummary(R, rows){
+  const p = problem();
+  if (p){ $('sumBox').innerHTML = `<div class="loading">${p==='loading'?'กำลังโหลดข้อมูล…':esc(p)}</div>`; $('sumNote').textContent=''; return; }
+  const types = typesShown(rows), W = O.who;
+  const cell = list => { const s = stats(list); return s.n ? `<td class="g">${s.n}</td><td class="hc">${fmt1(s.h)}</td>` : `<td class="g z">–</td><td class="z">–</td>`; };
+  const body = types.map(t => { const l = rows.filter(e => e._k===t.key);
+    return `<tr><td class="tl"${tyVars(t.key)}><i></i><span class="wc">${esc(t.code)}</span>${esc(t.name)}${t.sub?` <small class="muted">· ${esc(t.sub)}</small>`:''}</td>${W.map(w => cell(l.filter(e=>e.who===w))).join('')}${W.length>1?cell(l):''}</tr>`; }).join('');
+  const tot = `<tr><td class="tl">รวม</td>${W.map(w => { const s = stats(rows.filter(e=>e.who===w)); return `<td class="g">${s.n}</td><td>${fmt1(s.h)}</td>`; }).join('')}${W.length>1?(() => { const s = stats(rows); return `<td class="g">${s.n}</td><td>${fmt1(s.h)}</td>`; })():''}</tr>`;
+  const lv = W.map(w => leaveDays(w, R.a, R.b));
+  const lvRow = lv.some(Boolean) ? `<tr class="lvr"><td class="tl">วันลา (วันทำการ)</td>${lv.map(v => `<td class="g" colspan="2">${v?fmtDays(v)+' วัน':'–'}</td>`).join('')}${W.length>1?`<td class="g" colspan="2"></td>`:''}</tr>` : '';
+  $('sumBox').innerHTML = `<table class="sumt"><thead><tr><th class="tl" rowspan="2">ประเภทงาน</th>${W.map(w => `<th class="tch g t-${w}" colspan="2">${esc(TEACHERS[w].short)}</th>`).join('')}${W.length>1?`<th class="g" colspan="2" style="text-align:center">รวมทุกท่าน</th>`:''}</tr>
+    <tr>${[...W, ...(W.length>1?['*']:[])].map(() => `<th class="g">งาน</th><th>ชม.</th>`).join('')}</tr></thead><tbody>${body}${lvRow}</tbody><tfoot>${tot}</tfoot></table>`;
+  const s = stats(rows);
+  $('sumNote').textContent = [s.off ? `งานที่เลื่อน/ขัดข้อง/ยกเลิก ${s.off} รายการ แสดงแต่ไม่นับชั่วโมง` : '', s.noh ? `${s.noh} รายการไม่ได้ระบุเวลาหรือชั่วโมง (นับ 0 ชม.)` : '', W.length>1 ? 'รวมทุกท่าน = ผลรวมของแต่ละท่าน (งานร่วมนับซ้ำตามจำนวนอาจารย์)' : ''].filter(Boolean).join(' · ');
+}
+function placeOf(e){
+  const pl = e.mode==='online' ? '' : (e.place || e.venue || '');
+  if (e.mode==='online') return 'ออนไลน์' + (e.platform ? ` (${e.platform})` : '');
+  if (e.mode==='hybrid') return (pl ? pl+' + ' : '') + 'ออนไลน์' + (e.platform ? ` (${e.platform})` : '');
+  return pl;
+}
+const coText = e => e.co.length ? 'ร่วมกับ ' + e.co.map(w => TEACHERS[w].short).join(', ') : '';
+function evRow(e, i){
+  const dd = parseIso(e.date), we = !isWorkday(e.date);
+  return `<tr class="${e._st==='off'?'off':''}">
+    <td class="no">${i}</td>
+    <td class="dt${we?' we':''}">${DOW_SHORT[dd.getDay()]} ${esc(shortDate(e.date))}<small>${esc(e.time||'')}</small></td>
+    <td class="tm">${esc(e.time||'—')}</td>
+    <td class="ty"><span class="tag"${tyVars(e._k)} title="${esc(e._k===OLD ? 'ยังไม่จัดตามข้อ 5' : tyFull(e._k))}">${esc(e._k===OLD ? (e.type||'ไม่ระบุ') : tyInfo(e._k).code+' '+e._k)}</span></td>
+    <td class="ti">${e._lv?`<span class="lvi" title="อยู่ในช่วงวันลา">⛔</span> `:''}${esc(e.title||'(ไม่มีชื่อรายการ)')}${canWrite && e.id ? `<a href="${FORM_FILE}#edit-${encodeURIComponent(e.id)}" target="_blank" rel="noopener" title="เปิดงานนี้">↗</a>`:''}${e.co.length?`<span class="co">${esc(coText(e))}</span>`:''}</td>
+    <td class="pl">${esc(placeOf(e))}</td>
+    <td class="st"><span class="pill ${e._st}">${esc(e.status||'ไม่ระบุ')}</span></td>
+    <td class="hr${e._h.est?' est':''}">${e._st==='off' ? '<span class="muted">ไม่นับ</span>' : fmtHr(e._h.v, e._h.est)}</td>
+    <td class="sm lv">${esc(e.level||'')}</td>
+    <td class="sm inv">${esc(e.inviter||'')}</td></tr>`;
+}
+function teacherHtml(w, R, rows){
+  const t = TEACHERS[w], list = rows.filter(e => e.who===w), s = stats(list), lvN = leaveDays(w, R.a, R.b), lvs = leavesIn(w, R.a, R.b);
+  const types = typesShown(rows).filter(tt => list.some(e => e._k===tt.key));
+  let body = '', i = 0;
+  if (O.g==='type'){
+    types.forEach(tt => { const l = list.filter(e => e._k===tt.key), ss = stats(l);
+      body += `<tr class="gh"${tyVars(tt.key)}><td colspan="10">${esc(tyName(tt.key))}${tt.sub?` <small>${esc(tt.sub)}</small>`:''}</td></tr>`;
+      body += l.map(e => evRow(e, ++i)).join('');
+      body += `<tr class="gs"><td colspan="7" style="text-align:right">รวม ${esc(tyName(tt.key))} · ${ss.n} งาน</td><td class="hr">${fmt1(ss.h)}</td><td colspan="2"></td></tr>`; });
+  } else body = list.map(e => evRow(e, ++i)).join('');
+  if (list.length) body += `<tr class="tot"><td colspan="7" style="text-align:right">รวมทั้งหมด ${s.n} งาน</td><td class="hr">${fmt1(s.h)}</td><td colspan="2"></td></tr>`;
+  const brk = types.map(tt => { const ss = stats(list.filter(e => e._k===tt.key)); return `<span${tyVars(tt.key)}><b>${esc(tt.code==='—'?tt.name:tt.code)}</b>${esc(tt.key===OLD?'':tt.name)} <em>${ss.n} งาน · ${fmt1(ss.h)} ชม.</em></span>`; }).join('');
+  return `<section class="tsec t-${w}" id="t-${w}" aria-label="${esc(t.name)}">
+    <header><div><div class="eyebrow">รายงานภาระงาน · ${esc(R.name)} <span class="print-inline">· ${esc(longRange(R))}</span></div><h2><span class="sw"></span>${esc(t.name)}</h2></div>
+      <div class="tmeta"><span><b>${s.n}</b>งาน</span><span><b>${fmt1(s.h)}</b>ชม.</span>${s.pend?`<span class="pend"><b>${s.pend}</b>รอยืนยัน</span>`:''}${s.off?`<span><b>${s.off}</b>ไม่นับ</span>`:''}${lvN?`<span class="lv"><b>${fmtDays(lvN)}</b>วันลา</span>`:''}</div></header>
+    ${brk?`<div class="tbrk">${brk}</div>`:''}
+    ${list.length ? `<div class="tscroll"><table class="et"><colgroup><col class="c-no"><col class="c-dt"><col class="c-tm"><col class="c-ty"><col class="c-ti"><col class="c-pl"><col class="c-st"><col class="c-hr"><col class="c-lv"><col class="c-in"></colgroup>
+      <thead><tr><th>#</th><th>วันที่</th><th>เวลา</th><th>ประเภท</th><th>รายการ</th><th>สถานที่</th><th>สถานะ</th><th style="text-align:right">ชม.</th><th>ระดับ</th><th>หน่วยงานที่เชิญ</th></tr></thead><tbody>${body}</tbody></table></div>`
+      : `<div class="empty">ไม่มีงานตามเงื่อนไขที่เลือกในช่วงนี้</div>`}
+    ${lvs.length ? `<div class="lvlist"><b>วันลาในช่วงนี้:</b> ${lvs.map(l => esc(`${l.leaveType||'ลา'} ${lvRange(l)} (${lvWhen(l)})`)).join(' · ')}</div>` : ''}
+    <div class="tfoot"><span>${esc(tyFilterText())} · ${esc(ST_LABEL[O.st])}</span><span class="print-inline">พิมพ์เมื่อ ${esc(fullDate(todayIso))}</span></div>
+  </section>`;
+}
+function renderTeachers(R, rows){
+  const p = problem();
+  if (p){ $('tList').innerHTML = ''; $('tJump').innerHTML = ''; return; }
+  $('tJump').innerHTML = O.who.length > 1 ? O.who.map(w => { const s = stats(rows.filter(e=>e.who===w)); return `<a href="#t-${w}" class="t-${w}"><span class="sw"></span>${esc(TEACHERS[w].short)} <small>${s.n} งาน · ${fmt1(s.h)} ชม.</small></a>`; }).join('') : '';
+  $('tList').innerHTML = O.who.map(w => teacherHtml(w, R, rows)).join('');
+}
+function renderPrintHead(R){
+  $('pHead').innerHTML = `<div><div class="porg">ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล มหาวิทยาลัยมหิดล</div><h1>รายงานภาระงานอาจารย์</h1></div>
+    <div class="rr"><b>${esc(R.name)}</b><span>${esc(longRange(R))}</span><span>${esc(whoFilterText())} · ${esc(tyFilterText())}</span><span>สถานะ: ${esc(ST_LABEL[O.st])} · พิมพ์เมื่อ ${esc(fullDate(todayIso))}${CUR_USER?' โดย '+esc(CUR_USER.name):''}</span></div>`;
+}
+function renderAll(){
+  todayIso = iso(new Date());
+  if (DATA_READY) buildEv();
+  renderFilters();
+  const R = curRange(), rows = DATA_READY ? selected(R) : [];
+  renderBar(R, rows); renderSummary(R, rows); renderTeachers(R, rows); renderPrintHead(R);
+}
+function refreshAll(){ renderAll(); }
+function refresh(){ renderAll(); }
+
+/* ----- Export PDF ----- */
+$('pdfBtn').onclick = () => {
+  if (problem()) return;
+  const R = curRange(), old = document.title;
+  document.title = `รายงานภาระงานอาจารย์ ${R.name}`.replace(/[\\/:*?"<>|]/g,'-');
+  const restore = () => { document.title = old; window.removeEventListener('afterprint', restore); };
+  window.addEventListener('afterprint', restore);
+  window.print();
+  setTimeout(restore, 1500);
+};
+
+/* ----- Export Excel (.xlsx) ----- */
+let XLJS = null;
+function loadExcelJS(){
+  if (window.ExcelJS) return Promise.resolve(window.ExcelJS);
+  return XLJS ||= new Promise((res, rej) => {
+    const sc = document.createElement('script'); sc.src = 'assets/exceljs.min.js'; sc.async = true;
+    sc.onload = () => window.ExcelJS ? res(window.ExcelJS) : (XLJS=null, rej({code:'load'}));
+    sc.onerror = () => { XLJS = null; sc.remove(); rej({code:'load'}); };
+    document.head.appendChild(sc);
+  });
+}
+const XF = 'Cordia New', ORG = 'ภาควิชาเวชศาสตร์การธนาคารเลือด คณะแพทยศาสตร์ศิริราชพยาบาล มหาวิทยาลัยมหิดล';
+const argb = hex => 'FF' + String(hex).replace('#','').toUpperCase();
+const XST = {ok:'FF1E7B34', pend:'FFC55A11', off:'FF808080', none:'FF333333'};
+const colL = n => { let s=''; while (n>0){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=Math.floor((n-1)/26); } return s; };
+function xlLines(text, width){ const per = Math.max(4, Math.floor(width)); return String(text||'').split('\n').reduce((n, ln) => n + Math.max(1, Math.ceil(ln.replace(/[ัิ-ฺ็-๎]/g,'').length / per)), 0); }
+const sheetName = (s, used) => { let n = String(s).replace(/[:\\\/?*\[\]]/g,'').slice(0,31), k = 2; while (used.has(n)) n = String(s).slice(0,28)+' ('+(k++)+')'; used.add(n); return n; };
+function xlCtx(ws){
+  const F = (o={}) => ({name:XF, size:15, ...o});
+  const thin = {style:'thin', color:{argb:'FF9A9A9A'}};
+  const box = {top:thin, left:thin, bottom:thin, right:thin};
+  const fill = c => ({type:'pattern', pattern:'solid', fgColor:{argb:c}});
+  return {F, box, fill};
+}
+function xlTitle(ws, lastCol, title, sub, R){
+  const {F} = xlCtx(ws), L = colL(lastCol);
+  ws.mergeCells(`A1:${L}1`); Object.assign(ws.getCell('A1'), {value:ORG, font:F({size:13, color:{argb:'FF404040'}})});
+  ws.mergeCells(`A2:${L}2`); Object.assign(ws.getCell('A2'), {value:title, font:F({size:20, bold:true})});
+  ws.mergeCells(`A3:${L}3`); Object.assign(ws.getCell('A3'), {value:sub, font:F({size:16, bold:true, color:{argb:'FF7A1426'}})});
+  ws.mergeCells(`A4:${L}4`); Object.assign(ws.getCell('A4'), {value:`${R.name} (${longRange(R)}) · ${tyFilterText()} · สถานะที่นับ: ${ST_LABEL[O.st]}`, font:F({size:13, color:{argb:'FF404040'}}), alignment:{wrapText:true, vertical:'top'}});
+  ws.getRow(1).height = 20; ws.getRow(2).height = 30; ws.getRow(3).height = 25; ws.getRow(4).height = Math.max(20, 19*xlLines(ws.getCell('A4').value, ws.columns.slice(0,lastCol).reduce((a,c)=>a+(c.width||10),0)*1.1));
+}
+const pageSetup = rep => ({paperSize:9, orientation:'landscape', fitToPage:true, fitToWidth:1, fitToHeight:0, horizontalCentered:true,
+  margins:{left:0.3, right:0.3, top:0.45, bottom:0.5, header:0.2, footer:0.25}, ...(rep?{printTitlesRow:rep}:{})});
+const FOOT = {oddFooter:'&L&"Cordia New"&12รายงานภาระงานอาจารย์&R&"Cordia New"&12หน้า &P / &N'};
+function xlSummary(wb, R, rows, used){
+  const W = O.who, types = typesShown(rows), multi = W.length>1, nCol = 2 + W.length*2 + (multi?2:0);
+  const ws = wb.addWorksheet(sheetName('สรุป', used), {pageSetup:pageSetup(), headerFooter:FOOT, views:[{state:'frozen', ySplit:7, xSplit:2, showGridLines:false}]});
+  ws.columns = [{width:8}, {width:40}, ...Array(nCol-2).fill(0).map((_,i) => ({width: i%2 ? 9 : 7}))];
+  const {F, box, fill} = xlCtx(ws);
+  xlTitle(ws, nCol, 'รายงานภาระงานอาจารย์ — สรุปจำนวนงานและชั่วโมงตามประเภทงาน', whoFilterText(), R);
+  // หัวตาราง 2 แถว
+  const h1 = 6, h2 = 7;
+  ws.mergeCells(`A${h1}:A${h2}`); ws.mergeCells(`B${h1}:B${h2}`);
+  ws.getCell(`A${h1}`).value = 'ข้อ'; ws.getCell(`B${h1}`).value = 'ประเภทงาน';
+  const groups = [...W.map(w => ({w, label:TEACHERS[w].short, color:getComputedStyle(document.documentElement).getPropertyValue('--t-'+w).trim()||'#444444'})), ...(multi?[{w:'*', label:'รวมทุกท่าน', color:'#1A2227'}]:[])];
+  groups.forEach((g,i) => { const c = 3+i*2; ws.mergeCells(h1, c, h1, c+1); ws.getCell(h1, c).value = g.label; ws.getCell(h2, c).value = 'งาน'; ws.getCell(h2, c+1).value = 'ชม.';
+    [ws.getCell(h1,c), ws.getCell(h1,c+1)].forEach(x => x.fill = fill(argb(g.color))); });
+  for (let c=1; c<=nCol; c++){ [h1,h2].forEach(r => { const x = ws.getCell(r,c); x.font = F({bold:true, color:{argb: r===h1 && c>2 ? 'FFFFFFFF' : 'FF1A2227'}}); if (!(r===h1 && c>2)) x.fill = fill('FFE7EBEE'); x.border = box; x.alignment = {horizontal:'center', vertical:'middle', wrapText:true}; }); }
+  ws.getRow(h1).height = 26; ws.getRow(h2).height = 22;
+  let r = h2+1; const first = r;
+  types.forEach(t => {
+    const l = rows.filter(e => e._k===t.key), col = tyCol(t.key);
+    const row = ws.getRow(r);
+    row.getCell(1).value = t.key===OLD ? '—' : t.code; row.getCell(2).value = t.key===OLD ? `${t.name} (${t.sub})` : t.name + (t.sub?` (${t.sub})`:'');
+    W.forEach((w,i) => { const s = stats(l.filter(e=>e.who===w)); row.getCell(3+i*2).value = s.n; row.getCell(4+i*2).value = Math.round(s.h*100)/100; });
+    if (multi){ const c = 3+W.length*2; row.getCell(c).value = {formula: W.map((_,i)=>colL(3+i*2)+r).join('+'), result: stats(l).n}; row.getCell(c+1).value = {formula: W.map((_,i)=>colL(4+i*2)+r).join('+'), result: Math.round(stats(l).h*100)/100}; }
+    for (let c=1; c<=nCol; c++){ const x = row.getCell(c); x.border = box; x.font = F(c===1 ? {bold:true, color:{argb:argb(col.c)}} : (c>2 && (c-3)%2===1) ? {bold:true} : {}); x.alignment = {vertical:'middle', horizontal: c===2 ? 'left' : 'center', wrapText:c===2}; if (c>2 && (c-3)%2===1) x.numFmt = '0.0'; }
+    row.getCell(1).fill = fill(argb(col.soft)); row.getCell(2).fill = fill(argb(col.soft));
+    row.getCell(2).border = {...box, left:{style:'thick', color:{argb:argb(col.c)}}};
+    row.height = Math.max(22, 20*xlLines(row.getCell(2).value, 40));
+    r++;
+  });
+  const last = r-1, tr = ws.getRow(r);
+  tr.getCell(1).value = ''; tr.getCell(2).value = 'รวม';
+  for (let c=3; c<=nCol; c++){ const L = colL(c); tr.getCell(c).value = last>=first ? {formula:`SUM(${L}${first}:${L}${last})`, result: 0} : 0; }
+  // ใส่ผลลัพธ์ที่คำนวณไว้ (เปิดในโปรแกรมที่ไม่คำนวณสูตรก็ยังเห็นตัวเลข)
+  groups.forEach((g,i) => { const l = g.w==='*' ? rows : rows.filter(e=>e.who===g.w), s = stats(l), c = 3+i*2;
+    if (tr.getCell(c).value && tr.getCell(c).value.formula){ tr.getCell(c).value = {formula: tr.getCell(c).value.formula, result:s.n}; tr.getCell(c+1).value = {formula: tr.getCell(c+1).value.formula, result:Math.round(s.h*100)/100}; } });
+  for (let c=1; c<=nCol; c++){ const x = tr.getCell(c); x.font = F({bold:true}); x.fill = fill('FFDDE3E7'); x.border = box; x.alignment = {horizontal: c===2 ? 'right' : 'center', vertical:'middle'}; if (c>2 && (c-3)%2===1) x.numFmt = '0.0'; }
+  ws.mergeCells(r,1,r,2); tr.height = 24; r++;
+  const lv = W.map(w => leaveDays(w, R.a, R.b));
+  if (lv.some(Boolean)){
+    const lr = ws.getRow(r); lr.getCell(1).value = 'วันลา (วันทำการ)'; ws.mergeCells(r,1,r,2);
+    W.forEach((w,i) => { ws.mergeCells(r, 3+i*2, r, 4+i*2); lr.getCell(3+i*2).value = lv[i] || '–'; if (lv[i]) lr.getCell(3+i*2).numFmt = '0.0 "วัน"'; });
+    if (multi) ws.mergeCells(r, 3+W.length*2, r, 4+W.length*2);
+    for (let c=1; c<=nCol; c++){ const x = lr.getCell(c); x.font = F({color:{argb:'FF1F4E79'}}); x.fill = fill('FFDDEBF7'); x.border = box; x.alignment = {horizontal: c<=2 ? 'right' : 'center', vertical:'middle'}; }
+    lr.height = 22; r++;
+  }
+  r++;
+  const notes = ['หมายเหตุ: ชั่วโมงไม่นับงานที่เลื่อน / ขัดข้อง / ยกเลิก / ไม่เข้าร่วม · งานร่วมนับชั่วโมงเต็มให้อาจารย์ทุกท่าน' + (multi ? ' (คอลัมน์รวมทุกท่านจึงนับงานร่วมซ้ำ)' : ''),
+    'ชั่วโมงที่ไม่ได้กรอก คำนวณจากช่วงเวลา · งานที่ไม่ระบุเวลาและชั่วโมงนับ 0 ชม. · วันลานับเฉพาะวันทำการ (ทั้งวัน = 1, ครึ่งวัน = 0.5)',
+    `ส่งออกจากระบบตารางงานอาจารย์ เมื่อ ${fullDate(todayIso)}${CUR_USER ? ' โดย ' + CUR_USER.name : ''}`];
+  notes.forEach((n,i) => { ws.mergeCells(r,1,r,nCol); const x = ws.getCell(r,1); x.value = n; x.font = F({size:13, italic:i===2, color:{argb:'FF595959'}}); x.alignment = {wrapText:true, vertical:'top'}; ws.getRow(r).height = Math.max(20, 18*xlLines(n, ws.columns.reduce((a,c)=>a+(c.width||10),0)*1.1)); r++; });
+  return ws;
+}
+const XH = {head:['ลำดับ','วัน','วันที่','เวลา','ประเภท','รายการ','ร่วมกับ','สถานที่','สถานะ','ชม.','ระดับ','หน่วยงานที่เชิญ','ผู้บันทึก'],
+  width:[7,10,14,15,22,50,18,30,12,8,13,26,20], wrap:[false,false,false,true,true,true,true,true,true,false,true,true,true]};
+function xlEvVals(e, i){
+  const d = parseIso(e.date);
+  return [i, TH_D[d.getDay()], `${d.getDate()} ${TH_MS[d.getMonth()]} ${be(d.getFullYear())}`, e.time||'', e._k===OLD ? (e.type||'ไม่ระบุ') : `${tyInfo(e._k).code} ${e._k}`, e.title||'', e.co.map(w=>TEACHERS[w].short).join(', '), placeOf(e), e.status||'',
+    e._st==='off' ? 'ไม่นับ' : (e._h.v ? Math.round(e._h.v*100)/100 : ''), e.level||'', e.inviter||'', e.rec||''];
+}
+function xlTeacher(wb, w, R, rows, used){
+  const t = TEACHERS[w], list = rows.filter(e => e.who===w), N = XH.head.length, L = colL(N), s = stats(list);
+  const ws = wb.addWorksheet(sheetName(`${w} ${t.short}`, used), {pageSetup:pageSetup('6:6'), headerFooter:FOOT, views:[{state:'frozen', ySplit:6, showGridLines:false}]});
+  ws.columns = XH.width.map(x => ({width:x}));
+  const {F, box, fill} = xlCtx(ws);
+  xlTitle(ws, N, 'รายงานภาระงานอาจารย์', t.name, R);
+  const lvN = leaveDays(w, R.a, R.b);
+  ws.getRow(5).height = 22; ws.mergeCells(`A5:${L}5`);
+  Object.assign(ws.getCell('A5'), {value:`${s.n} งาน · ${fmt1(s.h)} ชม.${s.pend?` · รอยืนยัน ${s.pend}`:''}${s.off?` · ไม่นับ ${s.off}`:''}${lvN?` · ลา ${fmtDays(lvN)} วันทำการ`:''}`, font:F({size:14, bold:true, color:{argb:'FF404040'}})});
+  const hr = ws.getRow(6); hr.values = XH.head; hr.height = 28;
+  hr.eachCell(c => { c.font = F({bold:true, color:{argb:'FFFFFFFF'}}); c.fill = fill('FF1A2227'); c.border = box; c.alignment = {horizontal:'center', vertical:'middle', wrapText:true}; });
+  let r = 7, i = 0; const allH = [];
+  const styleRow = (row) => { for (let c=1;c<=N;c++){ const x=row.getCell(c); x.border = box; if (!x.font || x.font.name!==XF) x.font = F(); x.alignment = {vertical:'top', wrapText:XH.wrap[c-1], horizontal: [1,2,10].includes(c) ? 'center' : 'left'}; } };
+  const putEv = e => {
+    const row = ws.getRow(r), vals = xlEvVals(e, ++i), off = e._st==='off', col = tyCol(e._k);
+    vals.forEach((v,k) => row.getCell(k+1).value = v);
+    for (let c=1;c<=N;c++) row.getCell(c).font = F(off ? {color:{argb:'FF808080'}} : {});
+    if (off) row.getCell(6).font = F({color:{argb:'FF808080'}, strike:true});
+    row.getCell(5).font = F({bold:true, color:{argb:argb(col.c)}}); row.getCell(5).fill = fill(argb(col.soft));
+    row.getCell(9).font = F({bold:true, color:{argb:XST[e._st]||XST.none}}); if (e._st==='pend') row.getCell(9).fill = fill('FFFFF2CC');
+    if (!isWorkday(e.date)){ row.getCell(2).font = F({color:{argb:'FFC00000'}}); row.getCell(3).font = F({color:{argb:'FFC00000'}}); }
+    if (e._lv) row.getCell(6).note = 'อยู่ในช่วงวันลา (' + (e._lv.leaveType||'ลา') + ' ' + lvWhen(e._lv) + ')';
+    const hc = row.getCell(10); if (typeof hc.value==='number'){ hc.numFmt = '0.0'; if (e._h.est) hc.note = 'คำนวณจากช่วงเวลา (ไม่ได้กรอกจำนวนชั่วโมง)'; }
+    styleRow(row); row.getCell(9).alignment = {vertical:'top', horizontal:'center', wrapText:true};
+    row.height = Math.max(22, 3 + 20 * Math.max(...[3,4,5,6,7,8,10,11,12].map(k => XH.wrap[k] ? xlLines(vals[k], XH.width[k]) : 1)));
+    if (typeof hc.value==='number') allH.push('J'+r);
+    return r++;
+  };
+  const sumRow = (label, cells, value, light) => {
+    ws.mergeCells(`A${r}:I${r}`); const row = ws.getRow(r);
+    row.getCell(1).value = label;
+    row.getCell(10).value = cells.length && cells.length<=250 ? {formula:`SUM(${cells.join(',')})`, result:Math.round(value*100)/100} : Math.round(value*100)/100;
+    for (let c=1;c<=N;c++){ const x = row.getCell(c); x.font = F({bold:true}); x.fill = fill(light ? 'FFF3F5F6' : 'FFDDE3E7'); x.border = box; x.alignment = {horizontal: c===1 ? 'right' : 'center', vertical:'middle'}; }
+    row.getCell(10).numFmt = '0.0'; row.height = 22; r++;
+  };
+  if (!list.length){ ws.mergeCells(`A${r}:${L}${r}`); Object.assign(ws.getCell(`A${r}`), {value:'ไม่มีงานตามเงื่อนไขที่เลือกในช่วงนี้', font:F({color:{argb:'FF7F7F7F'}}), alignment:{horizontal:'center'}}); r++; }
+  else if (O.g==='type'){
+    typesShown(rows).filter(tt => list.some(e => e._k===tt.key)).forEach(tt => {
+      const l = list.filter(e => e._k===tt.key), col = tyCol(tt.key), ss = stats(l);
+      ws.mergeCells(`A${r}:${L}${r}`); const gc = ws.getCell(`A${r}`);
+      gc.value = `${tyName(tt.key)}${tt.sub?` (${tt.sub})`:''} — ${ss.n} งาน`; gc.font = F({bold:true, size:16, color:{argb:argb(col.c)}}); gc.fill = fill(argb(col.soft)); gc.border = {...box, left:{style:'thick', color:{argb:argb(col.c)}}}; gc.alignment = {vertical:'middle'};
+      ws.getRow(r).height = 24; r++;
+      const start = allH.length; l.forEach(putEv);
+      sumRow(`รวม ${tyName(tt.key)}`, allH.slice(start), ss.h, true);
+    });
+  } else list.forEach(putEv);
+  if (list.length) sumRow(`รวมทั้งหมด ${s.n} งาน (ไม่นับงานที่เลื่อน / ขัดข้อง / ยกเลิก)`, allH, s.h, false);
+  const lvs = leavesIn(w, R.a, R.b);
+  if (lvs.length){ r++; ws.mergeCells(`A${r}:${L}${r}`); const x = ws.getCell(`A${r}`); x.value = 'วันลาในช่วงนี้: ' + lvs.map(l => `${l.leaveType||'ลา'} ${lvRange(l)} (${lvWhen(l)})`).join(' · ');
+    x.font = F({size:14, color:{argb:'FF1F4E79'}}); x.fill = fill('FFDDEBF7'); x.alignment = {wrapText:true, vertical:'top'}; ws.getRow(r).height = Math.max(22, 19*xlLines(x.value, 220)); r++; }
+  r++; ws.getCell(`A${r}`).value = `ส่งออกจากระบบตารางงานอาจารย์ เมื่อ ${fullDate(todayIso)}${CUR_USER ? ' โดย ' + CUR_USER.name : ''} · ≈ ชั่วโมงที่คำนวณจากช่วงเวลามีหมายเหตุกำกับในเซลล์`;
+  ws.getCell(`A${r}`).font = F({size:12, italic:true, color:{argb:'FF7F7F7F'}});
+  return ws;
+}
+function xlFlat(wb, R, rows, used){
+  const head = ['อาจารย์','ชื่อเต็ม','วันที่','เดือน','วัน','เวลา','ข้อ','ประเภทงาน','ประเภทที่บันทึก','รายการ','ร่วมกับ','สถานที่','สถานะ','นับชั่วโมง','ชม.','ระดับ','หน่วยงานที่เชิญ','ทุนสนับสนุน','ผู้บันทึก','รหัสงาน'];
+  const width = [12,28,14,10,10,15,8,30,18,50,18,30,12,10,8,13,26,16,20,16];
+  const ws = wb.addWorksheet(sheetName('รายการทั้งหมด', used), {pageSetup:pageSetup('1:1'), headerFooter:FOOT, views:[{state:'frozen', ySplit:1, showGridLines:true}]});
+  ws.columns = width.map(x => ({width:x}));
+  const {F, box, fill} = xlCtx(ws);
+  const hr = ws.getRow(1); hr.values = head; hr.height = 26;
+  hr.eachCell(c => { c.font = F({bold:true, color:{argb:'FFFFFFFF'}}); c.fill = fill('FF7A1426'); c.border = box; c.alignment = {horizontal:'center', vertical:'middle', wrapText:true}; });
+  const sorted = [...rows].sort((a,b) => ORDER.indexOf(a.who)-ORDER.indexOf(b.who) || a.date.localeCompare(b.date) || a._s-b._s);
+  sorted.forEach((e,i) => {
+    const d = parseIso(e.date), t = tyInfo(e._k), r = i+2, row = ws.getRow(r);
+    row.values = [TEACHERS[e.who].short, TEACHERS[e.who].name, `${d.getDate()} ${TH_MS[d.getMonth()]} ${be(d.getFullYear())}`, `${TH_MS[d.getMonth()]} ${String(be(d.getFullYear())).slice(2)}`, TH_D[d.getDay()], e.time||'',
+      e._k===OLD ? '' : t.code, e._k===OLD ? 'ยังไม่จัดตามข้อ 5' : t.name + (t.sub?` (${t.sub})`:''), e.type||'', e.title||'', e.co.map(w=>TEACHERS[w].short).join(', '), placeOf(e), e.status||'',
+      e._st==='off' ? 'ไม่นับ' : 'นับ', e._st!=='off' && e._h.v ? Math.round(e._h.v*100)/100 : (e._st==='off' ? '' : 0), e.level||'', e.inviter||'', e.fund||'', e.rec||'', e.id||''];
+    row.eachCell({includeEmpty:true}, (c, k) => { if (k>head.length) return; c.font = F({size:14, ...(e._st==='off'?{color:{argb:'FF808080'}}:{})}); c.alignment = {vertical:'top', wrapText:[2,8,10,12,17].includes(k)}; });
+    row.getCell(15).numFmt = '0.0';
+  });
+  ws.autoFilter = {from:{row:1, column:1}, to:{row:Math.max(1, sorted.length+1), column:head.length}};
+  return ws;
+}
+async function exportXlsx(){
+  const R = curRange(), rows = selected(R);
+  const ExcelJS = await loadExcelJS();
+  const wb = new ExcelJS.Workbook();
+  wb.creator = CUR_USER ? CUR_USER.name : 'ตารางงานอาจารย์'; wb.created = new Date();
+  const used = new Set();
+  xlSummary(wb, R, rows, used);
+  O.who.forEach(w => xlTeacher(wb, w, R, rows, used));
+  xlFlat(wb, R, rows, used);
+  const name = `รายงานภาระงานอาจารย์ ${R.name}.xlsx`.replace(/[\\/:*?"<>|]/g,'-');
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  return name;
+}
+$('xlBtn').onclick = async () => {
+  if (problem()) return;
+  const msg = $('xlMsg'), b = $('xlBtn'); msg.className = 'xlmsg'; msg.textContent = 'กำลังสร้างไฟล์ Excel…'; b.disabled = true;
+  try{ const name = await exportXlsx(); msg.textContent = 'ดาวน์โหลดแล้ว · ' + name; setTimeout(()=>{ if (/^ดาวน์โหลดแล้ว/.test(msg.textContent)) msg.textContent=''; }, 7000); }
+  catch(err){ console.error(err); msg.className = 'xlmsg err'; msg.textContent = 'สร้างไฟล์ Excel ไม่สำเร็จ' + (err && err.code==='load' ? ' (โหลดตัวสร้างไฟล์ไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่)' : ''); }
+  finally{ b.disabled = !!problem(); }
+};
+
+function applyData(j){
+  ROLE = j.role; PENDING = j.pending||0; setUser(j.user);
+  canWrite = ROLE==='edit';
+  document.documentElement.classList.toggle('role-view', !canWrite);
+  FORM_DOCS = (j.entries||[]).map(d => ({...d}));
+  ALL = FORM_DOCS;
+  HOL = j.holidays && typeof j.holidays==='object' ? j.holidays : {};
+  setLeaves(j.leaves, j.leaveSplit);
+  DATA_READY = true;
+  renderAll();
+}
+
+const CFG = window.APP_CONFIG || {};
+let DB = null, ROLE = null, LAST_SYNC = null, PENDING = 0;
+const KEY_STORE = 'tt-gs-key', USER_STORE = 'tt-user';
+const ROLE_LABEL = {admin:'ผู้ดูแลระบบ', edit:'บันทึกและแก้ไขงาน', view:'ดูอย่างเดียว'};
+function initialOf(name){ const bare=String(name||'').replace(/^([^\s.]{1,8}\.)+/,''); return ((bare.match(/[ก-ฮA-Za-z0-9]/)||['?'])[0]).toUpperCase(); }
+let CUR_USER = (()=>{ try{ return JSON.parse(localStorage.getItem(USER_STORE)||'null'); }catch(_){ return null; } })();
+function lastUsername(){ try{ return localStorage.getItem('tt-last-user')||''; }catch(_){ return ''; } }
+function getKey(){ try{ return localStorage.getItem(KEY_STORE) || sessionStorage.getItem(KEY_STORE) || ''; }catch(_){ return ''; } }
+function setKey(k, remember){ try{ localStorage.removeItem(KEY_STORE); sessionStorage.removeItem(KEY_STORE); if (k) (remember?localStorage:sessionStorage).setItem(KEY_STORE,k); }catch(_){} }
+/* ใช้ข้อมูลรอบล่าสุดที่เก็บไว้ในเครื่องร่วมกับหน้าตารางงาน (tt-snap) */
+const SNAP_KEY = 'tt-snap', SNAP_MAX_AGE = 14*864e5;
+function readSnap(){ try{ const s=JSON.parse(localStorage.getItem(SNAP_KEY)||'null'); return s && s.j && Date.now()-s.t < SNAP_MAX_AGE ? s : null; }catch(_){ return null; } }
+function saveSnap(j){ try{ if (!getKey() || !j || !j.user) return; localStorage.setItem(SNAP_KEY, JSON.stringify({u:j.user.username, t:Date.now(), j:{role:j.role, user:j.user, pending:j.pending, canViewLogs:j.canViewLogs, entries:j.entries, holidays:j.holidays, leaves:j.leaves, leaveSplit:j.leaveSplit, rooms:j.rooms, bookings:j.bookings}})); }catch(_){ try{ localStorage.removeItem(SNAP_KEY); }catch(__){} } }
+function clearSnap(){ try{ localStorage.removeItem(SNAP_KEY); }catch(_){} }
+const ERR_TH = {timeout:'Google Sheet ตอบช้าเกินไป ลองอีกครั้ง', network:'เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ต', bad_response:'Apps Script ตอบกลับไม่ถูกต้อง ตรวจสอบ URL ใน config.js', unauthorized:'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่', must_change:'ต้องตั้งรหัสผ่านใหม่ก่อนใช้งาน', invalid_login:'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', locked:'บัญชีถูกล็อกชั่วคราว', disabled:'บัญชีนี้ถูกปิดใช้งาน ติดต่อผู้ดูแลระบบ', pending:'บัญชีนี้รอผู้ดูแลระบบอนุมัติ', server_error:'เกิดข้อผิดพลาดที่ Apps Script', busy:'มีผู้ใช้บันทึกพร้อมกันหลายคน ลองอีกครั้ง'};
+function errText(e){ return (ERR_TH[e&&e.code]||'เกิดข้อผิดพลาด') + (e&&e.message?` (${e.message})`:''); }
+function syncState(msg, err){
+  const state = err ? 'error' : (msg ? 'connecting' : (LAST_SYNC ? 'ok' : 'connecting'));
+  const t = LAST_SYNC ? `${pad(LAST_SYNC.getHours())}.${pad(LAST_SYNC.getMinutes())} น.` : '';
+  $('connPill').className = 'conn '+state;
+  $('connTx').textContent = state==='ok' ? `เชื่อมต่อแล้ว · ${t}` : state==='error' ? 'ไม่ได้เชื่อมต่อ' : 'กำลังเชื่อมต่อ…';
+  $('connPill').title = state==='ok' ? `เชื่อมต่อ Google Sheet แล้ว · งาน ${ALL.length} รายการ · ซิงค์ล่าสุด ${t}` : (msg||'');
+  const bar = $('dbBar'); bar.hidden = state!=='error'; bar.className = 'dbbar '+state;
+  $('dbTx').textContent = state==='error' ? 'เชื่อมต่อฐานข้อมูลไม่ได้' : 'กำลังเชื่อมต่อฐานข้อมูล…';
+  $('dbMeta').textContent = msg || 'Google Sheet';
+}
+const RETRY_CODES = ['timeout','network','busy'];
+async function call1(body, ms){
+  let res; const ctl = new AbortController(); const timer = setTimeout(()=>ctl.abort(), ms);
+  try{ res = await fetch(CFG.API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(body), redirect:'follow', signal:ctl.signal}); }
+  catch(e){ throw {code: e && e.name==='AbortError' ? 'timeout' : 'network'}; }
+  finally{ clearTimeout(timer); }
+  let j; try{ j = await res.json(); }catch(_){ throw {code:'bad_response'}; }
+  if (!j.ok) throw {code:j.error||'server_error', message:j.message||''};
+  return j;
+}
+async function apiList(){
+  const body = {action:'list', key:getKey()};
+  try{ return await call1(body, 30000); }
+  catch(e){ if (!e || RETRY_CODES.indexOf(e.code)<0) throw e; syncState('การเชื่อมต่อช้า กำลังลองใหม่อัตโนมัติ…'); await new Promise(r=>setTimeout(r,1200)); return await call1(body, 45000); }
+}
+function showGate(msg){ $('gate').hidden=false; $('gateMsg').textContent=msg||''; $('idleWarn').hidden=true; if (!$('gateUser').value) $('gateUser').value=lastUsername(); setTimeout(()=>($('gateUser').value?$('gateKey'):$('gateUser')).focus(),50); }
+const OUT_KEY = 'tt-logged-out';
+function isLoggedOut(){ try{ return localStorage.getItem(OUT_KEY)==='1'; }catch(_){ return false; } }
+function setLoggedOut(v){ try{ v ? localStorage.setItem(OUT_KEY,'1') : localStorage.removeItem(OUT_KEY); }catch(_){} }
+async function connect(pre){
+  if (!CFG.API_URL || /PASTE|วาง/.test(CFG.API_URL)){ syncState('ยังไม่ได้ตั้งค่า config.js', true); showGate('ยังไม่ได้ใส่ URL ของ Apps Script ในไฟล์ config.js'); $('gateBtn').disabled=true; return; }
+  if (isLoggedOut() && !getKey()){ syncState('ออกจากระบบแล้ว', true); showGate(''); return; }
+  if (!getKey()){ showGate(''); syncState('ยังไม่ได้เข้าสู่ระบบ', true); return; }
+  let snapAt = null;
+  if (!LAST_SYNC && !(pre && pre.entries)){
+    const snap = readSnap();
+    if (snap && CUR_USER && snap.u===CUR_USER.username){ try{ applyData({...snap.j, __snap:true}); snapAt = new Date(snap.t); }catch(_){ snapAt = null; } }
+  }
+  const snapTx = snapAt ? `ข้อมูลเมื่อ ${pad(snapAt.getDate())}/${pad(snapAt.getMonth()+1)} ${pad(snapAt.getHours())}.${pad(snapAt.getMinutes())} น.` : '';
+  syncState(snapAt ? `กำลังอัปเดต… (แสดง${snapTx})` : 'กำลังโหลดข้อมูลจาก Google Sheet…');
+  try{
+    const j = (pre && pre.entries) ? pre : await apiList();
+    LAST_SYNC = new Date(); applyData(j); syncState(); saveSnap(j);
+    setLoggedOut(false); $('gate').hidden = true; updateLogout();
+  }catch(e){
+    if (e.code==='must_change'){ location.href='account.html?first=1'; return; }
+    if (e.code==='unauthorized'){ const had=!!getKey(); setKey(''); setUser(null); FORM_DOCS=[]; setLeaves([]); DATA_READY=false; refreshAll(); showGate(had?'หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่':''); updateLogout(); syncState('ยังไม่ได้เข้าสู่ระบบ', true); }
+    else { syncState(errText(e) + (snapAt && !LAST_SYNC ? ` · กำลังแสดง${snapTx} ที่เก็บไว้ในเครื่อง` : ''), true); if (!$('gate').hidden) $('gateMsg').textContent = errText(e); }
+  }
+}
+function setUser(u){
+  CUR_USER = u ? {username:u.username, name:u.name||u.username, role:u.role} : null;
+  try{ CUR_USER ? localStorage.setItem(USER_STORE, JSON.stringify(CUR_USER)) : localStorage.removeItem(USER_STORE); if (CUR_USER) localStorage.setItem('tt-last-user', CUR_USER.username); }catch(_){}
+  if (!CUR_USER) clearSnap();
+  updateLogout();
+}
+async function apiLogin(username, password){
+  const ctl = new AbortController(); const timer = setTimeout(()=>ctl.abort(), 30000);
+  try{
+    const res = await fetch(CFG.API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action:'login', username, password, withData:true}), redirect:'follow', signal:ctl.signal});
+    try{ return await res.json(); }catch(_){ return {ok:false, error:'bad_response'}; }
+  } catch(e){ return {ok:false, error: e && e.name==='AbortError' ? 'timeout' : 'network'}; }
+  finally{ clearTimeout(timer); }
+}
+$('gateForm').addEventListener('submit', async ev => {
+  ev.preventDefault(); const u=$('gateUser').value.trim(), k=$('gateKey').value; if (!u || !k) return;
+  const btn=$('gateBtn'); btn.disabled=true; btn.textContent='กำลังตรวจสอบ…'; $('gateMsg').textContent='';
+  const r = await apiLogin(u, k);
+  if (r && r.ok && r.token){
+    setKey(r.token, true); setLoggedOut(false); markActive(true); setUser(r.user);
+    if (r.user && r.user.mustChange){ btn.textContent='กำลังไปหน้าตั้งรหัสผ่านใหม่…'; location.href='account.html?first=1'; return; }
+    $('gateKey').value=''; btn.textContent='กำลังเปิด…';
+    await connect(r.entries ? r : null);
+    btn.disabled=false; btn.textContent='เข้าใช้งาน'; return;
+  }
+  btn.disabled=false; btn.textContent='เข้าใช้งาน';
+  $('gateMsg').textContent = (ERR_TH[r&&r.error]||errText({code:r&&r.error})) + (r&&r.message?' '+r.message:'');
+  $('gateKey').select();
+});
+function doLogout(){
+  const tok=getKey(); if (tok && CFG.API_URL){ try{ fetch(CFG.API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'logout',key:tok}),keepalive:true}).catch(()=>{}); }catch(_){} }
+  setKey(''); setUser(null); setLoggedOut(true); ROLE=null; LAST_SYNC=null;
+  FORM_DOCS=[]; setLeaves([]); DATA_READY=false; SEL.clear(); refreshAll();
+  $('gateKey').value=''; updateLogout(); syncState('ออกจากระบบแล้ว', true); showGate('ออกจากระบบแล้ว');
+}
+$('logoutBtn').onclick = doLogout; $('logoutTop').onclick = doLogout;
+function updateLogout(){
+  const show = !!getKey() || (!!ROLE && !isLoggedOut());
+  $('logoutBtn').hidden = !show; $('logoutTop').hidden = !show;
+  $('acctTop').hidden = !(show && CUR_USER); if (CUR_USER) $('acctName').textContent = CUR_USER.name;
+  const bd=$('acctBadge'); bd.hidden = !(CUR_USER && CUR_USER.role==='admin' && PENDING>0); bd.textContent = PENDING; $('acctTop').title = !bd.hidden ? `มีคำขอรออนุมัติ ${PENDING} รายการ` : 'บัญชีผู้ใช้ · เปลี่ยนรหัสผ่าน';
+  $('whoami').hidden = !(show && CUR_USER);
+  if (CUR_USER){ $('whoName').textContent = CUR_USER.name; $('whoRole').textContent = '· '+(ROLE_LABEL[CUR_USER.role]||''); $('whoAv').textContent = initialOf(CUR_USER.name); }
+}
+/* ===== ออกจากระบบอัตโนมัติเมื่อไม่มีการใช้งาน (ใช้ค่าร่วมกับหน้าอื่น) ===== */
+const IDLE_MIN = (CFG.IDLE_MINUTES!=null && isFinite(+CFG.IDLE_MINUTES)) ? +CFG.IDLE_MINUTES : 30;
+const IDLE_MS = IDLE_MIN*60000, IDLE_WARN_MS = Math.min(60000, IDLE_MS/2);
+const ACT_KEY = 'tt-last-active';
+const IDLE_MSG = `ไม่มีการใช้งานเกิน ${IDLE_MIN} นาที ระบบออกจากระบบให้อัตโนมัติ กรุณาใส่รหัสอีกครั้ง`;
+let memActive = Date.now(), lastActWrite = 0, IDLE_ON_LOAD = false;
+function storedActive(){ try{ const v=localStorage.getItem(ACT_KEY); return v==null ? null : (+v||0); }catch(_){ return null; } }
+function lastActive(){ const s=storedActive(); return s==null ? memActive : Math.max(s, memActive); }
+function isSignedIn(){ return $('gate').hidden && (!!getKey() || (!!ROLE && !isLoggedOut())); }
+function markActive(force){
+  const n=Date.now(); const warn=!$('idleWarn').hidden;
+  if (!force && !warn && n-lastActWrite<5000) return;
+  memActive=n; lastActWrite=n; try{ localStorage.setItem(ACT_KEY, String(n)); }catch(_){}
+  if (warn) $('idleWarn').hidden=true;
+}
+function idleCheck(){
+  if (IDLE_MS<=0 || !isSignedIn()){ $('idleWarn').hidden=true; return; }
+  const left = IDLE_MS - (Date.now()-lastActive());
+  if (left<=0){ $('idleWarn').hidden=true; doLogout(); $('gateMsg').textContent=IDLE_MSG; return; }
+  if (left<=IDLE_WARN_MS){ $('idleSec').textContent=Math.ceil(left/1000); $('idleWarn').hidden=false; }
+  else $('idleWarn').hidden=true;
+}
+if (IDLE_MS>0 && getKey()){ const s=storedActive(); if (s && Date.now()-s>IDLE_MS){ setKey(''); setLoggedOut(true); IDLE_ON_LOAD=true; } }
+if (!IDLE_ON_LOAD) markActive(true);
+['pointerdown','keydown','wheel','touchstart','scroll','mousemove'].forEach(t=>window.addEventListener(t, ()=>{ if (isSignedIn()) markActive(false); }, {passive:true, capture:true}));
+$('idleStay').onclick = () => markActive(true);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) idleCheck(); });
+window.addEventListener('pageshow', idleCheck);
+window.addEventListener('storage', ev => { if (ev.key===OUT_KEY && ev.newValue==='1' && $('gate').hidden){ doLogout(); $('gateMsg').textContent='ออกจากระบบจากอีกหน้าต่างหนึ่งแล้ว'; } });
+setInterval(idleCheck, 1000);
+async function manualRefresh(btn){
+  if (btn){ btn.disabled=true; btn.classList.add('spin'); }
+  try{ await connect(); } finally { if (btn){ btn.disabled=false; btn.classList.remove('spin'); } }
+}
+$('dbRefresh').onclick = () => manualRefresh($('dbRefresh'));
+$('connRef').onclick = () => manualRefresh($('connRef'));
+let lastFocusRefresh = Date.now();
+window.addEventListener('focus', () => { if (ROLE && getKey() && Date.now()-lastFocusRefresh > 60000){ lastFocusRefresh=Date.now(); connect().catch(()=>{}); } });
+
+
+renderAll(); updateLogout();
+connect();
+if (IDLE_ON_LOAD) $('gateMsg').textContent = IDLE_MSG;
+</script>
+</body>
+</html>
