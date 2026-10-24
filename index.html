@@ -570,6 +570,15 @@ footer{border-top-style:dashed}
 .wtold{background:#FFF6E0;color:#6B4A00;border:1px solid #F0D79A}
 .wtold b{font-weight:600}
 @media (max-width:760px){ .wtgrid{grid-template-columns:minmax(0,1fr)} }
+/* งานเดียวกันที่บันทึกแยกรายอาจารย์ */
+.samebox{display:flex;flex-direction:column;gap:8px;border:1px solid #BFD3EE;background:#F2F7FD;border-radius:12px;padding:10px 12px;font-size:.9em}
+.samebox .sbx b{font-weight:600;color:#1D4F91}
+.samebox .sbx small{display:block;color:var(--muted);margin-top:2px}
+.samebox .chk{display:inline-flex;align-items:center;gap:7px;cursor:pointer}
+.samebox .chk input{width:17px;height:17px;accent-color:#1D64B0}
+.samebox .sbtn{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.samebox .sbtn small{color:var(--muted)}
+.samebox .btn.armed{background:#B3261E;border-color:#B3261E;color:#fff}
 /* 24h time picker */
 .tsel{display:flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:10px;padding:3px 10px 3px 4px;background:var(--surface)}
 .tsel:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
@@ -990,6 +999,7 @@ a.logoutpill{text-decoration:none}
           </div>
           <div class="sbbox" id="fStatusBy" hidden></div>
           <label class="fld"><span>รายการ <span class="req">*</span></span><textarea id="fTitleIn" rows="2" required placeholder="ชื่อการประชุม / รายวิชา / กิจกรรม"></textarea></label>
+          <div class="samebox" id="fSame" role="status" hidden></div>
           <fieldset class="fmode wtbox" id="fTypeBox">
             <legend>ประเภทงาน <span class="req">*</span> <small class="wtsrc">ตามภาระงานข้อ 5 ประกาศทุนเฉลิมพระเกียรติ ส่วนที่ 1 · <a href="worktype.html" target="_blank" rel="noopener">คำอธิบายทั้งหมด ↗</a></small></legend>
             <div class="wtold" id="fTypeOld" role="status" hidden></div>
@@ -1952,7 +1962,7 @@ function guessMode(place){ const p=place||''; const on=/zoom|teams|meet|webex|�
 function guessPlatform(p){ p=p||''; return /teams/i.test(p)?'Microsoft Teams':/meet/i.test(p)&&!/meeting/i.test(p)?'Google Meet':/webex/i.test(p)?'Webex':/zoom/i.test(p)?'Zoom':'Zoom'; }
 function setMsg(t, err){ const m=$('fMsg'); m.textContent=t; m.className='fmsg'+(err?' err':''); }
 function resetForm(){
-  editingId = null; editingExcel = null; SB = {}; $('entryForm').reset(); setType(''); setRoom(''); renderStatusBy(); applyMode(); edocHint(); $('fDate').value = selected || todayIso; delete $('fHours').dataset.manual;
+  editingId = null; editingExcel = null; SB = {}; $('entryForm').reset(); setType(''); renderSame(); setRoom(''); renderStatusBy(); applyMode(); edocHint(); $('fDate').value = selected || todayIso; delete $('fHours').dataset.manual;
   $('fTitle').textContent='บันทึกงานใหม่'; $('fSave').textContent='บันทึกงาน'; delete $('fSave').dataset.cf; delArm(false); $('fDelete').hidden=true; showDateTh(); setTimeout(checkFormConflicts,0);
   document.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad')); renderFormList();
   if (CUR_USER && !$('fRec').value) $('fRec').value = CUR_USER.name;
@@ -1979,7 +1989,7 @@ function fillForm(d){
   $('fHours').value = d.hours||''; if (d.hours) $('fHours').dataset.manual='1';
   $('fStatus').value=d.status||'ยืนยัน'; $('fLevel').value=d.level||'';
   SB = {...parseSB(d.statusBy)}; renderStatusBy();
-  $('fTitleIn').value=d.title||''; setType(d.type||'');
+  $('fTitleIn').value=d.title||''; setType(d.type||''); renderSame();
   const mode = d.mode || guessMode(d.place); setRoom(d.room||''); setMode(mode);
   $('fPlace').value = d.mode ? (d.venue||'') : (mode==='online' ? '' : (d.place||''));
   $('fPlatform').value = d.platform || guessPlatform(d.place); $('fLink').value = d.link||'';
@@ -2043,6 +2053,59 @@ function syncTypeSug(){
   el.hidden = false;
   el.innerHTML = `<span>แนะนำจาก${s.kw.startsWith('ประเภทเดิม')?'':'ชื่อรายการ'}:</span><button type="button" data-k="${esc(t.key)}">${esc(t.code)} ${esc(t.name)}</button><small>${s.kw.startsWith('ประเภทเดิม') ? esc(s.kw) : `พบคำว่า "${esc(s.kw)}"`} · ตรวจให้ตรงกับลักษณะงานก่อนใช้</small>`;
   el.querySelector('button').onclick = () => setType(t.key);
+}
+/* ===== งานเดียวกันที่บันทึกแยกรายอาจารย์ (assets/worktypes.js: sameJobSiblings / mergeSameJob) ===== */
+const whoListOf = d => (Array.isArray(d.who) ? d.who : String(d.who||'').split(/[,\s]+/)).filter(Boolean);
+let SAME_IDS = [], sameArmed = false, sameBusy = false;
+function sameSiblings(){
+  const cur = editingId ? FORM_DOCS.find(d => d.id===editingId) : null;
+  return cur && window.sameJobSiblings ? window.sameJobSiblings(FORM_DOCS, cur) : [];
+}
+function renderSame(){
+  const box = $('fSame'); if (!box) return;
+  const sib = sameSiblings(); SAME_IDS = sib.map(d => d.id); sameArmed = false;
+  box.hidden = !sib.length; if (!sib.length){ box.innerHTML = ''; return; }
+  const names = [...new Set(sib.flatMap(whoListOf))].map(w => (TEACHERS[w]||{}).short || w).join(', ');
+  const cur = FORM_DOCS.find(d => d.id===editingId), all = new Set([...whoListOf(cur), ...sib.flatMap(whoListOf)]);
+  box.innerHTML = `<div class="sbx"><b>🔗 งานเดียวกันนี้บันทึกแยกไว้อีก ${sib.length} รายการ ของ ${esc(names)}</b><small>วันที่ เวลาเริ่ม และชื่อรายการตรงกัน แต่เป็นคนละรายการ แก้ที่นี่จะไม่เปลี่ยนรายการนั้น</small></div>`
+    + (canWrite ? `<label class="chk"><input type="checkbox" id="fSameSync" checked> เมื่อบันทึก เปลี่ยนประเภทงานของรายการนั้นให้ตรงกันด้วย</label>
+      <div class="sbtn"><button type="button" class="btn sm" id="fSameMerge">รวมเป็นงานเดียว (อาจารย์ ${all.size} ท่าน)</button><small>รวมแล้วแก้ครั้งเดียวได้ทุกท่าน · สถานะที่ต่างกันเก็บเป็นสถานะรายบุคคล · ใช้ข้อมูลที่บันทึกไว้แล้ว</small></div>` : '');
+  const mb = $('fSameMerge'); if (mb) mb.onclick = sameMerge;
+}
+async function sameMerge(){
+  const btn = $('fSameMerge'); if (!btn || sameBusy) return;
+  if (!sameArmed){ sameArmed = true; btn.classList.add('armed'); btn.textContent = 'ยืนยันรวมเป็นงานเดียว'; setMsg(`กดอีกครั้งเพื่อรวม · รายการของอาจารย์ท่านอื่น ${SAME_IDS.length} รายการจะถูกรวมเข้ากับงานนี้แล้วลบรายการแยกออก`, true); return; }
+  const cur = FORM_DOCS.find(d => d.id===editingId); if (!cur) return;
+  const group = [cur, ...FORM_DOCS.filter(d => SAME_IDS.includes(d.id))];
+  const m = window.mergeSameJob(group, ORDER);
+  if (isWT($('fType').value)) m.data.type = window.workTypeOf($('fType').value).key;
+  const data = {...m.data}; delete data.id;
+  sameBusy = true; btn.disabled = true; setMsg('กำลังรวมงาน…');
+  try{
+    await DB.call('update', {id: m.keep, data});
+    for (const id of m.remove) await DB.call('delete', {id});
+    await DB.refresh();
+    const kept = FORM_DOCS.find(d => d.id===m.keep);
+    if (kept) fillForm(kept);
+    setMsg(`รวมเป็นงานเดียวแล้ว · อาจารย์ ${whoListOf(m.data).length} ท่าน แก้ไขครั้งเดียวได้ทุกท่าน`);
+  }catch(e){
+    try{ await DB.refresh(); }catch(_){}
+    setMsg('รวมงานไม่สำเร็จ: '+errText(e)+' · ตรวจรายการในปฏิทินอีกครั้ง', true);
+    renderSame();
+  } finally { sameBusy = false; }
+}
+// หลังบันทึกงานที่แก้ไข: เปลี่ยนประเภทของรายการแยกที่เป็นงานเดียวกันให้ตรงกัน
+async function syncSameType(type){
+  if (!SAME_IDS.length || !$('fSameSync') || !$('fSameSync').checked || !isWT(type)) return 0;
+  let n = 0;
+  for (const id of SAME_IDS){
+    const d = FORM_DOCS.find(x => x.id===id);
+    if (!d || String(d.type||'')===type) continue;
+    const data = {...d, type}; delete data.id;
+    await DB.call('update', {id, data}); n++;
+  }
+  if (n) await DB.refresh();
+  return n;
 }
 function typeFieldOk(){
   if (!WT.length || isWT($('fType').value)) return true;
@@ -2276,10 +2339,13 @@ async function saveForm(ev){
       }
       await DB.refresh(j && j.entries ? j : null);
     }
+    let sameN = 0, sameErr = '';
+    if (editingId){ try{ sameN = await syncSameType(data.type); }catch(e2){ sameErr = errText(e2); } }
     const savedAll = [data.date, ...copies].sort(), saved = savedAll[0];
     resetForm(); selected = saved; month = saved.slice(0,7); sheetMonth = month;
     setMsg((savedAll.length > 1 ? `บันทึกแล้ว ${savedAll.length} วัน · ${savedAll.map(shortDate).join(', ')}` : `บันทึกแล้ว · ${shortDate(saved)}`)
-      + (data.room ? (ROOM_API===false ? ' · ⚠ ยังไม่ได้จองห้อง (ต้องอัปเดต Apps Script)' : ` · จอง${roomName(data.room)}แล้ว`) : ''), ROOM_API===false && !!data.room);
+      + (data.room ? (ROOM_API===false ? ' · ⚠ ยังไม่ได้จองห้อง (ต้องอัปเดต Apps Script)' : ` · จอง${roomName(data.room)}แล้ว`) : '')
+      + (sameN ? ` · เปลี่ยนประเภทของงานเดียวกันที่บันทึกแยกอีก ${sameN} รายการแล้ว` : '') + (sameErr ? ` · ⚠ เปลี่ยนประเภทของงานที่บันทึกแยกไม่สำเร็จ (${sameErr})` : ''), (ROOM_API===false && !!data.room) || !!sameErr);
   }catch(e){
     if (e && e.code==='unauthorized'){ setKey(''); showGate('หมดเวลาเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่ ข้อมูลที่กรอกไว้ยังอยู่'); }
     else if (e && e.code==='must_change'){ location.href='account.html?first=1'; return; }

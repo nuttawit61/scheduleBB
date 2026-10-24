@@ -358,8 +358,26 @@
       if (ids.length === 1 && canJoin.length) {
         canJoin.forEach(r => { r._join = true; target.get(ids[0]).push(r); });
         if (mustNew.length) creates.push(makeCreate(mustNew));
+      } else if (!ids.length && canJoin.length && !mustNew.length && joinExisting(canJoin)) {
+        // งานเดียวกันมีอยู่แล้วในระบบของอาจารย์ท่านอื่น (เช่น นำเข้าไฟล์ของอีกท่านไปก่อน) → เพิ่มอาจารย์เข้างานเดิม ไม่สร้างรายการแยก
+        const e = joinExisting(canJoin);
+        canJoin.forEach(r => { r._join = true; (target.get(e.id) || target.set(e.id, []).get(e.id)).push(r); });
       } else if (un.length) creates.push(makeCreate(un));
     });
+
+    // งานในระบบที่น่าจะเป็นงานเดียวกับแถวกลุ่มนี้ แต่ยังไม่มีอาจารย์ท่านนี้: วันเดียวกัน ชื่อคล้ายมาก (≥0.85) และเวลาเริ่มตรงกัน (หรือฝั่งใดไม่ได้ใส่เวลา)
+    function joinExisting(rs) {
+      const base = rs[0], ws = rs.map(r => r.w);
+      let best = null, bs = 0;
+      existing.forEach(e => {
+        if (e.date !== base.date || whoOf(e).some(w => ws.indexOf(w) >= 0)) return;
+        const es = entryStart(e);
+        if (base.start && es && base.start !== es) return;
+        const s = sim(base.title, e.title);
+        if (s >= 0.85 && s > bs) { best = e; bs = s; }
+      });
+      return best;
+    }
 
     function makeCreate(rs) {
       rs = sortRows(rs);

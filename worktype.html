@@ -687,6 +687,15 @@ a.logoutpill{text-decoration:none}
 .rtable td.ti small{color:var(--muted);display:block;margin-top:2px}
 .rtable td.ti a{color:var(--accent);font-size:.9em}
 .rtable td.old{white-space:nowrap}
+.mergebox{display:flex;flex-direction:column;gap:8px;border:1px solid #BFD3EE;background:#F2F7FD;border-radius:12px;padding:12px 14px;font-size:.92em}
+.mergebox b{color:#1D4F91;font-weight:600}
+.mergebox p{margin:0;color:var(--muted);font-size:.92em}
+.mergebox details summary{cursor:pointer;color:#1D4F91;font-weight:600;font-size:.92em}
+.mergebox ul{margin:6px 0 0;padding-left:1.2em;font-size:.9em;line-height:1.6}
+.mergebox ul small{color:var(--muted)}
+.mergebox .row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.mergebox .btn.armed{background:#B3261E;border-color:#B3261E;color:#fff}
+.split{display:inline-block;margin:3px 0 1px;font-size:.78em;font-weight:600;color:#1D4F91;background:#E8F0FB;border-radius:999px;padding:0 9px}
 .oldtag{display:inline-block;font-size:.84em;border-radius:999px;padding:1px 10px;background:#FFF0D6;color:#7A4B00;border:1px solid #F0D79A}
 .oldtag.none{background:var(--surface-2);color:var(--muted);border-color:var(--line)}
 .newtag{display:inline-block;font-size:.84em;font-weight:600;border-radius:999px;padding:1px 10px;background:var(--ts,var(--ok-soft));color:var(--tc,#1E5A34)}
@@ -774,6 +783,7 @@ a.logoutpill{text-decoration:none}
   <section class="panel" aria-labelledby="rTitle" id="retype">
     <div class="phead"><h2 id="rTitle">จัดประเภทงานเดิมให้ตรงกับข้อ 5</h2><p>งานที่บันทึกไว้ก่อนมีรายการประเภทใหม่ ระบบแนะนำประเภทจากชื่อรายการและประเภทเดิมไว้ให้ ตรวจแล้วแก้ได้ก่อนบันทึก · แก้เฉพาะช่องประเภท ช่องอื่นไม่เปลี่ยน</p></div>
     <div class="prog" id="prog"></div>
+    <div class="mergebox" id="mergeBox" hidden></div>
     <div class="viewnote" id="viewNote" hidden>บัญชีนี้ดูได้อย่างเดียว — ต้องเป็นบัญชีที่บันทึกและแก้ไขงานได้จึงจะเปลี่ยนประเภทได้</div>
     <div class="filters">
       <div class="frow"><span class="flab">ประเภทเดิม</span><div class="opts" id="oldOpts" role="group" aria-label="กรองตามประเภทเดิม"></div></div>
@@ -888,18 +898,29 @@ const SEL = { clear(){} };
 const whoOf = d => (Array.isArray(d.who) ? d.who : String(d.who||'').split(/[,\s]+/)).filter(w => TEACHERS[w]);
 
 function buildRows(){
-  ROWS = FORM_DOCS.filter(d => d && d.id && /^\d{4}-\d{2}-\d{2}$/.test(d.date||'')).map(d => {
-    const cur = String(d.type||'').trim(), ok = isWT(cur);
+  // งานเดียวกันที่บันทึกแยกรายอาจารย์ (assets/worktypes.js: sameJobGroups) รวมเป็นแถวเดียว เปลี่ยนประเภทพร้อมกันทุกรายการ
+  const docs = FORM_DOCS.filter(d => d && d.id && /^\d{4}-\d{2}-\d{2}$/.test(d.date||''));
+  const byKey = new Map(), gOf = new Map();
+  (window.sameJobGroups ? window.sameJobGroups(docs) : []).forEach((g,i) => g.forEach(d => gOf.set(d.id, 'g'+i)));
+  docs.forEach(d => { const k = gOf.get(d.id) || ('id:'+d.id); if (!byKey.has(k)) byKey.set(k, []); byKey.get(k).push(d); });
+  ROWS = [...byKey.values()].map(list => {
+    list.sort((a,b) => whoOf(b).length - whoOf(a).length || String(a.createdAt||'').localeCompare(String(b.createdAt||'')));
+    const d = list.find(x => !isWT(x.type)) || list[0];
+    const cur = String(d.type||'').trim(), k0 = isWT(list[0].type) ? wtOf(list[0].type).key : null;
+    const ok = !!k0 && list.every(x => isWT(x.type) && wtOf(x.type).key===k0);
     const s = window.suggestWorkType ? window.suggestWorkType(ok ? '' : cur, d.title) : null;
-    let p = PICK.get(d.id);
-    if (!p || p.at !== (d.updatedAt||'')){
-      p = { type: ok ? wtOf(cur).key : (s ? s.key : ''), on: !ok && !!s, at: d.updatedAt||'' };
-      PICK.set(d.id, p);
+    const at = list.map(x => x.id+'@'+(x.updatedAt||'')).join('|');
+    let p = PICK.get(list[0].id);
+    if (!p || p.at !== at){
+      const done = list.find(x => isWT(x.type));
+      p = { type: ok ? k0 : (done ? wtOf(done.type).key : (s ? s.key : '')), on: !ok && !!(done || s), at };
+      PICK.set(list[0].id, p);
     }
-    return { d, id:d.id, cur, ok, sug: s, p };
+    return { d, docs:list, id:list[0].id, cur, ok, sug: done0(list) ? {key:p.type, kw:'__split'} : s, p };
   }).sort((a,b) => a.d.date.localeCompare(b.d.date) || String(a.d.start||a.d.time||'').localeCompare(String(b.d.start||b.d.time||'')) || String(a.d.title||'').localeCompare(String(b.d.title||''),'th'));
 }
-const changed = r => !!r.p.type && r.p.type !== (r.ok ? wtOf(r.cur).key : r.cur);
+const done0 = list => list.length > 1 && list.some(x => isWT(x.type)) && list.some(x => !isWT(x.type));
+const changed = r => !!r.p.type && r.docs.some(x => String(x.type||'').trim() !== r.p.type);
 const willSave = r => canWrite && r.p.on && changed(r);
 
 function renderGuide(){
@@ -941,16 +962,17 @@ function renderFilters(){
 }
 const typeOptions = sel => `<option value="">— เลือกประเภท —</option>` + WT.map(t => `<option value="${esc(t.key)}" ${t.key===sel?'selected':''}>${esc(t.code)} ${esc(t.name)}${t.sub?' · '+esc(t.sub):''}</option>`).join('');
 function rowHtml(r){
-  const d = r.d, who = whoOf(d).map(w => TEACHERS[w].short).join(', ');
+  const d = r.d, who = [...new Set(r.docs.flatMap(whoOf))].map(w => TEACHERS[w].short).join(', ');
   const t = wtOf(r.p.type), save = willSave(r), same = r.p.type && !changed(r);
   const why = r.ok && r.p.type===wtOf(r.cur).key ? 'ใช้ประเภทนี้อยู่แล้ว'
+    : r.sug && r.sug.kw==='__split' && r.sug.key===r.p.type ? 'ตามรายการของอาจารย์ท่านอื่นที่จัดประเภทแล้ว'
     : r.sug && r.sug.key===r.p.type ? (r.sug.kw.startsWith('ประเภทเดิม') ? `แนะนำจาก${r.sug.kw}` : `แนะนำเพราะพบคำว่า "${r.sug.kw}"`)
     : r.p.type ? 'เลือกเอง' : 'ระบบเดาไม่ได้ — เลือกเอง';
   return `<tr class="${save?'on':''}${r.ok && same?' same':''}" data-id="${esc(r.id)}">
     <td class="ck"><input type="checkbox" ${r.p.on?'checked':''} ${!canWrite||!r.p.type?'disabled':''} aria-label="เลือก ${esc(d.title||'')}"></td>
     <td class="dt">${esc(shortDate(d.date))}<small>${esc(d.time||'')}</small></td>
-    <td class="ti"><b>${esc(d.title||'(ไม่มีชื่อรายการ)')}</b><small>${esc(who)}${d.status?' · '+esc(d.status):''} · <a href="${FORM_FILE}#edit-${encodeURIComponent(r.id)}" target="_blank" rel="noopener">เปิดงาน ↗</a></small></td>
-    <td class="old">${r.ok ? `<span class="newtag"${tyVars(r.cur)}>${esc(wtOf(r.cur).code)} ${esc(r.cur)}</span>` : `<span class="oldtag${r.cur?'':' none'}">${esc(r.cur||'(ว่าง)')}</span>`}</td>
+    <td class="ti"><b>${esc(d.title||'(ไม่มีชื่อรายการ)')}</b>${r.docs.length>1?`<span class="split" title="งานเดียวกันที่บันทึกแยกรายอาจารย์ ${r.docs.length} รายการ — เปลี่ยนประเภทพร้อมกันทุกรายการ">🔗 บันทึกแยก ${r.docs.length} รายการ</span>`:''}<small>${esc(who)}${d.status?' · '+esc(d.status):''} · <a href="${FORM_FILE}#edit-${encodeURIComponent(r.id)}" target="_blank" rel="noopener">เปิดงาน ↗</a></small></td>
+    <td class="old">${[...new Set(r.docs.map(x => String(x.type||'').trim()))].map(t => isWT(t) ? `<span class="newtag"${tyVars(t)}>${esc(wtOf(t).code)} ${esc(t)}</span>` : `<span class="oldtag${t?'':' none'}">${esc(t||'(ว่าง)')}</span>`).join(' ')}</td>
     <td class="nw"${tyVars(r.p.type)}><select ${canWrite?'':'disabled'} class="${r.p.type?'':'unset'}" aria-label="ประเภทใหม่ของ ${esc(d.title||'')}">${typeOptions(r.p.type)}</select><small>${esc(why)}</small>${t?`<small class="ex">เช่น ${esc(t.ex.slice(0,2).join(' · '))}</small>`:''}</td></tr>`;
 }
 function renderList(){
@@ -981,10 +1003,44 @@ function renderBulk(){
   if (!busy && armed) setMsgT(`กดอีกครั้งเพื่อยืนยัน · ระบบจะแก้เฉพาะช่องประเภทของ ${n} รายการ และบันทึกในประวัติการใช้งาน`, 'err');
 }
 function setMsgT(t, cls){ $('msg').textContent = t||''; $('msg').className = 'fmsg' + (cls?' '+cls:''); }
+let mArmed = false, mBusy = false;
+function renderMerge(){
+  const box = $('mergeBox'); if (!box) return;
+  const groups = DATA_READY && window.sameJobGroups ? window.sameJobGroups(FORM_DOCS) : [];
+  box.hidden = !groups.length; if (!groups.length){ box.innerHTML=''; return; }
+  const n = groups.reduce((a,g) => a+g.length, 0);
+  box.innerHTML = `<b>🔗 พบงานเดียวกันที่บันทึกแยกรายอาจารย์ ${groups.length} งาน (${n} รายการ)</b>
+    <p>วันที่ เวลาเริ่ม และชื่อรายการตรงกัน แต่บันทึกเป็นคนละรายการ จึงต้องแก้ทีละท่าน · ในตารางด้านล่างรวมเป็นแถวเดียวแล้ว เปลี่ยนประเภทครั้งเดียวได้ทุกรายการ · ถ้ารวมเป็นงานร่วม จะแก้ไขครั้งเดียวได้ทุกช่องจากนี้ไป</p>
+    <details><summary>ดูรายการ</summary><ul>${groups.map(g => `<li>${esc(shortDate(g[0].date))} ${esc(g[0].time||'')} · ${esc(g[0].title||'')} <small>— ${g.map(d => whoOf(d).map(w => (TEACHERS[w]||{}).short||w).join('+')+(d.status?` (${esc(d.status)})`:'')).join(' / ')}</small></li>`).join('')}</ul></details>
+    ${canWrite ? `<div class="row"><button type="button" class="btn sm${mArmed?' armed':''}" id="mergeAll" ${mBusy?'disabled':''}>${mArmed?`ยืนยันรวม ${groups.length} งาน`:`รวมเป็นงานร่วมทั้งหมด (${groups.length} งาน)`}</button><span class="fmsg" id="mergeMsg">${mArmed?'กดอีกครั้งเพื่อยืนยัน · แต่ละงานจะเหลือรายการเดียวที่มีอาจารย์ทุกท่าน สถานะที่ต่างกันเก็บเป็นสถานะรายบุคคล แล้วลบรายการที่แยกไว้':''}</span></div>` : ''}`;
+  const b = $('mergeAll'); if (b) b.onclick = mergeAll;
+}
+async function mergeAll(){
+  if (mBusy) return;
+  if (!mArmed){ mArmed = true; renderMerge(); return; }
+  const groups = window.sameJobGroups(FORM_DOCS); mBusy = true; mArmed = false; renderMerge();
+  let ok = 0, fail = [];
+  for (let i=0; i<groups.length; i++){
+    const g = groups[i], m = window.mergeSameJob(g, ORDER);
+    const r = ROWS.find(x => x.docs.some(d => d.id===m.keep));
+    if (r && r.p.on && r.p.type && isWT(r.p.type)) m.data.type = r.p.type;   // ประเภทที่เลือกไว้ในตาราง
+    const data = {...m.data}; delete data.id;
+    $('mergeMsg').textContent = `กำลังรวม ${i+1}/${groups.length}…`;
+    try{
+      await apiWrite('update', {id: m.keep, data});
+      for (const id of m.remove) await apiWrite('delete', {id});
+      ok++;
+    }catch(e){ fail.push((g[0].title||'').slice(0,40)+': '+errText(e)); if (e && e.code==='unauthorized') break; }
+  }
+  mBusy = false;
+  await connect();
+  setMsgT(fail.length ? `รวมแล้ว ${ok} งาน · ไม่สำเร็จ ${fail.length} งาน: ${fail.slice(0,2).join(' / ')}` : `✓ รวมเป็นงานร่วมแล้ว ${ok} งาน`, fail.length ? 'err' : 'ok');
+  $('msg').scrollIntoView({behavior:'smooth', block:'center'});
+}
 function renderAll(){
   document.documentElement.classList.toggle('role-view', DATA_READY && !canWrite);
   $('viewNote').hidden = !(DATA_READY && !canWrite);
-  buildRows(); renderGuide(); renderProg(); renderFilters(); renderList();
+  buildRows(); renderGuide(); renderProg(); renderMerge(); renderFilters(); renderList();
 }
 function refreshAll(){ renderAll(); }
 function refresh(){ renderAll(); }
@@ -1007,10 +1063,10 @@ $('apply').onclick = async () => {
   busy = true; armed = false; renderBulk();
   let done = 0, skipped = [], last = null;
   try{
-    for (let k=0; k<sel.length; k+=100){
-      const part = sel.slice(k, k+100);
+    for (let k=0; k<sel.length; k+=50){
+      const part = sel.slice(k, k+50);
       setMsgT(`กำลังบันทึก ${Math.min(k+part.length, sel.length)}/${sel.length}…`);
-      last = await apiWrite('type_assign', {items: part.map(r => ({id:r.id, type:r.p.type, expect:r.d.updatedAt||''}))});
+      last = await apiWrite('type_assign', {items: part.flatMap(r => r.docs.filter(x => String(x.type||'').trim() !== r.p.type).map(x => ({id:x.id, type:r.p.type, expect:x.updatedAt||''})))});
       done += (last.done||[]).length; skipped = skipped.concat(last.skipped||[]);
     }
   }catch(e){

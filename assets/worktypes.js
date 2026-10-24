@@ -88,11 +88,74 @@
     return null;
   }
 
+  // ---------------------------------------------------------------------------
+  // งานเดียวกันที่ถูกบันทึกแยกรายอาจารย์ (เช่น นำเข้าจาก Excel ชีตละท่าน แล้วไม่ได้รวมเป็นงานร่วม)
+  //   ถือว่าเป็นงานเดียวกันเมื่อ วันที่ + เวลาเริ่ม + ชื่อรายการ (ตัดช่องว่าง ไม่สนตัวพิมพ์เล็กใหญ่) ตรงกัน
+  // ---------------------------------------------------------------------------
+  const normTitle = t => String(t || '').replace(/\s+/g, '').toLowerCase();
+  const whoList = e => (Array.isArray(e.who) ? e.who : String(e.who || '').split(/[,\s]+/)).filter(Boolean);
+  const startOf = e => {
+    if (e.start) return String(e.start).slice(0, 5);
+    const m = String(e.time || '').match(/(\d{1,2})[.:](\d{2})/); return m ? m[1].padStart(2, '0') + ':' + m[2] : '';
+  };
+  const sameJobKey = e => (e && e.date && normTitle(e.title)) ? e.date + '|' + normTitle(e.title) : '';
+  // กลุ่มงานเดียวกัน (เฉพาะกลุ่มที่มีมากกว่า 1 รายการ)
+  //   วันที่ + ชื่อรายการตรงกัน และเวลาเริ่มตรงกัน (รายการที่ไม่ได้ใส่เวลาเริ่ม นับรวมได้ ถ้ากลุ่มนั้นมีเวลาเริ่มแบบเดียว)
+  function sameJobGroups(entries) {
+    const b = {};
+    (entries || []).forEach(e => { const k = sameJobKey(e); if (k && e.id) (b[k] = b[k] || []).push(e); });
+    const out = [];
+    Object.keys(b).forEach(k => {
+      const list = b[k]; if (list.length < 2) return;
+      const starts = {}; list.forEach(e => { const st = startOf(e); if (st) (starts[st] = starts[st] || []).push(e); });
+      const keys = Object.keys(starts);
+      if (keys.length <= 1) { out.push(list); return; }
+      keys.forEach(st => { if (starts[st].length > 1) out.push(starts[st]); });   // คนละเวลา = คนละงาน
+    });
+    return out;
+  }
+  // รายการอื่นที่เป็นงานเดียวกับ e
+  function sameJobSiblings(entries, e) {
+    if (!e || !sameJobKey(e)) return [];
+    const g = sameJobGroups((entries || []).filter(x => x && sameJobKey(x) === sameJobKey(e))).find(l => l.some(x => x.id === e.id));
+    return g ? g.filter(x => x.id !== e.id) : [];
+  }
+  // รวมหลายรายการเป็นงานร่วมรายการเดียว → { keep, data, remove: [id…] }
+  //   รายการหลัก = มีอาจารย์มากที่สุด แล้วบันทึกก่อนสุด · อาจารย์รวมกัน · สถานะต่างกันเก็บเป็นสถานะรายบุคคล
+  //   ประเภท: ใช้ประเภทตามข้อ 5 ถ้ามีรายการใดจัดไว้แล้ว · ช่องที่รายการหลักว่าง เติมจากรายการอื่น · รายละเอียดเพิ่มเติมต่อกัน
+  function mergeSameJob(group, order) {
+    order = order || [];
+    const idx = w => { const i = order.indexOf(w); return i < 0 ? 99 : i; };
+    const list = group.slice().sort((a, b) => whoList(b).length - whoList(a).length || String(a.createdAt || '').localeCompare(String(b.createdAt || '')) || String(a.id).localeCompare(String(b.id)));
+    const base = list[0], data = Object.assign({}, base);
+    const eff = {};
+    list.forEach(e => {
+      let sb = {}; try { sb = typeof e.statusBy === 'object' && e.statusBy ? e.statusBy : JSON.parse(e.statusBy || '{}'); } catch (_) { sb = {}; }
+      whoList(e).forEach(w => { if (!(w in eff)) eff[w] = String(sb[w] || e.status || '').trim(); });
+    });
+    const who = Object.keys(eff).sort((a, b) => idx(a) - idx(b));
+    const cnt = {}; who.forEach(w => { cnt[eff[w]] = (cnt[eff[w]] || 0) + 1; });
+    let main = String(base.status || '').trim();
+    Object.keys(cnt).forEach(s => { if (cnt[s] > (cnt[main] || 0)) main = s; });
+    const sb = {}; who.forEach(w => { if (eff[w] && eff[w] !== main) sb[w] = eff[w]; });
+    data.who = who; data.status = main; data.statusBy = Object.keys(sb).length ? JSON.stringify(sb) : '';
+    const wt = list.find(e => isWorkType(e.type)); if (wt) data.type = workTypeOf(wt.type).key;
+    ['time', 'start', 'end', 'hours', 'level', 'inviter', 'fund', 'docChannel', 'edoc', 'mode', 'venue', 'place', 'platform', 'link', 'meetingId', 'passcode', 'room', 'recName', 'rec']
+      .forEach(f => { if (!String(data[f] || '').trim()) { const o = list.find(e => String(e[f] || '').trim()); if (o) data[f] = o[f]; } });
+    const notes = []; list.forEach(e => { const n = String(e.notes || '').trim(); if (n && notes.indexOf(n) < 0) notes.push(n); });
+    data.notes = notes.join('\n');
+    return { keep: base.id, data: data, remove: list.slice(1).map(e => e.id) };
+  }
+
+  g.sameJobKey = sameJobKey;
+  g.sameJobGroups = sameJobGroups;
+  g.sameJobSiblings = sameJobSiblings;
+  g.mergeSameJob = mergeSameJob;
   g.WORK_TYPES = WORK_TYPES;
   g.workTypeOf = workTypeOf;
   g.isWorkType = isWorkType;
   g.workTypeLabel = workTypeLabel;
   g.workTypeColor = workTypeColor;
   g.suggestWorkType = suggestWorkType;
-  if (typeof module !== 'undefined' && module.exports) module.exports = { WORK_TYPES, workTypeOf, workTypeColor, isWorkType, workTypeLabel, suggestWorkType };
+  if (typeof module !== 'undefined' && module.exports) module.exports = { sameJobGroups, sameJobSiblings, mergeSameJob, WORK_TYPES, workTypeOf, workTypeColor, isWorkType, workTypeLabel, suggestWorkType };
 })(typeof window !== 'undefined' ? window : globalThis);
